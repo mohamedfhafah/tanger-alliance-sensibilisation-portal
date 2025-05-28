@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil - Tanger Alliance Security{% endblock %}
+
+{% block content %}
+<div class="jumbotron bg-light p-5 rounded">
+    <h1 class="display-4">Bienvenue sur le Portail de Sensibilisation à la Sécurité</h1>
+    <p class="lead">Renforcer la sécurité de Tanger Alliance par la sensibilisation et la formation</p>
+    <hr class="my-4">
+    <p>Ce portail vous permet d'accéder à des formations sur les bonnes pratiques de sécurité, de tester vos connaissances, et de devenir un acteur clé dans la protection des données de l'entreprise.</p>
+    {% if not current_user.is_authenticated %}
+    <div class="mt-4">
+        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('auth.register') }}" role="button">S'inscrire</a>
+        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Se connecter</a>
+    </div>
+    {% else %}
+    <div class="mt-4">
+        <a class="btn btn-primary btn-lg" href="{{ url_for('main.dashboard') }}" role="button">Accéder à mon tableau de bord</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-key fa-3x text-primary mb-3"></i>
+                <h3 class="card-title">Gestion des mots de passe</h3>
+                <p class="card-text">Apprenez à créer et gérer des mots de passe forts pour protéger vos comptes professionnels et personnels.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-fish fa-3x text-primary mb-3"></i>
+                <h3 class="card-title">Sensibilisation au phishing</h3>
+                <p class="card-text">Développez votre capacité à identifier et à signaler les tentatives de phishing avant qu'elles ne causent des dommages.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body text-center">
+                <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                <h3 class="card-title">Gestion des vulnérabilités</h3>
+                <p class="card-text">Comprenez comment identifier, signaler et gérer les vulnérabilités pour maintenir la sécurité de l'infrastructure.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Pourquoi la sécurité est importante?</h4>
+            </div>
+            <div class="card-body">
+                <p>Dans le contexte portuaire et logistique de Tanger Alliance, la sécurité des données est cruciale pour:</p>
+                <ul>
+                    <li>Protéger les informations sensibles des clients et partenaires</li>
+                    <li>Assurer la continuité des opérations portuaires</li>
+                    <li>Maintenir la conformité avec les réglementations internationales</li>
+                    <li>Préserver la réputation et la confiance dans nos services</li>
+                </ul>
+                <p>Chaque employé joue un rôle vital dans le maintien de notre posture de sécurité.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Statistiques de sécurité</h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <p><strong>85%</strong> des incidents de sécurité impliquent un facteur humain</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                <div class="text-center mb-3">
+                    <p><strong>70%</strong> des attaques réussies commencent par du phishing</p>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <p>Une formation adéquate peut réduire le risque d'incidents de <strong>60%</strong></p>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
