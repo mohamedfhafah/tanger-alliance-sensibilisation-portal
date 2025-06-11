@@ -1,0 +1,24 @@
+[Unit]
+Description=Portail de Sécurité Tanger Alliance
+After=network.target postgresql.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/portail_securite
+Environment="PATH=/opt/portail_securite/venv/bin"
+Environment="FLASK_CONFIG=production"
+Environment="DATABASE_URL=postgresql://postgres:password@localhost:5432/portail_securite"
+ExecStart=/opt/portail_securite/venv/bin/gunicorn -c gunicorn_config.py 'app:create_app()'
+Restart=always
+RestartSec=5
+StartLimitInterval=0
+
+# Sécurité
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+ReadWritePaths=/opt/portail_securite/logs /opt/portail_securite/backups
+
+[Install]
+WantedBy=multi-user.target

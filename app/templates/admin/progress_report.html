@@ -1,0 +1,224 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-chart-line"></i>
+                Rapport de Progression
+            </h1>
+        </div>
+    </div>
+    
+    <!-- Module Completion Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Taux de Complétion par Module</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="completionChart" width="400" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Average Scores Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Scores Moyens par Module</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="scoresChart" width="400" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Statistiques Détaillées</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <th>Complétions</th>
+                                    <th>Score Moyen</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for module_title, completions, avg_score in module_completion %}
+                                <tr>
+                                    <td>{{ module_title }}</td>
+                                    <td>
+                                        <span class="badge badge-info">{{ completions }}</span>
+                                    </td>
+                                    <td>
+                                        {% if avg_score %}
+                                            {{ "%.1f"|format(avg_score) }}%
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if avg_score and avg_score >= 80 %}
+                                            <span class="badge badge-success">Excellent</span>
+                                        {% elif avg_score and avg_score >= 60 %}
+                                            <span class="badge badge-warning">Satisfaisant</span>
+                                        {% elif avg_score %}
+                                            <span class="badge badge-danger">À améliorer</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">Pas de données</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Total Complétions
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">
+                                {{ module_completion|sum(attribute='completions') }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Score Moyen Global
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">
+                                {% set scores_with_values = module_completion|selectattr('avg_score')|list %}
+                                {% if scores_with_values %}
+                                    {{ "%.1f"|format(scores_with_values|sum(attribute='avg_score') / scores_with_values|length) }}%
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-trophy fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card bg-info text-white shadow">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Modules Actifs
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">{{ module_completion|length }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-book fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Completion Chart
+const completionCtx = document.getElementById('completionChart').getContext('2d');
+const completionChart = new Chart(completionCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for module_title, completions, avg_score in module_completion %}'{{ module_title }}'{{ "," if not loop.last }}{% endfor %}],
+        datasets: [{
+            label: 'Nombre de Complétions',
+            data: [{% for module_title, completions, avg_score in module_completion %}{{ completions }}{{ "," if not loop.last }}{% endfor %}],
+            backgroundColor: '#4e73df',
+            borderColor: '#4e73df',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Scores Chart
+const scoresCtx = document.getElementById('scoresChart').getContext('2d');
+const scoresChart = new Chart(scoresCtx, {
+    type: 'line',
+    data: {
+        labels: [{% for module_title, completions, avg_score in module_completion %}'{{ module_title }}'{{ "," if not loop.last }}{% endfor %}],
+        datasets: [{
+            label: 'Score Moyen (%)',
+            data: [{% for module_title, completions, avg_score in module_completion %}{{ avg_score or 0 }}{{ "," if not loop.last }}{% endfor %}],
+            backgroundColor: 'rgba(28, 200, 138, 0.1)',
+            borderColor: '#1cc88a',
+            borderWidth: 2,
+            fill: true
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

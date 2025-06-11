@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block content %}
+{% set sim_styles = {
+    'phishing_email': {'color': 'bg-gradient-danger', 'icon': 'fas fa-fish', 'emoji': '🎣', 'text_color': 'text-white'},
+    'vulnerability_management': {'color': 'bg-gradient-info', 'icon': 'fas fa-shield-alt', 'emoji': '🛡️', 'text_color': 'text-white'},
+    'notification_douanes': {'color': 'bg-gradient-purple', 'icon': 'fas fa-passport', 'emoji': '📦', 'text_color': 'text-white'},
+    'newsletter_interne': {'color': 'bg-gradient-warning', 'icon': 'fas fa-envelope-open-text', 'emoji': '📧', 'text_color': 'text-dark'},
+    'facture_fournisseur': {'color': 'bg-gradient-success', 'icon': 'fas fa-file-invoice', 'emoji': '📄', 'text_color': 'text-white'},
+    'alerte_systeme': {'color': 'bg-gradient-primary', 'icon': 'fas fa-bolt', 'emoji': '⚡', 'text_color': 'text-white'},
+    'mise_a_jour_systeme': {'color': 'bg-gradient-secondary', 'icon': 'fas fa-sync-alt', 'emoji': '🔄', 'text_color': 'text-dark'},
+    'info_rh': {'color': 'bg-gradient-teal', 'icon': 'fas fa-user-tie', 'emoji': '👤', 'text_color': 'text-white'},
+    'invitation_formation': {'color': 'bg-gradient-orange', 'icon': 'fas fa-chalkboard-teacher', 'emoji': '🎓', 'text_color': 'text-white'},
+    'demande_information_rh': {'color': 'bg-gradient-cyan', 'icon': 'fas fa-id-card', 'emoji': '📝', 'text_color': 'text-white'},
+} %}
+<div class="container mt-4">
+    <h1 class="mb-4">Simulations</h1>
+    <!-- Styles personnalisés pour les cartes -->
+    <style>
+      .sim-card {
+        transition: transform 0.2s, box-shadow 0.2s !important;
+      }
+      .sim-card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15) !important;
+      }
+      .sim-icon-wrapper {
+        width: 50px; height: 50px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        display: flex; align-items: center; justify-content: center;
+        margin-right: 1rem;
+      }
+      .sim-card .btn-start {
+        background: rgba(255,255,255,0.2); color: #fff;
+        border: none; font-weight: bold;
+      }
+      .sim-card .btn-start:hover {
+        background: rgba(255,255,255,0.3);
+      }
+    </style>
+    <div class="row">
+        {% for sim in simulations %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0 {{ sim_styles[sim.slug].color }} sim-card" style="border-radius: 10px;">
+                <div class="card-body d-flex flex-column p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="sim-icon-wrapper">
+                          <i class="{{ sim_styles[sim.slug].icon }} {{ sim_styles[sim.slug].text_color }}"></i>
+                        </div>
+                        <h5 class="card-title mb-0 {{ sim_styles[sim.slug].text_color }}">{{ sim.title }}
+                            {% if user_stats[sim.slug].completed %}
+                                <span class="badge badge-success" title="Simulation complétée">✅</span>
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <p class="card-text mb-4 {{ sim_styles[sim.slug].text_color }}">{{ sim.description }}</p>
+                    <!-- Barre de progression -->
+                    <div class="progress mb-3" style="height:6px; border-radius: 3px;">
+                        <div class="progress-bar" role="progressbar"
+                             style="width: {{ user_stats[sim.slug].rate }}%; background: linear-gradient(90deg, #4f8cff, #38e8ff);"
+                             aria-valuenow="{{ user_stats[sim.slug].rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="row text-white mb-3 small">
+                      <div class="col text-center">
+                        <div>Tentatives</div>
+                        <strong>{{ user_stats[sim.slug].total }}</strong>
+                      </div>
+                      <div class="col text-center">
+                        <div>Réussite</div>
+                        <strong>{{ user_stats[sim.slug].rate }}%</strong>
+                      </div>
+                      <div class="col text-center">
+                        <div>Dernière réussite</div>
+                        <strong>{% if user_stats[sim.slug].last_success %}{{ user_stats[sim.slug].last_success.strftime('%d/%m/%Y %H:%M') }}{% else %}-{% endif %}</strong>
+                      </div>
+                    </div>
+                    <!-- Note statique -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="star-static" data-simulation-slug="{{ sim.slug }}">
+                            {% for i in range(1, 6) %}
+                                <i class="far fa-star text-secondary" style="font-size:1.3em;"></i>
+                            {% endfor %}
+                        </div>
+                        <span class="star-avg small text-white ml-2">-</span>
+                        <span class="star-count small text-white ml-1">0 vote</span>
+                    </div>
+                    <a class="btn btn-start mt-auto w-100" href="{{ url_for('main.simulation_detail', slug=sim.slug) }}">Démarrer la simulation</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+    <script src="{{ url_for('static', filename='js/star-rating.js') }}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.star-static').forEach(function (container) {
+            const slug = container.getAttribute('data-simulation-slug');
+            fetch(`/api/simulations/${slug}/rating`)
+                .then(resp => {
+                    if (!resp.ok) throw new Error('Erreur API: ' + resp.status);
+                    return resp.json();
+                })
+                .then(data => {
+                    const avg = Math.round(data.average || 0);
+                    const stars = container.querySelectorAll('i');
+                    for (let i = 0; i < 5; i++) {
+                        if (i < avg) {
+                            stars[i].classList.remove('far','text-secondary');
+                            stars[i].classList.add('fas','text-warning');
+                        } else {
+                            stars[i].classList.remove('fas','text-warning');
+                            stars[i].classList.add('far','text-secondary');
+                        }
+                    }
+                    container.parentElement.querySelector('.star-avg').textContent = data.average ? `${data.average} / 5` : '-';
+                    container.parentElement.querySelector('.star-count').textContent = data.count ? `${data.count} votes` : '0 vote';
+                })
+                .catch(err => {
+                    console.warn('Erreur lors de la récupération de la note moyenne pour', slug, ':', err);
+                    // Laisser l'affichage par défaut (étoiles vides, 0 vote)
+                });
+        });
+    });
+    </script>
+{% endblock %}

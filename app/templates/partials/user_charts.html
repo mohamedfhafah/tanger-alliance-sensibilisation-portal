@@ -1,0 +1,136 @@
+{# 
+Ce fichier contient des macros Jinja2 qui génèrent des graphiques avec Chart.js.
+Structure importante à maintenir:
+1. Les données sont calculées avec Jinja2 avant d'être insérées dans le JavaScript
+2. Les variables JavaScript sont déclarées globalement (window.X) pour éviter les problèmes de scope
+3. Le code JavaScript est externalisé dans dashboard-charts.js
+
+NOTE: Les IDEs peuvent signaler des erreurs JavaScript dans ce fichier mêlant Jinja2 et JS,
+mais ces erreurs sont généralement des faux positifs. Le code est fonctionnel lorsqu'il
+est rendu par Flask.
+#}
+
+{% macro render_module_completion_chart(user_progress, modules) %}
+<div class="card card-primary card-outline">
+  <div class="card-header text-primary">
+    <h3 class="card-title">
+      <i class="fas fa-chart-pie mr-1"></i>
+      Progression par module
+    </h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" data-card-widget="collapse">
+        <i class="fas fa-minus"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="chart-container" style="position: relative; height:300px;">
+      <canvas id="moduleCompletionChart"></canvas>
+    </div>
+  </div>
+</div>
+
+{# Préparation des données pour le graphique de progression par module #}
+{% set module_labels = [] %}
+{% set module_data = [] %}
+{% set completion_status = [] %}
+
+{% for module in modules %}
+  {% do module_labels.append(module.title) %}
+  
+  {# Récupérer la progression de l'utilisateur pour ce module #}
+  {% set progress = user_progress.get(module.id, None) %}
+  
+  {# Valeur du score pour le graphique (0-100) #}
+  {% if progress and progress.score is not none %}
+    {% do module_data.append(progress.score|round(1)) %}
+  {% else %}
+    {% do module_data.append(0) %}
+  {% endif %}
+  
+  {# Statut de complétion (0 = non complété, 1 = complété) #}
+  {% if progress and progress.completed %}
+    {% do completion_status.append(1) %}
+  {% else %}
+    {% do completion_status.append(0) %}
+  {% endif %}
+{% endfor %}
+
+{# Exportation des données en variables JavaScript #}
+<script>
+// Données du graphique de progression par module
+window.moduleChartLabels = {{ module_labels|tojson|safe }};
+window.moduleChartData = {{ module_data|tojson|safe }};
+window.moduleChartCompletionStatus = {{ completion_status|tojson|safe }};
+console.log("DEBUG - Labels:", window.moduleChartLabels);
+console.log("DEBUG - Scores:", window.moduleChartData);
+console.log("DEBUG - Complétés:", window.moduleChartCompletionStatus);
+</script>
+{% endmacro %}
+
+{% macro render_overall_progress_chart(user_progress, modules) %}
+<div class="card card-primary card-outline">
+  <div class="card-header text-primary">
+    <h3 class="card-title">
+      <i class="fas fa-chart-line mr-1"></i>
+      Progression globale
+    </h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" data-card-widget="collapse">
+        <i class="fas fa-minus"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="chart-container" style="position: relative; height:250px;">
+      <canvas id="overallProgressChart"></canvas>
+    </div>
+  </div>
+</div>
+
+{# Calcul des données pour le graphique de progression globale #}
+{% set total_modules = modules|length %}
+{% set ns_global = namespace(completed_modules=0) %}
+
+{# Compter les modules complétés à partir du dictionnaire user_progress #}
+{% for module in modules %}
+  {% set progress = user_progress.get(module.id, None) %}
+  {% if progress and progress.completed == True %}
+    {% set ns_global.completed_modules = ns_global.completed_modules + 1 %}
+  {% endif %}
+{% endfor %}
+
+{% set percentage_complete = ((ns_global.completed_modules / total_modules) * 100)|round|int if total_modules > 0 else 0 %}
+
+{# Exportation des données en variables JavaScript #}
+<script>
+// Données du graphique de progression globale
+window.totalModulesCount = {{ total_modules|tojson|safe }};
+window.completedModulesCount = {{ ns_global.completed_modules|tojson|safe }};
+window.percentageCompleteValue = {{ percentage_complete|tojson|safe }};
+
+// Logs de débogage détaillés
+console.log("DEBUG - Total modules:", window.totalModulesCount);
+console.log("DEBUG - Modules complétés:", window.completedModulesCount);
+console.log("DEBUG - Pourcentage de progression:", window.percentageCompleteValue + "%");
+
+// Vérification de la cohérence entre calculs backend et frontend
+const calculatedPercentage = Math.round((window.completedModulesCount / window.totalModulesCount) * 100) || 0;
+console.log("DEBUG - Pourcentage calculé côté client:", calculatedPercentage + "%");
+console.log("DEBUG - Différence entre pourcentages:", calculatedPercentage !== window.percentageCompleteValue ? "OUI" : "NON");
+</script>
+{% endmacro %}
+
+{% macro render_charts_script() %}
+<!-- Chart.js et plugin DataLabels pour améliorer les visualisations -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script>
+// Enregistrement du plugin Chart.js DataLabels
+if (Chart && typeof Chart.register === 'function') {
+    Chart.register(ChartDataLabels);
+    console.log('Plugin DataLabels enregistré avec Chart.js');
+}
+</script>
+<script src="{{ url_for('static', filename='js/dashboard-charts.js') }}"></script>
+{% endmacro %}

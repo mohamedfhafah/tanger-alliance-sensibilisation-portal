@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block body_class %} quiz-page{% endblock %}
+
+{% block title %}{{ quiz.title }} - Quiz{% endblock %}
+
+{% block styles %}
+<style>
+/* Modern Quiz View Styles */
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    
+    --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    --warning-gradient: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    --info-gradient: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    
+    --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --card-shadow-hover: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+    --border-radius: 0.75rem;
+    --border-radius-lg: 1rem;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+}
+
+.content-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: var(--spacing-xl) 0;
+    margin-bottom: var(--spacing-xl);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.content-header h1 {
+    color: var(--dark-color);
+    font-weight: 700;
+    font-size: 2rem;
+    margin: 0;
+}
+
+.breadcrumb {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.card {
+    border: none;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    background: white;
+}
+
+.card-header {
+    background: var(--primary-gradient);
+    border: none;
+    padding: var(--spacing-xl);
+    color: white;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.card-body {
+    padding: var(--spacing-xxl);
+}
+
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.1) 0%, rgba(23, 162, 184, 0.05) 100%);
+    color: #0c5460;
+    border-left: 4px solid var(--info-color);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(40, 167, 69, 0.05) 100%);
+    color: #155724;
+    border-left: 4px solid var(--success-color);
+}
+
+.alert h5 {
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.btn {
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-weight: 600;
+    transition: var(--transition);
+    border: none;
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.4);
+}
+
+.btn-info {
+    background: var(--info-gradient);
+    color: white;
+    box-shadow: 0 0.25rem 0.5rem rgba(23, 162, 184, 0.3);
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #138496 0%, #117a8b 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(23, 162, 184, 0.4);
+    color: white;
+}
+
+.btn-warning {
+    background: var(--warning-gradient);
+    color: #212529;
+    box-shadow: 0 0.25rem 0.5rem rgba(255, 193, 7, 0.3);
+}
+
+.btn-warning:hover {
+    background: linear-gradient(135deg, #fd7e14 0%, #e0a800 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(255, 193, 7, 0.4);
+    color: #212529;
+}
+
+.list-group {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #f8f9fa;
+    padding: var(--spacing-lg);
+    transition: var(--transition);
+}
+
+.list-group-item:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.list-group-item strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-header {
+        padding: var(--spacing-lg) 0;
+    }
+    
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .card-body {
+        padding: var(--spacing-xl);
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: var(--spacing-sm);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>{{ quiz.title }}</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.index') }}">Modules</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.view', module_id=module.id) }}">{{ module.title }}</a></li>
+                    <li class="breadcrumb-item active">Quiz</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ quiz.title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if quiz.description %}
+                        <p class="card-text">{{ quiz.description }}</p>
+                        {% endif %}
+                        
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> Instructions:</h5>
+                            <ul class="mb-0">
+                                <li>Ce quiz contient {{ questions|length }} questions</li>
+                                <li>Lisez attentivement chaque question avant de répondre</li>
+                                <li>Vous pouvez naviguer entre les questions</li>
+                                <li>Note de passage: {{ quiz.passing_score or 70 }}%</li>
+                            </ul>
+                        </div>
+                        
+                        {% if progress and progress.completed %}
+                        <div class="alert alert-success">
+                            <h5><i class="fas fa-check-circle"></i> Quiz terminé!</h5>
+                            <p>Vous avez complété ce quiz avec un score de {{ progress.score|round(1) or 0 }}%.</p>
+                            {% if progress.score and progress.score < (quiz.passing_score or 70) %}
+                            <form method="post" action="{{ url_for('quiz.retake_quiz', quiz_id=quiz.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="fas fa-redo"></i> Refaire le quiz
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="text-center">
+                            {% if not progress or not progress.completed %}
+                            <a href="{{ url_for('quiz.start_quiz', quiz_id=quiz.id) }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play"></i> Commencer le Quiz
+                            </a>
+                            {% else %}
+                            <a href="{{ url_for('quiz.review_quiz', quiz_id=quiz.id) }}" class="btn btn-info btn-lg">
+                                <i class="fas fa-eye"></i> Revoir le Quiz
+                            </a>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Quiz questions preview -->
+                        {% if questions %}
+                        <div class="mt-4">
+                            <h5>Aperçu des questions:</h5>
+                            <div class="list-group">
+                                {% for question in questions %}
+                                <div class="list-group-item">
+                                    <strong>Question {{ loop.index }}:</strong> {{ question.content[:100] }}...
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

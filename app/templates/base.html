@@ -1,118 +1,547 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Tanger Alliance - Portail de Sensibilisation à la Sécurité{% endblock %}</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Appliquer le thème rapidement pour éviter le flash (FOUC) -->
+    <script>
+      (function() {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script>
+    <script src="{{ url_for('static', filename='js/cache-override.js') }}"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}Portail Sécurité - Tanger Alliance{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/tanger-alliance-logo.png') }}">
+
+    <!-- Google Font: Source Sans Pro & Poppins -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/plugins/fontawesome-free/css/all.min.css') }}">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/dist/css/adminlte.min.css') }}">
+    <!-- Enhanced Sidebar CSS - MUST be loaded after AdminLTE to override styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/enhanced-sidebar.css') }}">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-    
-    {% block styles %}{% endblock %}
+    <!-- Dashboard Components CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <!-- NEW TANGER ALLIANCE CSS WILL BE LINKED HERE -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tanger-alliance-navigation.css') }}">
+    <!-- Module Cards CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/module-cards.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/badges.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules-page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sim-cards.css') }}">
+    <!-- Dark Mode CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
+    <!-- Modules Common CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modules-common.css') }}">
+    <!-- BG Gradients CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bg-gradients.css') }}">
+    <!-- Bootstrap Colors CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-colors.css') }}">
+    <!-- Quiz System CSS - Load last to override other styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz-system.css') }}">
+    <!-- Quiz System Override CSS - Final override with maximum specificity -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz-system-override.css') }}">
+    <!-- Quiz Horizontal Layout CSS - Transform layout to horizontal lists -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz-horizontal-layout.css') }}">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .sim-card .fa-star.far,
+        .sim-card .fa-star.text-light {
+            color: rgba(255,255,255,0.7) !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.18);
+        }
+        .btn {
+            border-radius: 6px;
+        }
+        .custom-shadow {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        .nav-sidebar .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-sidebar .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .nav-sidebar .nav-link.active {
+            background-color: #007bff; /* Couleur d'activation par défaut d'AdminLTE */
+            color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .dark-mode .nav-sidebar .nav-link:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        .dark-mode .nav-sidebar .nav-link.active {
+            background-color: #343a40; /* Couleur d'activation pour le mode sombre */
+        }
+
+        /* Style pour le menu fixe */
+        .main-sidebar.fixed-menu {
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .content-wrapper.fixed-menu-padding {
+            padding-left: 250px; /* Ajustez cette valeur en fonction de la largeur de votre sidebar */
+        }
+        
+        /* Styles pour les cartes de modules */
+        .module-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 0.25rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+            margin-bottom: 1rem;
+            padding: 1.25rem;
+            transition: all .3s ease-in-out;
+        }
+        .module-card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);
+            transform: translateY(-2px);
+        }
+        .module-card h5 {
+            font-weight: 600;
+            color: #333;
+        }
+        .module-card p {
+            color: #555;
+        }
+        .module-card .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .module-card .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        .module-card .progress {
+            height: 10px;
+            margin-top: 0.5rem;
+        }
+        .module-status {
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        .status-completed { color: green; }
+        .status-in-progress { color: orange; }
+        .status-not-started { color: red; }
+
+    </style>
+    <style>
+      .brand-link { display: flex; align-items: center; justify-content: center; padding: 0.75rem; }
+      .brand-link .brand-image { width: 64px; height: auto !important; object-fit: contain; border-radius: 0.25rem !important; background-color: #fff; padding: 0.25rem; }
+      .brand-link .brand-text { margin-left: 1rem; font-weight: 600; font-size: 1.4rem; }
+      .user-panel .image img { width: 36px; height: 36px; object-fit: cover; }
+      .user-panel .info { padding-left: 0.75rem; }
+      .user-panel .info a { color: #f8f9fa !important; font-weight: 500; }
+    </style>
+    {% block head_extra %}{% endblock %}
 </head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.home') }}">
-                <i class="fas fa-shield-alt me-2"></i>Tanger Alliance - Sécurité
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.home') }}">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.about') }}">À propos</a>
-                    </li>
-                    {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">Tableau de bord</a>
-                    </li>
-                    {% endif %}
-                </ul>
-                <ul class="navbar-nav">
-                    {% if current_user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" 
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-1"></i>{{ current_user.email }}
+<body class="hold-transition sidebar-mini layout-fixed{% block body_class %}{% endblock %}">
+<div class="wrapper">
+    <!-- TANGER ALLIANCE MODERN NAVIGATION SYSTEM -->
+    <!-- Skip Navigation Link for Accessibility -->
+    <a href="#main-content" class="tanger-nav-skip-link">Passer au contenu principal</a>
+    
+    <!-- Top Navigation Bar -->
+    <nav class="tanger-nav-topbar" role="banner" aria-label="Navigation principale">
+        <div class="tanger-nav-topbar-content">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button class="tanger-nav-menu-toggle" 
+                        aria-label="Ouvrir/Fermer le menu de navigation" 
+                        aria-expanded="false"
+                        aria-controls="main-navigation">
+                    <i class="fas fa-bars" aria-hidden="true"></i>
+                </button>
+                <a href="{{ url_for('main.home') }}" class="tanger-nav-brand" aria-label="Accueil Tanger Alliance">
+                    <img src="{{ url_for('static', filename='images/tanger-alliance-logo.png') }}" 
+                         alt="Logo Tanger Alliance" class="tanger-nav-brand-logo">
+                    <span class="tanger-nav-brand-text">Tanger Alliance</span>
+                </a>
+            </div>
+            
+            <div class="tanger-nav-actions">
+                <form class="tanger-nav-search" action="{{ url_for('main.search') }}" method="get" role="search">
+                    <label for="search-input" class="tanger-nav-sr-only">Rechercher</label>
+                    <input type="search" 
+                           id="search-input"
+                           name="q" 
+                           placeholder="Rechercher modules, simulations..." 
+                           aria-label="Rechercher modules, simulations"
+                           autocomplete="off">
+                    <button type="submit" aria-label="Lancer la recherche">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                    </button>
+                </form>
+                
+                <!-- Dark Mode Toggle Button -->
+                <button class="tanger-nav-dark-mode-toggle" 
+                        id="darkModeToggle"
+                        aria-label="Basculer entre mode clair et mode sombre"
+                        title="Basculer le mode sombre">
+                    <i class="fas fa-moon" aria-hidden="true"></i>
+                </button>
+                
+                <div class="tanger-nav-user-dropdown">
+                    <div class="tanger-nav-user" 
+                         role="button" 
+                         tabindex="0" 
+                         aria-label="Menu utilisateur {{ current_user.username if current_user.is_authenticated else 'Invité' }}"
+                         aria-haspopup="true"
+                         aria-expanded="false"
+                         onclick="toggleUserDropdown()">
+                        <img src="{{ url_for('static', filename='profile_pics/' + (current_user.profile_picture or 'default_profile.jpg')) if current_user.is_authenticated else url_for('static', filename='images/default-profile.png') }}" 
+                             alt="Photo de profil de {{ current_user.username if current_user.is_authenticated else 'Invité' }}" 
+                             class="tanger-nav-user-avatar">
+                        <div class="tanger-nav-user-info">
+                            <span class="tanger-nav-user-name">
+                                {{ current_user.username if current_user.is_authenticated else 'Invité' }}
+                            </span>
+                            <span class="tanger-nav-user-role">
+                                {{ 'Administrateur' if current_user.is_authenticated and current_user.is_admin else 'Utilisateur' }}
+                            </span>
+                        </div>
+                        <i class="fas fa-chevron-down tanger-nav-user-dropdown-icon" aria-hidden="true"></i>
+                    </div>
+                    
+                    <!-- User Dropdown Menu -->
+                    <div class="tanger-nav-user-dropdown-menu" id="userDropdownMenu">
+                        {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('main.profile') }}" class="tanger-nav-dropdown-item">
+                            <i class="fas fa-user" aria-hidden="true"></i>
+                            <span>Mon Profil</span>
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="#">Mon profil</a></li>
-                            <li><a class="dropdown-item" href="#">Mes certificats</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Déconnexion</a></li>
-                        </ul>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}">Connexion</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.register') }}">Inscription</a>
-                    </li>
-                    {% endif %}
-                </ul>
+                        <a href="{{ url_for('main.dashboard') }}" class="tanger-nav-dropdown-item">
+                            <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                            <span>Tableau de bord</span>
+                        </a>
+                        <a href="{{ url_for('main.activity_history') }}" class="tanger-nav-dropdown-item">
+                            <i class="fas fa-history" aria-hidden="true"></i>
+                            <span>Historique</span>
+                        </a>
+                        <div class="tanger-nav-dropdown-divider"></div>
+                        <a href="{{ url_for('auth.logout') }}" class="tanger-nav-dropdown-item tanger-nav-logout">
+                            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                            <span>Se déconnecter</span>
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="tanger-nav-dropdown-item">
+                            <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                            <span>Se connecter</span>
+                        </a>
+                        <a href="{{ url_for('auth.register') }}" class="tanger-nav-dropdown-item">
+                            <i class="fas fa-user-plus" aria-hidden="true"></i>
+                            <span>S'inscrire</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Flash messages -->
-    <div class="container mt-3">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-    </div>
-
-    <!-- Main Content -->
-    <main class="container py-4">
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>Tanger Alliance</h5>
-                    <p>Portail de Sensibilisation à la Sécurité</p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <h5>Contactez-nous</h5>
-                    <p>
-                        <i class="fas fa-envelope me-2"></i>security@tangeralliance.com<br>
-                        <i class="fas fa-phone me-2"></i>+212 539 XXX XXX
-                    </p>
-                </div>
+    <!-- Modern Sidebar Navigation -->
+    <aside class="tanger-nav-sidebar" 
+           id="main-navigation"
+           role="navigation" 
+           aria-label="Menu principal de navigation">
+        <!-- User Panel -->
+        <div class="tanger-nav-user-panel">
+            <img src="{{ url_for('static', filename='profile_pics/' + (current_user.profile_picture or 'default_profile.jpg')) if current_user.is_authenticated else url_for('static', filename='images/default-profile.png') }}" 
+                 alt="Photo de profil" class="tanger-nav-user-panel-avatar">
+            <div class="tanger-nav-user-panel-name">
+                {{ current_user.username if current_user.is_authenticated else 'Invité' }}
             </div>
-            <hr>
-            <div class="text-center">
-                <p>&copy; {{ now.year }} Tanger Alliance. Tous droits réservés.</p>
+            <div class="tanger-nav-user-panel-role">
+                {{ 'Administrateur' if current_user.is_authenticated and current_user.is_admin else 'Utilisateur' }}
             </div>
         </div>
-    </footer>
-
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+        
+        <!-- Navigation Menu -->
+        <nav class="tanger-nav-menu" role="menubar">
+            <!-- Navigation Section -->
+            <div class="tanger-nav-menu-section" role="group" aria-labelledby="nav-section-1">
+                <h6 class="tanger-nav-menu-section-title" id="nav-section-1">Navigation</h6>
+                
+                <div class="tanger-nav-menu-item" role="none">
+                    <a href="{{ url_for('main.dashboard') }}" 
+                       class="tanger-nav-menu-link" 
+                       role="menuitem"
+                       aria-label="Aller au tableau de bord">
+                        <i class="fas fa-tachometer-alt tanger-nav-menu-icon" aria-hidden="true"></i>
+                        <span class="tanger-nav-menu-text">Tableau de bord</span>
+                    </a>
+                </div>
+                
+                <div class="tanger-nav-menu-item" role="none">
+                    <a href="{{ url_for('main.dashboard') }}?view=modules" 
+                       class="tanger-nav-menu-link" 
+                       role="menuitem"
+                       aria-label="Accéder aux modules de formation">
+                        <i class="fas fa-graduation-cap tanger-nav-menu-icon" aria-hidden="true"></i>
+                        <span class="tanger-nav-menu-text">Modules de formation</span>
+                    </a>
+                </div>
+                
+                <div class="tanger-nav-menu-item" role="none">
+                    <a href="{{ url_for('main.simulations') }}" 
+                       class="tanger-nav-menu-link" 
+                       role="menuitem"
+                       aria-label="Accéder aux simulations de sécurité">
+                        <i class="fas fa-shield-alt tanger-nav-menu-icon" aria-hidden="true"></i>
+                        <span class="tanger-nav-menu-text">Simulations</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Formation Section -->
+            <div class="tanger-nav-menu-section">
+                <h6 class="tanger-nav-menu-section-title">Formation</h6>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('main.quiz') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-question-circle tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Quiz</span>
+                    </a>
+                </div>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('modules.certificate') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-certificate tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Certificats</span>
+                    </a>
+                </div>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('main.activity_history') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-history tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Historique</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Outils Section -->
+            <div class="tanger-nav-menu-section">
+                <h6 class="tanger-nav-menu-section-title">Outils</h6>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('main.profile') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-user tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Profil</span>
+                    </a>
+                </div>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('main.leaderboard') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-trophy tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Classement</span>
+                    </a>
+                </div>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('main.search') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-search tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Recherche</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Sécurité Section (Expandable) -->
+            <div class="tanger-nav-menu-section">
+                <h6 class="tanger-nav-menu-section-title">Sécurité</h6>
+                
+                <div class="tanger-nav-menu-item tanger-nav-menu-expandable" data-menu-id="security">
+                    <a href="#" class="tanger-nav-menu-link">
+                        <i class="fas fa-shield-virus tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Outils de sécurité</span>
+                        <i class="fas fa-chevron-right tanger-nav-menu-expand-icon"></i>
+                    </a>
+                    <div class="tanger-nav-submenu">
+                        <a href="{{ url_for('security.alerts') }}" class="tanger-nav-submenu-link">
+                            <i class="fas fa-exclamation-triangle tanger-nav-submenu-icon"></i>
+                            Alertes sécurité
+                        </a>
+                        <a href="{{ url_for('security.report_incident') }}" class="tanger-nav-submenu-link">
+                            <i class="fas fa-bug tanger-nav-submenu-icon"></i>
+                            Signalement incidents
+                        </a>
+                        <a href="{{ url_for('security.resources') }}" class="tanger-nav-submenu-link">
+                            <i class="fas fa-book tanger-nav-submenu-icon"></i>
+                            Ressources sécurité
+                        </a>
+                        <a href="{{ url_for('security.policy') }}" class="tanger-nav-submenu-link">
+                            <i class="fas fa-file-contract tanger-nav-submenu-icon"></i>
+                            Politiques
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Communauté Section -->
+            <div class="tanger-nav-menu-section">
+                <h6 class="tanger-nav-menu-section-title">Communauté</h6>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('main.about') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-info-circle tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">À propos</span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Administration Section (Admin Only) -->
+            {% if current_user.is_authenticated and current_user.is_admin %}
+            <div class="tanger-nav-menu-section">
+                <h6 class="tanger-nav-menu-section-title">Administration</h6>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('admin_portal.index') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-cogs tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Portail Admin</span>
+                        <span class="tanger-nav-menu-badge">Admin</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Account Section -->
+            {% if current_user.is_authenticated %}
+            <div class="tanger-nav-menu-section tanger-nav-account-section">
+                <h6 class="tanger-nav-menu-section-title">Compte</h6>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('main.profile') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-user-edit tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Paramètres</span>
+                    </a>
+                </div>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('auth.logout') }}" class="tanger-nav-menu-link tanger-nav-logout-link">
+                        <i class="fas fa-sign-out-alt tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Se déconnecter</span>
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="tanger-nav-menu-section tanger-nav-account-section">
+                <h6 class="tanger-nav-menu-section-title">Connexion</h6>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('auth.login') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-sign-in-alt tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">Se connecter</span>
+                    </a>
+                </div>
+                
+                <div class="tanger-nav-menu-item">
+                    <a href="{{ url_for('auth.register') }}" class="tanger-nav-menu-link">
+                        <i class="fas fa-user-plus tanger-nav-menu-icon"></i>
+                        <span class="tanger-nav-menu-text">S'inscrire</span>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </nav>
+    </aside>
     
-    {% block scripts %}{% endblock %}
+    <!-- Mobile Overlay -->
+    <div class="tanger-nav-overlay"></div>
+
+    <!-- Main Content Area -->
+    <main class="tanger-nav-main-content">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0">{% block page_title %}{{ title|default('Page') }}{% endblock %}</h1>
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Accueil</a></li>
+                            <li class="breadcrumb-item active">{% block breadcrumb_active %}{{ title|default('Page Actuelle') }}{% endblock %}</li>
+                        </ol>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div><!-- /.container-fluid -->
+        </section>
+        <!-- /.content -->
+        
+        <!-- Modern Footer -->
+        <footer class="main-footer" style="margin-left: 0; background: rgba(59, 79, 125, 0.05); border-top: 1px solid rgba(59, 79, 125, 0.1);">
+            <strong>Copyright &copy; {{ now.year }} <a href="#" style="color: var(--nav-primary-blue);">Tanger Alliance</a>.</strong>
+            Tous droits réservés.
+            <div class="float-right d-none d-sm-inline-block">
+                <b>Version</b> 2.0 - Navigation Moderne
+            </div>
+        </footer>
+    </main>
+    <!-- /.tanger-nav-main-content -->
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+<!-- jQuery -->
+<script src="{{ url_for('static', filename='adminlte/plugins/jquery/jquery.min.js') }}"></script>
+<!-- Bootstrap 4 --> <!-- AdminLTE 3.2 uses Bootstrap 4 components -->
+<script src="{{ url_for('static', filename='adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Sweet Alert 2 - Pour notifications élégantes -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- AdminLTE App -->
+<script src="{{ url_for('static', filename='adminlte/dist/js/adminlte.min.js') }}"></script>
+<!-- Custom JS -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<!-- Dark Mode JS -->
+<script src="{{ url_for('static', filename='js/dark-mode.js') }}"></script>
+<!-- Page Monitor JS -->
+<script src="{{ url_for('static', filename='js/page-monitor.js') }}"></script>
+<!-- NEW TANGER ALLIANCE JAVASCRIPT WILL BE LINKED HERE -->
+<script src="{{ url_for('static', filename='js/tanger-alliance-navigation.js') }}"></script>
+<!-- Modules Common JS -->
+<script src="{{ url_for('static', filename='js/modules-common.js') }}"></script>
+<!-- Dashboard Enhanced JS - Modern interactions and animations -->
+<script src="{{ url_for('static', filename='js/dashboard-enhanced.js') }}"></script>
+<!-- Dashboard Charts JS - Enhanced Chart.js with Tanger Alliance styling -->
+<script src="{{ url_for('static', filename='js/dashboard-charts.js') }}"></script>
+
+{% block scripts %}{% endblock %}
 </body>
 </html>

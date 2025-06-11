@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-danger alert-feedback">
+                <h4 class="alert-heading">⚠️ Attention, mauvais réflexe</h4>
+                <hr>
+                <ul>
+                    <li><strong>Votre action comporte un risque :</strong> Cliquer sur un lien ou une pièce jointe suspecte peut compromettre la sécurité de l'entreprise.</li>
+                    <li>Les cybercriminels utilisent des emails réalistes pour tromper leur cible.</li>
+                    <li>En cas de doute, il faut toujours signaler le message à la DSI ou à la Sécurité.</li>
+                </ul>
+                <hr>
+                <p>Pour plus d’informations, consultez la <a href="https://www.douane.gov.ma/" target="_blank">page officielle de l’Administration des Douanes du Maroc</a> ou contactez votre responsable sécurité.</p>
+            </div>
+            <a class="btn btn-primary" href="{{ url_for('main.simulations') }}">Retour aux simulations</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

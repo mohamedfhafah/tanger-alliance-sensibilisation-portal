@@ -1,0 +1,516 @@
+/* ==========================================================================
+   MODULES COMMON CSS - ENHANCED MODERN DESIGN
+   Styles communs pour tous les modules de sécurité
+   ========================================================================== */
+
+/* Variables CSS pour une cohérence globale */
+:root {
+    --primary-green: #28a745;
+    --primary-red: #dc3545;
+    --primary-blue: #007bff;
+    --primary-orange: #fd7e14;
+    --primary-purple: #6f42c1;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --light-gray: #f8f9fa;
+    --dark-gray: #6c757d;
+    --shadow-light: 0 2px 4px rgba(0,0,0,0.1);
+    --shadow-medium: 0 4px 8px rgba(0,0,0,0.15);
+    --shadow-heavy: 0 8px 16px rgba(0,0,0,0.2);
+    --border-radius: 8px;
+    --transition-fast: 0.2s ease;
+    --transition-medium: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* Sections communes pour tous les modules */
+.module-section, .network-section, .vulnerability-section, 
+.data-protection-section, .mobile-security-section, 
+.password-section, .phishing-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,249,250,0.9) 100%);
+    box-shadow: var(--shadow-light);
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.module-section::before, .network-section::before, .vulnerability-section::before,
+.data-protection-section::before, .mobile-security-section::before,
+.password-section::before, .phishing-section::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--primary-green) 0%, rgba(40, 167, 69, 0.7) 100%);
+    transition: width var(--transition-medium);
+}
+
+.module-section:hover, .network-section:hover, .vulnerability-section:hover,
+.data-protection-section:hover, .mobile-security-section:hover,
+.password-section:hover, .phishing-section:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+.module-section:hover::before, .network-section:hover::before, .vulnerability-section:hover::before,
+.data-protection-section:hover::before, .mobile-security-section:hover::before,
+.password-section:hover::before, .phishing-section:hover::before {
+    width: 8px;
+}
+
+/* Couleurs spécifiques par module */
+.vulnerability-section::before {
+    background: linear-gradient(180deg, var(--primary-red) 0%, rgba(220, 53, 69, 0.7) 100%);
+}
+
+.data-protection-section::before {
+    background: linear-gradient(180deg, var(--primary-blue) 0%, rgba(0, 123, 255, 0.7) 100%);
+}
+
+.mobile-security-section::before {
+    background: linear-gradient(180deg, var(--primary-orange) 0%, rgba(253, 126, 20, 0.7) 100%);
+}
+
+.password-section::before {
+    background: linear-gradient(180deg, var(--primary-purple) 0%, rgba(111, 66, 193, 0.7) 100%);
+}
+
+.phishing-section::before {
+    background: linear-gradient(180deg, var(--warning-color) 0%, rgba(255, 193, 7, 0.7) 100%);
+}
+
+/* Badges améliorés */
+.completed-badge {
+    background: linear-gradient(135deg, var(--success-color) 0%, #20c997 100%);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    margin-left: 10px;
+    box-shadow: var(--shadow-light);
+    transition: all var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.completed-badge:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-medium);
+}
+
+.completed-badge::before {
+    content: '✓';
+    font-weight: bold;
+}
+
+/* Navigation tabs améliorée */
+.nav-tabs {
+    border-bottom: 2px solid #e9ecef;
+    margin-bottom: 2rem;
+}
+
+.nav-tabs .nav-link {
+    color: var(--dark-gray);
+    border: none;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-tabs .nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--primary-green);
+    transition: width var(--transition-medium);
+}
+
+.nav-tabs .nav-link:hover::before {
+    width: 100%;
+}
+
+.nav-tabs .nav-link.active {
+    background: linear-gradient(135deg, var(--primary-green) 0%, #20c997 100%);
+    color: white;
+    border-color: var(--primary-green) var(--primary-green) #fff;
+    box-shadow: var(--shadow-light);
+}
+
+.nav-tabs .nav-link.active::before {
+    width: 100%;
+    background: rgba(255,255,255,0.3);
+}
+
+/* Couleurs spécifiques pour les onglets par module */
+.vulnerability-module .nav-tabs .nav-link {
+    color: var(--primary-red);
+}
+
+.vulnerability-module .nav-tabs .nav-link.active {
+    background: linear-gradient(135deg, var(--primary-red) 0%, #e74c3c 100%);
+    color: white;
+    border-color: #ff0000 #ffa600 #fff;
+}
+
+.data-protection-module .nav-tabs .nav-link {
+    color: var(--primary-blue);
+}
+
+.data-protection-module .nav-tabs .nav-link.active {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, #3498db 100%);
+}
+
+/* Cartes améliorées */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    transition: all var(--transition-medium);
+    overflow: hidden;
+    /* Remove fixed background to allow gradients to show */
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-heavy);
+}
+
+/* Card header styles - no background to avoid white headers */
+.card-header {
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+    padding: 1.25rem;
+    background: transparent;
+}
+
+/* Phishing card headers should inherit their gradient backgrounds */
+.card-phishing-type .card-header,
+.card-phishing-example .card-header {
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    font-weight: 600;
+    padding: 1.25rem;
+    background: transparent !important;
+}
+
+/* Override bootstrap utility classes for phishing card headers */
+.card-phishing-type .card-header.bg-primary,
+.card-phishing-type .card-header.bg-secondary,
+.card-phishing-type .card-header.bg-success,
+.card-phishing-type .card-header.bg-info,
+.card-phishing-type .card-header.bg-warning,
+.card-phishing-type .card-header.bg-danger,
+.card-phishing-type .card-header.bg-light,
+.card-phishing-type .card-header.bg-dark,
+.card-phishing-example .card-header.bg-primary,
+.card-phishing-example .card-header.bg-secondary,
+.card-phishing-example .card-header.bg-success,
+.card-phishing-example .card-header.bg-info,
+.card-phishing-example .card-header.bg-warning,
+.card-phishing-example .card-header.bg-danger,
+.card-phishing-example .card-header.bg-light,
+.card-phishing-example .card-header.bg-dark {
+    background: transparent !important;
+    color: inherit !important;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Cartes de risque et protocole améliorées */
+.risk-card, .protocol-card {
+    transition: all var(--transition-medium);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    position: relative;
+}
+
+.risk-card:hover, .protocol-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: var(--shadow-heavy);
+}
+
+.risk-card::before, .protocol-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-green) 0%, #20c997 100%);
+    transform: scaleX(0);
+    transition: transform var(--transition-medium);
+}
+
+.risk-card:hover::before, .protocol-card:hover::before {
+    transform: scaleX(1);
+}
+
+/* Jumbotron amélioré */
+.jumbotron {
+    border-radius: var(--border-radius);
+    padding: 3rem 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.jumbotron::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    pointer-events: none;
+}
+
+.jumbotron.bg-success {
+    background: linear-gradient(135deg, var(--primary-green) 0%, #20c997 100%) !important;
+}
+
+.jumbotron.bg-danger {
+    background: linear-gradient(135deg, var(--primary-red) 0%, #e74c3c 100%) !important;
+}
+
+/* Listes améliorées */
+.list-unstyled li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: all var(--transition-fast);
+}
+
+.list-unstyled li:hover {
+    padding-left: 10px;
+    background: rgba(40, 167, 69, 0.05);
+}
+
+.list-group-item {
+    border: none;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: all var(--transition-fast);
+}
+
+.list-group-item:hover {
+    background: rgba(40, 167, 69, 0.05);
+    padding-left: 15px;
+}
+
+/* Boutons améliorés */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left var(--transition-slow);
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--primary-green) 0%, #20c997 100%);
+    border: none;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+}
+
+/* Styles pour centrer les boutons Terminer et suivant */
+.btn-module, .btn-success.btn-lg, .btn-primary.btn-lg {
+    display: block;
+    margin: 1.5rem auto;
+    text-align: center;
+    min-width: 200px;
+}
+
+/* Container pour centrer les boutons dans les sections */
+.text-center .btn, 
+.d-flex.justify-content-center .btn,
+[onclick*="markSectionComplete"] {
+    margin: 1.5rem auto;
+    display: block;
+}
+
+/* Styles spécifiques pour les boutons de module */
+.btn-module {
+    background: linear-gradient(135deg, var(--primary-green) 0%, #20c997 100%);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 12px 30px;
+    border-radius: var(--border-radius);
+    transition: all var(--transition-medium);
+    box-shadow: var(--shadow-light);
+}
+
+.btn-module:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+    background: linear-gradient(135deg, #20c997 0%, var(--primary-green) 100%);
+}
+
+.btn-module i {
+    margin-right: 8px;
+}
+
+/* Barres de progression améliorées */
+.progress {
+    height: 8px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--primary-green) 0%, #20c997 100%);
+    transition: all var(--transition-medium);
+    position: relative;
+}
+
+.progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Animations d'entrée */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Responsive design amélioré */
+@media (max-width: 768px) {
+    .module-section, .network-section, .vulnerability-section,
+    .data-protection-section, .mobile-security-section,
+    .password-section, .phishing-section {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+    
+    .jumbotron {
+        padding: 2rem 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Styles pour les icônes */
+.icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-green) 0%, #20c997 100%);
+    color: white;
+    margin-right: 1rem;
+    transition: all var(--transition-medium);
+}
+
+.icon-wrapper:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: var(--shadow-medium);
+}
+
+/* Styles pour les alertes améliorées */
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.alert::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: currentColor;
+    opacity: 0.7;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+    color: var(--primary-green);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(231, 76, 60, 0.1) 100%);
+    color: var(--primary-red);
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 235, 59, 0.1) 100%);
+    color: var(--warning-color);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(0, 123, 255, 0.1) 0%, rgba(52, 152, 219, 0.1) 100%);
+    color: var(--primary-blue);
+}

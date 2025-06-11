@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  <h1>Tableau de Bord Administration</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Accueil</a></li>
+  <li class="breadcrumb-item active">Administration</li>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Bienvenue dans la section d'administration</h3>
+        </div>
+        <div class="card-body">
+          <p>Cette section est réservée aux administrateurs du portail.</p>
+          <p>Vous pourrez gérer ici les utilisateurs, les modules, les quiz, etc.</p>
+          <!-- Contenu spécifique à l'administration à ajouter ici -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Créer un module - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Créer un nouveau module</h1>
+                <a href="{{ url_for('admin_portal.modules') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Module creation form -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Informations du module</h3>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST">
+                                {{ form.hidden_tag() }}
+                                
+                                <div class="form-group">
+                                    {{ form.title.label(class="form-label") }}
+                                    {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }}
+                                    {% if form.title.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.title.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form.description.label(class="form-label") }}
+                                    {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), rows="3") }}
+                                    {% if form.description.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.description.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form.content.label(class="form-label") }}
+                                    {{ form.content(class="form-control" + (" is-invalid" if form.content.errors else ""), rows="10") }}
+                                    <small class="form-text text-muted">
+                                        Vous pouvez utiliser du HTML pour formater le contenu du module.
+                                    </small>
+                                    {% if form.content.errors %}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.content.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {{ form.order.label(class="form-label") }}
+                                            {{ form.order(class="form-control" + (" is-invalid" if form.order.errors else "")) }}
+                                            <small class="form-text text-muted">
+                                                Ordre d'affichage du module (plus petit = affiché en premier)
+                                            </small>
+                                            {% if form.order.errors %}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.order.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="form-label">Statut</label>
+                                            <div>
+                                                {{ form.is_active() }}
+                                                {{ form.is_active.label(class="form-check-label") }}
+                                            </div>
+                                            <small class="form-text text-muted">
+                                                Les modules inactifs ne sont pas visibles par les utilisateurs
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Créer le module
+                                    </button>
+                                    <a href="{{ url_for('admin_portal.modules') }}" class="btn btn-secondary">Annuler</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Help card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Guide de création</h3>
+                        </div>
+                        <div class="card-body">
+                            <h5>Titre du module</h5>
+                            <p class="small text-muted">Choisissez un titre clair et descriptif pour votre module de formation.</p>
+                            
+                            <h5>Description</h5>
+                            <p class="small text-muted">Résumé bref du contenu et des objectifs d'apprentissage du module.</p>
+                            
+                            <h5>Contenu</h5>
+                            <p class="small text-muted">Le contenu principal du module. Vous pouvez utiliser:</p>
+                            <ul class="small text-muted">
+                                <li>HTML pour la mise en forme</li>
+                                <li>Images et vidéos</li>
+                                <li>Listes et tableaux</li>
+                                <li>Liens externes</li>
+                            </ul>
+                            
+                            <h5>Ordre</h5>
+                            <p class="small text-muted">Détermine la position du module dans la liste. Les modules sont affichés par ordre croissant.</p>
+                        </div>
+                    </div>
+
+                    <!-- Preview card -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">Après la création</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="small text-muted">Une fois le module créé, vous pourrez:</p>
+                            <ul class="small text-muted">
+                                <li>Ajouter un quiz d'évaluation</li>
+                                <li>Modifier le contenu</li>
+                                <li>Réorganiser l'ordre des modules</li>
+                                <li>Activer/désactiver le module</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-generate module order based on existing modules
+$(document).ready(function() {
+    if (!$('#order').val()) {
+        $.get('{{ url_for("admin_portal.get_next_module_order") }}', function(data) {
+            $('#order').val(data.next_order);
+        });
+    }
+});
+</script>
+{% endblock %}

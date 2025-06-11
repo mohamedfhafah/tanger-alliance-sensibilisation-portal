@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module.title }}{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">{{ module.title }}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">{{ module.title }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="module-description">
+                                {{ module.description }}
+                            </div>
+                            {% if module.content %}
+                            <div class="module-content mt-3">
+                                {{ module.content|safe }}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

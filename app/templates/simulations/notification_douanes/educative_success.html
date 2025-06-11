@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-success alert-feedback">
+                <h4 class="alert-heading">✅ Bravo, excellente réaction !</h4>
+                <hr>
+                <ul>
+                    <li><strong>Vous avez signalé ce message comme frauduleux.</strong> C'est le bon réflexe face à ce type de tentative !</li>
+                    <li>Signaler permet à la DSI de protéger l'entreprise et d'informer les collègues.</li>
+                    <li>En cas de doute, ne cliquez jamais sur les liens ou pièces jointes suspects.</li>
+                </ul>
+                <hr>
+                <p>Pour plus d’informations, consultez la <a href="https://www.douane.gov.ma/" target="_blank">page officielle de l’Administration des Douanes du Maroc</a> ou contactez votre responsable sécurité.</p>
+            </div>
+            <a class="btn btn-primary" href="{{ url_for('main.simulations') }}">Retour aux simulations</a>
+
+            {% if show_rating %}
+            <div class="mt-4">
+                <h5 class="text-info">Évaluez cette simulation</h5>
+                <div class="star-rating" data-simulation-slug="{{ sim_slug }}" data-interactive>
+                    {% for i in range(1, 6) %}
+                        <i class="star far fa-star text-secondary" data-value="{{ i }}" style="cursor:pointer;font-size:1.7em;"></i>
+                    {% endfor %}
+                    <span class="star-avg small text-white ml-2">-</span>
+                    <span class="star-count small text-white ml-1">0 vote</span>
+                </div>
+            </div>
+            <script src="{{ url_for('static', filename='js/star-rating.js') }}"></script>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

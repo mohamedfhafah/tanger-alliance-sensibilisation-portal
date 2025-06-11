@@ -1,0 +1,323 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-chart-bar"></i>
+                    Rapports et Analyses
+                </h1>
+                <a href="{{ url_for('reportingview.export_data') }}" class="btn btn-success">
+                    <i class="fas fa-download"></i> Exporter CSV
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Engagement Metrics -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Actifs cette semaine
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ engagement_stats.active_users_week }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Hautes Performances
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ engagement_stats.high_performers }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-trophy fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Performances Faibles
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ engagement_stats.low_performers }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Jamais connectés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ engagement_stats.never_logged }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-user-times fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Monthly Trend -->
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Évolution Mensuelle des Complétions</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyChart" width="100%" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- At Risk Departments -->
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Départements à Risque</h6>
+                </div>
+                <div class="card-body">
+                    {% for dept in at_risk_departments %}
+                    <div class="alert alert-warning py-2 mb-2">
+                        <strong>{{ dept.department }}</strong>
+                        <div class="small">
+                            <span class="text-muted">Complétion: {{ "%.1f"|format(dept.completion_rate) }}%</span><br>
+                            <span class="text-muted">Score: {{ "%.1f"|format(dept.avg_score) }}%</span><br>
+                            <span class="text-muted">Utilisateurs: {{ dept.total_users }}</span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+                        <p>Aucun département à risque</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Department Performance -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Performance par Département</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Département</th>
+                                    <th>Utilisateurs</th>
+                                    <th>Complétions</th>
+                                    <th>Score Moyen</th>
+                                    <th>Taux d'Engagement</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for dept in dept_performance %}
+                                <tr>
+                                    <td>{{ dept.department or 'Non spécifié' }}</td>
+                                    <td>{{ dept.total_users }}</td>
+                                    <td>{{ dept.total_completions }}</td>
+                                    <td>
+                                        {% if dept.avg_score %}
+                                            <span class="badge badge-{{ 'success' if dept.avg_score >= 70 else 'warning' if dept.avg_score >= 50 else 'danger' }}">
+                                                {{ "%.1f"|format(dept.avg_score) }}%
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% set engagement = (dept.total_completions / dept.total_users * 100) if dept.total_users > 0 else 0 %}
+                                        <div class="progress">
+                                            <div class="progress-bar bg-{{ 'success' if engagement >= 70 else 'warning' if engagement >= 40 else 'danger' }}" 
+                                                 role="progressbar" style="width: {{ engagement }}%">
+                                                {{ "%.0f"|format(engagement) }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% set performance = (dept.avg_score or 0) %}
+                                        {% if performance >= 70 %}
+                                            <span class="badge badge-success">Excellent</span>
+                                        {% elif performance >= 60 %}
+                                            <span class="badge badge-warning">Moyen</span>
+                                        {% elif performance > 0 %}
+                                            <span class="badge badge-danger">Faible</span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">Aucune donnée</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Module Performance -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Performance des Modules</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <th>Tentatives</th>
+                                    <th>Complétions</th>
+                                    <th>Taux de Réussite</th>
+                                    <th>Score Moyen</th>
+                                    <th>Écart-Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for module in module_performance %}
+                                <tr>
+                                    <td>{{ module.title }}</td>
+                                    <td>{{ module.attempts }}</td>
+                                    <td>{{ module.completions }}</td>
+                                    <td>
+                                        {% set success_rate = (module.completions / module.attempts * 100) if module.attempts > 0 else 0 %}
+                                        <span class="badge badge-{{ 'success' if success_rate >= 80 else 'warning' if success_rate >= 60 else 'danger' }}">
+                                            {{ "%.1f"|format(success_rate) }}%
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if module.avg_score %}
+                                            {{ "%.1f"|format(module.avg_score) }}%
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if module.max_score and module.min_score %}
+                                            {{ "%.1f"|format(module.max_score - module.min_score) }}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Monthly Completions Chart
+const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+const monthlyChart = new Chart(monthlyCtx, {
+    type: 'line',
+    data: {
+        labels: [
+            {% for month in monthly_stats %}
+            '{{ month.month }}'{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Complétions',
+            data: [
+                {% for month in monthly_stats %}
+                {{ month.completions }}{% if not loop.last %},{% endif %}
+                {% endfor %}
+            ],
+            borderColor: 'rgb(78, 115, 223)',
+            backgroundColor: 'rgba(78, 115, 223, 0.05)',
+            tension: 0.3,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            title: {
+                display: true,
+                text: 'Évolution mensuelle des complétions de formation'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.border-left-danger {
+    border-left: 0.25rem solid #e74a3b !important;
+}
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+</style>
+{% endblock %}

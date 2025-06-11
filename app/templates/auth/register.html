@@ -1,111 +1,177 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}
 
-{% block title %}Inscription - Tanger Alliance Security{% endblock %}
+{% block title %}Inscription{% endblock %}
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h3 class="mb-0">Créer un compte</h3>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="">
-                    {{ form.hidden_tag() }}
-                    <div class="mb-3">
-                        {{ form.email.label(class="form-label") }}
-                        {% if form.email.errors %}
-                            {{ form.email(class="form-control is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.email.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.email(class="form-control") }}
-                            <small class="form-text text-muted">Utilisez votre adresse email professionnelle.</small>
-                        {% endif %}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.department.label(class="form-label") }}
-                        {% if form.department.errors %}
-                            {{ form.department(class="form-select is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.department.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.department(class="form-select") }}
-                        {% endif %}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.password.label(class="form-label") }}
-                        {% if form.password.errors %}
-                            {{ form.password(class="form-control is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.password.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.password(class="form-control") }}
-                            <small class="form-text text-muted">
-                                Le mot de passe doit contenir au moins 12 caractères, incluant des majuscules, 
-                                des minuscules, des chiffres et des caractères spéciaux.
-                            </small>
-                        {% endif %}
-                    </div>
-                    <div class="mb-3">
-                        {{ form.confirm_password.label(class="form-label") }}
-                        {% if form.confirm_password.errors %}
-                            {{ form.confirm_password(class="form-control is-invalid") }}
-                            <div class="invalid-feedback">
-                                {% for error in form.confirm_password.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.confirm_password(class="form-control") }}
-                        {% endif %}
-                    </div>
-                    <div class="d-grid gap-2">
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer text-center">
-                <small class="text-muted">
-                    Vous avez déjà un compte? <a href="{{ url_for('auth.login') }}">Se connecter</a>
-                </small>
-            </div>
-        </div>
-        
-        <div class="mt-4">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Conseils pour un mot de passe fort</h5>
+{% block auth_content %}
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <div class="input-group mb-3">
+        {% if form.email.errors %}
+            {{ form.email(class="form-control is-invalid", placeholder="Adresse Email") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-envelope"></span>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <ul class="list-group">
-                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Au moins 12 caractères</li>
-                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Utiliser des majuscules et minuscules</li>
-                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Inclure des chiffres</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <ul class="list-group">
-                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Inclure des caractères spéciaux (!@#$%^&*)</li>
-                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Éviter les informations personnelles</li>
-                                <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Ne pas réutiliser un ancien mot de passe</li>
-                            </ul>
-                        </div>
-                    </div>
+            </div>
+            <div class="invalid-feedback">
+                {% for error in form.email.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.email(class="form-control", placeholder="Adresse Email") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-envelope"></span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="input-group mb-3">
+        {% if form.firstname.errors %}
+            {{ form.firstname(class="form-control is-invalid", placeholder="Prénom") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-user"></span>
+                </div>
+            </div>
+            <div class="invalid-feedback">
+                {% for error in form.firstname.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.firstname(class="form-control", placeholder="Prénom") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-user"></span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <div class="input-group mb-3">
+        {% if form.lastname.errors %}
+            {{ form.lastname(class="form-control is-invalid", placeholder="Nom") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-user"></span>
+                </div>
+            </div>
+            <div class="invalid-feedback">
+                {% for error in form.lastname.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.lastname(class="form-control", placeholder="Nom") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-user"></span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="form-group mb-3">
+        {{ form.department.label(class="form-label sr-only") }} 
+        {% if form.department.errors %}
+            {{ form.department(class="form-select is-invalid", placeholder="Département") }}
+            <div class="invalid-feedback">
+                {% for error in form.department.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.department(class="form-select", placeholder="Département") }}
+        {% endif %}
+    </div>
+    <div class="input-group mb-3">
+        {% if form.password.errors %}
+            {{ form.password(class="form-control is-invalid", placeholder="Mot de passe") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-lock"></span>
+                </div>
+            </div>
+            <div class="invalid-feedback">
+                {% for error in form.password.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.password(class="form-control", placeholder="Mot de passe") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-lock"></span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="input-group mb-3">
+        {% if form.confirm_password.errors %}
+            {{ form.confirm_password(class="form-control is-invalid", placeholder="Confirmer le mot de passe") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-lock"></span>
+                </div>
+            </div>
+            <div class="invalid-feedback">
+                {% for error in form.confirm_password.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.confirm_password(class="form-control", placeholder="Confirmer le mot de passe") }}
+            <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-lock"></span>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="row">
+      <div class="col-8">
+        <div class="icheck-primary">
+          {{ form.agree_terms(id="agreeTerms") if form.agree_terms else '' }}
+          <label for="agreeTerms">
+           J'accepte les <a href="#">conditions</a>
+          </label>
+        </div>
+      </div>
+      <!-- /.col -->
+      <div class="col-4">
+        {{ form.submit(class="btn btn-primary btn-block") }}
+      </div>
+      <!-- /.col -->
+    </div>
+</form>
+
+<div class="mt-4">
+    <div class="card card-info card-outline">
+        <div class="card-header py-1">
+            <h5 class="card-title mb-0" style="font-size: 0.9rem;"><i class="fas fa-shield-alt me-2"></i>Conseils pour un mot de passe fort</h5>
+        </div>
+        <div class="card-body p-2" style="font-size: 0.8rem;">
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item border-0 py-1"><i class="fas fa-check-circle text-success me-1"></i>Au moins 12 caractères</li>
+                        <li class="list-group-item border-0 py-1"><i class="fas fa-check-circle text-success me-1"></i>Majuscules & minuscules</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item border-0 py-1"><i class="fas fa-check-circle text-success me-1"></i>Inclure des chiffres</li>
+                        <li class="list-group-item border-0 py-1"><i class="fas fa-check-circle text-success me-1"></i>Inclure des caractères spéciaux</li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block auth_footer_links %}
+<a href="{{ url_for('auth.login') }}" class="text-center">J'ai déjà un compte</a>
 {% endblock %}

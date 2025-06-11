@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Content Header -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">{{ title }}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">{{ title }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Stats Cards -->
+            <div class="row">
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                            <h3>{{ campaigns|length }}</h3>
+                            <p>Campagnes Totales</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-success">
+                        <div class="inner">
+                            <h3>{{ campaigns|selectattr('status', 'equalto', 'active')|list|length }}</h3>
+                            <p>Campagnes Actives</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-warning">
+                        <div class="inner">
+                            <h3>{{ templates|length }}</h3>
+                            <p>Templates Disponibles</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-6">
+                    <div class="small-box bg-danger">
+                        <div class="inner">
+                            <h3 id="avg-click-rate">0%</h3>
+                            <p>Taux de Clic Moyen</p>
+                        </div>
+                        <div class="icon">
+                            <i class="fas fa-mouse-pointer"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <a href="{{ url_for('phishing.new_campaign') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nouvelle Campagne
+                    </a>
+                    <a href="{{ url_for('phishing.dashboard') }}" class="btn btn-info">
+                        <i class="fas fa-chart-pie"></i> Dashboard Analytics
+                    </a>
+                </div>
+            </div>
+
+            <!-- Campaigns Table -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Liste des Campagnes</h3>
+                </div>
+                <div class="card-body">
+                    {% if campaigns %}
+                    <table class="table table-hover" id="campaignsTable">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Template</th>
+                                <th>Statut</th>
+                                <th>Cibles</th>
+                                <th>Envoyés</th>
+                                <th>Clics</th>
+                                <th>Signalements</th>
+                                <th>Taux de Clic</th>
+                                <th>Créée le</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for campaign in campaigns %}
+                            {% set stat = stats[campaign.id] %}
+                            <tr>
+                                <td>
+                                    <strong>{{ campaign.name }}</strong><br>
+                                    <small class="text-muted">{{ campaign.description[:50] }}...</small>
+                                </td>
+                                <td>
+                                    {% for sim in campaign.phishing_simulations %}
+                                        {% if templates[sim.template] %}
+                                            <span class="badge badge-info">{{ templates[sim.template].name }}</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if campaign.status == 'active' %}
+                                        <span class="badge badge-success">Actif</span>
+                                    {% elif campaign.status == 'completed' %}
+                                        <span class="badge badge-secondary">Terminé</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">{{ campaign.status|title }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ stat.total_targets }}</td>
+                                <td>{{ stat.sent }}</td>
+                                <td>
+                                    <span class="text-danger">{{ stat.clicked }}</span>
+                                </td>
+                                <td>
+                                    <span class="text-success">{{ stat.reported }}</span>
+                                </td>
+                                <td>
+                                    {% if stat.click_rate > 20 %}
+                                        <span class="badge badge-danger">{{ "%.1f"|format(stat.click_rate) }}%</span>
+                                    {% elif stat.click_rate > 10 %}
+                                        <span class="badge badge-warning">{{ "%.1f"|format(stat.click_rate) }}%</span>
+                                    {% else %}
+                                        <span class="badge badge-success">{{ "%.1f"|format(stat.click_rate) }}%</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ campaign.created_at.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ url_for('phishing.campaign_detail', campaign_id=campaign.id) }}" 
+                                           class="btn btn-sm btn-outline-primary" title="Détails">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if campaign.status == 'active' and stat.sent < stat.total_targets %}
+                                        <button type="button" class="btn btn-sm btn-outline-success send-campaign" 
+                                                data-campaign-id="{{ campaign.id }}" title="Envoyer">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                        {% endif %}
+                                        <button type="button" class="btn btn-sm btn-outline-info refresh-stats" 
+                                                data-campaign-id="{{ campaign.id }}" title="Actualiser">
+                                            <i class="fas fa-sync"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Aucune campagne créée</h5>
+                        <p class="text-muted">Commencez par créer votre première campagne de simulation de phishing.</p>
+                        <a href="{{ url_for('phishing.new_campaign') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Créer ma première campagne
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Initialize DataTable
+    $('#campaignsTable').DataTable({
+        responsive: true,
+        order: [[8, 'desc']] // Order by creation date
+    });
+
+    // Calculate average click rate
+    let totalClickRate = 0;
+    let activeCampaigns = 0;
+    {% for campaign in campaigns %}
+        {% set stat = stats[campaign.id] %}
+        {% if stat.sent > 0 %}
+            totalClickRate += {{ stat.click_rate }};
+            activeCampaigns++;
+        {% endif %}
+    {% endfor %}
+    
+    if (activeCampaigns > 0) {
+        $('#avg-click-rate').text((totalClickRate / activeCampaigns).toFixed(1) + '%');
+    }
+
+    // Send campaign
+    $('.send-campaign').click(function() {
+        let campaignId = $(this).data('campaign-id');
+        let button = $(this);
+        
+        if (confirm('Êtes-vous sûr de vouloir envoyer cette campagne de phishing?')) {
+            button.prop('disabled', true);
+            button.html('<i class="fas fa-spinner fa-spin"></i>');
+            
+            $.post(`/phishing/api/campaign/${campaignId}/send`)
+                .done(function(response) {
+                    toastr.success(response.message);
+                    location.reload();
+                })
+                .fail(function(xhr) {
+                    let error = xhr.responseJSON ? xhr.responseJSON.error : 'Erreur lors de l\'envoi';
+                    toastr.error(error);
+                    button.prop('disabled', false);
+                    button.html('<i class="fas fa-paper-plane"></i>');
+                });
+        }
+    });
+
+    // Refresh stats
+    $('.refresh-stats').click(function() {
+        let campaignId = $(this).data('campaign-id');
+        let button = $(this);
+        
+        button.prop('disabled', true);
+        button.html('<i class="fas fa-spinner fa-spin"></i>');
+        
+        $.get(`/phishing/api/campaign/${campaignId}/stats`)
+            .done(function(response) {
+                toastr.success('Statistiques mises à jour');
+                location.reload();
+            })
+            .fail(function() {
+                toastr.error('Erreur lors de la mise à jour');
+            })
+            .always(function() {
+                button.prop('disabled', false);
+                button.html('<i class="fas fa-sync"></i>');
+            });
+    });
+});
+</script>
+{% endblock %}

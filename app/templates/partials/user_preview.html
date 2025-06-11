@@ -1,0 +1,17 @@
+<div class="card" style="width: 200px;">
+  <div class="card-body">
+    <h6 class="card-title">{{ user.firstname or user.email.split('@')[0] }}</h6>
+    <p class="card-text"><strong>Département:</strong> {{ user.department or 'N/A' }}</p>
+    <p class="card-text"><strong>Dernière connexion:</strong> {{ last_login.strftime('%Y-%m-%d %H:%M') if last_login }}</p>
+    <p class="card-text"><strong>Badges:</strong>
+      {% if badges %}
+        <ul class="list-unstyled mb-0">
+          {% for name in badges %}
+            <li>🏅 {{ name }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        Aucun
+      {% endif %}
+  </div>
+</div>

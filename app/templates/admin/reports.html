@@ -1,0 +1,169 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-chart-bar"></i>
+                Centre de Rapports
+            </h1>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h5><i class="fas fa-users text-primary"></i> Rapports Utilisateurs</h5>
+                    </div>
+                    <p class="card-text">Statistiques détaillées sur les utilisateurs, départements et rôles.</p>
+                    <a href="{{ url_for('reports.users_report') }}" class="btn btn-primary">
+                        <i class="fas fa-eye"></i> Voir le Rapport
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h5><i class="fas fa-chart-line text-success"></i> Rapports de Progression</h5>
+                    </div>
+                    <p class="card-text">Analyse de la progression des utilisateurs dans les modules de formation.</p>
+                    <a href="{{ url_for('reports.progress_report') }}" class="btn btn-success">
+                        <i class="fas fa-eye"></i> Voir le Rapport
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-body">
+                    <div class="card-title">
+                        <h5><i class="fas fa-fish text-warning"></i> Rapports Phishing</h5>
+                    </div>
+                    <p class="card-text">Résultats des campagnes de simulation de phishing.</p>
+                    <a href="#" class="btn btn-warning disabled">
+                        <i class="fas fa-cog"></i> Bientôt Disponible
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats Cards -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3 class="h4 mb-3">Aperçu Rapide</h3>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Taux de Participation
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">{{ "85%" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percentage fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Score Moyen
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">{{ "78%" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-trophy fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white shadow">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Modules Complétés
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">{{ "156" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-tasks fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white shadow">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-uppercase mb-1">
+                                Certifications
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold">{{ "42" }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-certificate fa-2x text-white-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Options -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold text-primary">Options d'Export</h6>
+                </div>
+                <div class="card-body">
+                    <p>Exportez vos données pour des analyses approfondies ou des présentations.</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-success btn-block" disabled>
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-danger btn-block" disabled>
+                                <i class="fas fa-file-pdf"></i> Export PDF
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-info btn-block" disabled>
+                                <i class="fas fa-file-csv"></i> Export CSV
+                            </button>
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2 d-block">Fonctionnalités d'export bientôt disponibles</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

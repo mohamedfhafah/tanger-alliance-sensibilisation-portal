@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">{{ title }}</h1>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Politique de sécurité de Tanger Alliance</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h4>1. Introduction</h4>
+                        <p>Cette politique de sécurité définit les principes et les exigences pour la protection des informations et des systèmes informatiques de Tanger Alliance. Elle s'applique à tous les employés, sous-traitants et consultants.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4>2. Objectifs</h4>
+                        <p>Les objectifs de cette politique sont de :</p>
+                        <ul>
+                            <li>Protéger les informations confidentielles de l'entreprise</li>
+                            <li>Assurer la continuité des opérations</li>
+                            <li>Minimiser les risques de sécurité</li>
+                            <li>Sensibiliser les employés aux bonnes pratiques de sécurité</li>
+                            <li>Respecter les exigences légales et réglementaires</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4>3. Sécurité des mots de passe</h4>
+                        <p>Les mots de passe doivent respecter les critères suivants :</p>
+                        <ul>
+                            <li>Minimum 8 caractères</li>
+                            <li>Combinaison de lettres majuscules et minuscules</li>
+                            <li>Au moins un chiffre</li>
+                            <li>Au moins un caractère spécial</li>
+                            <li>Changement obligatoire tous les 90 jours</li>
+                            <li>Interdiction de réutiliser les 5 derniers mots de passe</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4>4. Utilisation des équipements</h4>
+                        <p>Les équipements informatiques fournis par Tanger Alliance doivent être utilisés uniquement à des fins professionnelles. Il est interdit :</p>
+                        <ul>
+                            <li>D'installer des logiciels non autorisés</li>
+                            <li>De désactiver les logiciels de sécurité</li>
+                            <li>De partager ses identifiants de connexion</li>
+                            <li>De laisser son poste de travail déverrouillé</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4>5. Sécurité de la messagerie électronique</h4>
+                        <p>Pour réduire les risques liés aux courriels :</p>
+                        <ul>
+                            <li>Ne pas ouvrir les pièces jointes ou les liens provenant d'expéditeurs inconnus</li>
+                            <li>Vérifier l'adresse de l'expéditeur avant de répondre à un email</li>
+                            <li>Ne pas transférer d'informations confidentielles par email non sécurisé</li>
+                            <li>Signaler immédiatement les emails suspects à l'équipe de sécurité</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4>6. Gestion des incidents</h4>
+                        <p>Tout incident de sécurité doit être signalé immédiatement à l'équipe de sécurité via le formulaire de signalement d'incident ou par téléphone en cas d'urgence.</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4>7. Conséquences des violations</h4>
+                        <p>Le non-respect de cette politique peut entraîner des sanctions disciplinaires pouvant aller jusqu'au licenciement et à des poursuites judiciaires dans les cas graves.</p>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <p class="mb-0">Cette politique est régulièrement mise à jour. La dernière révision date du 01/06/2025.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Ressources associées</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('security.resources') }}" class="btn btn-info btn-block">
+                                <i class="fas fa-book mr-2"></i>Ressources de sécurité
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('security.report_incident') }}" class="btn btn-warning btn-block">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>Signaler un incident
+                            </a>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <a href="{{ url_for('security.contact') }}" class="btn btn-primary btn-block">
+                                <i class="fas fa-envelope mr-2"></i>Contacter l'équipe sécurité
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

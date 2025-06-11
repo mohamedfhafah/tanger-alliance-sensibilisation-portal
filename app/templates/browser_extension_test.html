@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test d'interférence des extensions du navigateur</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; }
+        #result { font-weight: bold; }
+        .pass { color: green; }
+        .fail { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Test d'interférence des extensions du navigateur</h1>
+    <p>Cette page vérifie si des extensions de navigateur modifient votre contenu DOM après le chargement.</p>
+    
+    <div class="test-section" id="test-section-1">
+        <h3>Test 1: Stabilité du DOM</h3>
+        <div id="content-1">Ce contenu ne devrait pas changer</div>
+        <div id="result-1"></div>
+    </div>
+    
+    <div class="test-section" id="test-section-2">
+        <h3>Test 2: Injections de scripts</h3>
+        <div id="content-2">Aucun script ne devrait être injecté ici</div>
+        <div id="result-2"></div>
+    </div>
+    
+    <div id="final-result">
+        <h2>Résultat final: <span id="result">En cours...</span></h2>
+        <div id="recommendation"></div>
+    </div>
+    
+    <script>
+        // Enregistrer l'état initial du DOM
+        const initialContent1 = document.getElementById('content-1').innerHTML;
+        const initialScriptCount = document.getElementsByTagName('script').length;
+        
+        // Vérifier après 3 secondes (le temps typique où vous voyez le changement)
+        setTimeout(() => {
+            // Test 1: Vérifier si le contenu a changé
+            const currentContent1 = document.getElementById('content-1').innerHTML;
+            const content1Changed = initialContent1 !== currentContent1;
+            document.getElementById('result-1').innerHTML = content1Changed 
+                ? '<span class="fail">ÉCHEC: Le contenu a changé!</span>' 
+                : '<span class="pass">SUCCÈS: Le contenu est stable</span>';
+            
+            // Test 2: Vérifier si des scripts ont été ajoutés
+            const currentScriptCount = document.getElementsByTagName('script').length;
+            const scriptsAdded = currentScriptCount > initialScriptCount;
+            document.getElementById('result-2').innerHTML = scriptsAdded
+                ? `<span class="fail">ÉCHEC: ${currentScriptCount - initialScriptCount} scripts ajoutés!</span>`
+                : '<span class="pass">SUCCÈS: Aucun script ajouté</span>';
+            
+            // Résultat final
+            if (content1Changed || scriptsAdded) {
+                document.getElementById('result').innerHTML = '<span class="fail">INTERFÉRENCE DÉTECTÉE</span>';
+                document.getElementById('recommendation').innerHTML = `
+                    <p>Il semble qu'une extension de navigateur ou un script externe interfère avec le contenu de cette page.</p>
+                    <p><strong>Solutions recommandées:</strong></p>
+                    <ol>
+                        <li>Essayez de naviguer en mode incognito/privé (la plupart des extensions y sont désactivées)</li>
+                        <li>Désactivez temporairement vos extensions de navigateur une par une pour identifier la cause</li>
+                        <li>Essayez un autre navigateur</li>
+                    </ol>
+                `;
+            } else {
+                document.getElementById('result').innerHTML = '<span class="pass">AUCUNE INTERFÉRENCE DÉTECTÉE</span>';
+                document.getElementById('recommendation').innerHTML = `
+                    <p>Cette page est stable. Si vous voyez toujours des problèmes dans l'application, il s'agit probablement d'un problème interne à l'application.</p>
+                `;
+            }
+        }, 3000);
+    </script>
+</body>
+</html>

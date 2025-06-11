@@ -1,0 +1,77 @@
+/**
+ * Fixed Menu Styles - Tanger Alliance Security Portal
+ * Version simplifiée et robuste
+ */
+
+/* Style de base pour le layout fixe */
+body.layout-fixed .main-header {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+}
+
+/* Correction pour éviter le décalage des éléments de droite */
+.layout-fixed .main-header .navbar-nav.ml-auto {
+  position: static !important;
+  margin-right: 10px !important;
+}
+
+/* Stabiliser les éléments pendant les transitions */
+.layout-fixed .navbar-nav.ml-auto > li {
+  position: relative;
+  transition: none !important;
+}
+
+/* S'assurer que la sidebar reste fixe */
+.layout-fixed .main-sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+/* Ajuster le contenu principal */
+.layout-fixed .content-wrapper {
+  margin-top: 60px; /* Hauteur de la navbar */
+}
+
+/* Utiliser des transitions cohérentes */
+.main-header,
+.main-sidebar,
+.content-wrapper,
+.main-footer {
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Désactiver les transitions qui causent des décalages */
+.navbar-nav.ml-auto,
+.navbar-nav.ml-auto > li,
+.navbar-nav.ml-auto .nav-link,
+.theme-switch-container,
+.dropdown-menu {
+  transition: none !important;
+}
+
+/* Améliorer l'apparence des menus */
+.main-header.navbar {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  height: 60px;
+}
+
+/* Ajuster les marges du footer */
+.main-footer {
+  margin-left: 250px;
+}
+
+.sidebar-collapse .main-footer {
+  margin-left: 4.6rem;
+}
+
+/* Optimisations pour mobile */
+@media (max-width: 767.98px) {
+  .main-footer {
+    margin-left: 0;
+  }
+}

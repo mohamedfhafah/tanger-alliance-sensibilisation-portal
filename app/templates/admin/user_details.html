@@ -1,0 +1,269 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-user"></i>
+                    Détails Utilisateur: {{ model.firstname }} {{ model.lastname }}
+                </h1>
+                <a href="{{ return_url }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Info Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations Personnelles</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td>{{ model.email }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prénom:</strong></td>
+                            <td>{{ model.firstname or 'Non renseigné' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Nom:</strong></td>
+                            <td>{{ model.lastname or 'Non renseigné' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Département:</strong></td>
+                            <td>{{ model.department or 'Non spécifié' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Rôle:</strong></td>
+                            <td>
+                                <span class="badge badge-{{ 'danger' if model.role == 'admin' else 'primary' }}">
+                                    {{ 'Administrateur' if model.role == 'admin' else 'Utilisateur' }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>Statut:</strong></td>
+                            <td>
+                                <span class="badge badge-{{ 'success' if model.is_active else 'secondary' }}">
+                                    {{ 'Actif' if model.is_active else 'Inactif' }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">Statistiques de Formation</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <div class="circle-progress mx-auto mb-2"
+                             data-percentage="{{ completion_rate }}"
+                             style="background: conic-gradient(#28a745 0deg, #28a745 {{ (completion_rate * 3.6)|round(1) }}deg, #e9ecef {{ (completion_rate * 3.6)|round(1) }}deg, #e9ecef 360deg);">
+                            <div class="circle-content">
+                                <div class="percentage">{{ completion_rate|round(1) }}%</div>
+                                <div class="label">Complété</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="border-right">
+                                <div class="h4 font-weight-bold text-primary">{{ completed_modules }}</div>
+                                <small class="text-muted">Modules Complétés</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 font-weight-bold text-info">{{ total_modules }}</div>
+                            <small class="text-muted">Modules Total</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">Informations de Connexion</h6>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td><strong>Date d'inscription:</strong></td>
+                            <td>{{ model.created_at.strftime('%d/%m/%Y à %H:%M') if model.created_at else 'Non disponible' }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dernière connexion:</strong></td>
+                            <td>
+                                {% if model.last_login %}
+                                    {{ model.last_login.strftime('%d/%m/%Y à %H:%M') }}
+                                {% else %}
+                                    <span class="text-warning">Jamais connecté</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>IP dernière connexion:</strong></td>
+                            <td>{{ model.last_login_ip or 'Non disponible' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progress Details -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Progression Détaillée</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <th>Score</th>
+                                    <th>Tentatives</th>
+                                    <th>Date Completion</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for progress in user_progress %}
+                                <tr>
+                                    <td>{{ progress.module.title if progress.module else 'Module supprimé' }}</td>
+                                    <td>
+                                        {% if progress.score is not none %}
+                                            <span class="badge badge-{{ 'success' if progress.score >= 70 else 'warning' if progress.score >= 50 else 'danger' }}">
+                                                {{ progress.score|round(1) }}%
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ progress.attempts or 0 }}</td>
+                                    <td>
+                                        {% if progress.completed_at %}
+                                            {{ progress.completed_at.strftime('%d/%m/%Y') }}
+                                        {% else %}
+                                            <span class="text-muted">En cours</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if progress.completed %}
+                                            <span class="badge badge-success">Complété</span>
+                                        {% else %}
+                                            <span class="badge badge-warning">En cours</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Aucun progrès enregistré</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">Activité Récente</h6>
+                </div>
+                <div class="card-body">
+                    {% for activity in recent_activity %}
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="icon-circle bg-{{ 'success' if activity.completed else 'primary' }} text-white mr-3">
+                            <i class="fas fa-{{ 'check' if activity.completed else 'clock' }}"></i>
+                        </div>
+                        <div>
+                            <div class="small font-weight-bold">{{ activity.module.title if activity.module else 'Module supprimé' }}</div>
+                            <div class="small text-muted">
+                                {% if activity.completed_at %}
+                                    {{ activity.completed_at.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    En cours
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted">
+                        <i class="fas fa-clock fa-2x mb-3"></i>
+                        <p>Aucune activité récente</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.circle-progress {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    /* Dynamic background is now inline */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.circle-progress::before {
+    content: '';
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: white;
+    position: absolute;
+}
+
+.circle-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.percentage {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+.label {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.icon-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+{% endblock %}

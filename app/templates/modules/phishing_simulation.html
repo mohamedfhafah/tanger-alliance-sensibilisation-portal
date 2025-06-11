@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="content">
+    <div class="container-fluid">
+        <!-- Introduction et instructions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Instructions</h3>
+                    </div>
+                    <div class="card-body">
+                        <p>Ce simulateur vous présente des exemples d'emails réels. Votre mission est de déterminer s'il s'agit d'emails légitimes ou de tentatives de phishing.</p>
+                        <p>Pour chaque exemple, analysez attentivement:</p>
+                        <ul>
+                            <li>L'adresse email de l'expéditeur</li>
+                            <li>La qualité de la langue et des images</li>
+                            <li>La présence de liens suspects</li>
+                            <li>L'urgence ou les menaces dans le message</li>
+                            <li>Les demandes d'informations personnelles</li>
+                        </ul>
+                        <p class="text-warning"><i class="fas fa-exclamation-triangle"></i> <strong>Cette formation vous aidera à développer votre vigilance face aux cybermenaces.</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de simulation -->
+        <form action="{{ url_for('modules.evaluate_phishing') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <!-- Email 1 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-outline card-warning">
+                        <div class="card-header">
+                            <h3 class="card-title">Exemple 1</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="email-preview">
+                                <div class="email-header">
+                                    <p><strong>De:</strong> service@microsoft-secure-auth.com</p>
+                                    <p><strong>À:</strong> vous@tangeralliance.ma</p>
+                                    <p><strong>Objet:</strong> ACTION REQUISE: Votre compte Microsoft va être suspendu</p>
+                                </div>
+                                <hr>
+                                <div class="email-body">
+                                    <p>Cher utilisateur,</p>
+                                    <p>Nous avons détecté une activité inhabituelle sur votre compte Microsoft. Pour des raisons de sécurité, votre compte sera suspendu dans les prochaines 24 heures si vous ne vérifiez pas votre identité immédiatement.</p>
+                                    <p>Veuillez <a href="#" class="text-danger">cliquer ici</a> pour confirmer vos informations et éviter la suspension de votre compte.</p>
+                                    <p>Cordialement,<br>L'équipe de sécurité Microsoft</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <p><strong>Votre décision:</strong></p>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-outline-success">
+                                        <input type="radio" name="example_1" id="email1-legitimate" value="legitimate" autocomplete="off" required> Email légitime
+                                    </label>
+                                    <label class="btn btn-outline-danger">
+                                        <input type="radio" name="example_1" id="email1-phishing" value="phishing" autocomplete="off"> Tentative de phishing
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email 2 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-outline card-warning">
+                        <div class="card-header">
+                            <h3 class="card-title">Exemple 2</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="email-preview">
+                                <div class="email-header">
+                                    <p><strong>De:</strong> notifications@tangeralliance.ma</p>
+                                    <p><strong>À:</strong> vous@tangeralliance.ma</p>
+                                    <p><strong>Objet:</strong> Rappel: Formation sécurité obligatoire</p>
+                                </div>
+                                <hr>
+                                <div class="email-body">
+                                    <p>Bonjour,</p>
+                                    <p>Ce message est un rappel concernant la formation obligatoire sur la sécurité informatique qui aura lieu ce vendredi à 14h dans la salle de conférence principale.</p>
+                                    <p>Veuillez consulter l'agenda partagé sur l'intranet pour plus de détails.</p>
+                                    <p>Cordialement,<br>Le Département IT</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <p><strong>Votre décision:</strong></p>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-outline-success">
+                                        <input type="radio" name="example_2" id="email2-legitimate" value="legitimate" autocomplete="off" required> Email légitime
+                                    </label>
+                                    <label class="btn btn-outline-danger">
+                                        <input type="radio" name="example_2" id="email2-phishing" value="phishing" autocomplete="off"> Tentative de phishing
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email 3 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-outline card-warning">
+                        <div class="card-header">
+                            <h3 class="card-title">Exemple 3</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="email-preview">
+                                <div class="email-header">
+                                    <p><strong>De:</strong> administrateur@payement-securise.com</p>
+                                    <p><strong>À:</strong> vous@tangeralliance.ma</p>
+                                    <p><strong>Objet:</strong> URGENT: Confirmation de vos coordonnées bancaires</p>
+                                </div>
+                                <hr>
+                                <div class="email-body">
+                                    <p>Cher client,</p>
+                                    <p>Nous avons besoin de mettre à jour vos informations bancaires suite à une mise à jour de notre système.</p>
+                                    <p>Veuillez compléter ce <a href="#" class="text-danger">formulaire sécurisé</a> avec vos coordonnées bancaires dans les plus brefs délais pour éviter toute interruption de service.</p>
+                                    <p>Service client<br>Banque Centrale du Maroc</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <p><strong>Votre décision:</strong></p>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-outline-success">
+                                        <input type="radio" name="example_3" id="email3-legitimate" value="legitimate" autocomplete="off" required> Email légitime
+                                    </label>
+                                    <label class="btn btn-outline-danger">
+                                        <input type="radio" name="example_3" id="email3-phishing" value="phishing" autocomplete="off"> Tentative de phishing
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email 4 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-outline card-warning">
+                        <div class="card-header">
+                            <h3 class="card-title">Exemple 4</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="email-preview">
+                                <div class="email-header">
+                                    <p><strong>De:</strong> support@office365.com</p>
+                                    <p><strong>À:</strong> vous@tangeralliance.ma</p>
+                                    <p><strong>Objet:</strong> Votre abonnement Microsoft Office 365 va expirer</p>
+                                </div>
+                                <hr>
+                                <div class="email-body">
+                                    <p>Bonjour,</p>
+                                    <p>Votre abonnement Microsoft Office 365 arrive à expiration. Pour continuer à bénéficier de tous les services, veuillez vous connecter à votre compte via le portail officiel de Microsoft:</p>
+                                    <p><a href="https://portal.office.com" class="text-primary">https://portal.office.com</a></p>
+                                    <p>Cordialement,<br>L'équipe Microsoft Office 365</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <p><strong>Votre décision:</strong></p>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-outline-success">
+                                        <input type="radio" name="example_4" id="email4-legitimate" value="legitimate" autocomplete="off" required> Email légitime
+                                    </label>
+                                    <label class="btn btn-outline-danger">
+                                        <input type="radio" name="example_4" id="email4-phishing" value="phishing" autocomplete="off"> Tentative de phishing
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email 5 -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card card-outline card-warning">
+                        <div class="card-header">
+                            <h3 class="card-title">Exemple 5</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="email-preview">
+                                <div class="email-header">
+                                    <p><strong>De:</strong> gagnez_un_cadeau@prix-specials.net</p>
+                                    <p><strong>À:</strong> vous@tangeralliance.ma</p>
+                                    <p><strong>Objet:</strong> FÉLICITATIONS! Vous avez été sélectionné pour recevoir un iPhone 14 Pro</p>
+                                </div>
+                                <hr>
+                                <div class="email-body">
+                                    <p>Félicitations!</p>
+                                    <p>Votre adresse email a été tirée au sort parmi nos abonnés. Vous avez gagné un iPhone 14 Pro!</p>
+                                    <p>Pour réclamer votre prix, <a href="#" class="text-danger">cliquez ici</a> et entrez vos coordonnées dans les 24 heures.</p>
+                                    <p>L'équipe des promotions</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3 text-center">
+                                <p><strong>Votre décision:</strong></p>
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn btn-outline-success">
+                                        <input type="radio" name="example_5" id="email5-legitimate" value="legitimate" autocomplete="off" required> Email légitime
+                                    </label>
+                                    <label class="btn btn-outline-danger">
+                                        <input type="radio" name="example_5" id="email5-phishing" value="phishing" autocomplete="off"> Tentative de phishing
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bouton de soumission -->
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-lg btn-primary">
+                        <i class="fas fa-check-circle mr-2"></i>Soumettre mes réponses
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+    .email-preview {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+    .email-header {
+        background-color: #e9ecef;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+    .email-body {
+        padding: 10px;
+    }
+</style>
+{% endblock %}

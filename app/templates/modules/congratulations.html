@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+/* Celebration animations */
+@keyframes confetti {
+    0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-20px); }
+    60% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 20px rgba(0, 74, 153, 0.5); }
+    50% { box-shadow: 0 0 40px rgba(0, 74, 153, 0.8); }
+    100% { box-shadow: 0 0 20px rgba(0, 74, 153, 0.5); }
+}
+
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: #004A99;
+    animation: confetti 3s linear infinite;
+    z-index: 1000;
+}
+
+.confetti:nth-child(1) { left: 10%; animation-delay: 0s; background: #004A99; }
+.confetti:nth-child(2) { left: 20%; animation-delay: 0.5s; background: #0077cc; }
+.confetti:nth-child(3) { left: 30%; animation-delay: 1s; background: #ffffff; }
+.confetti:nth-child(4) { left: 40%; animation-delay: 1.5s; background: #004A99; }
+.confetti:nth-child(5) { left: 50%; animation-delay: 2s; background: #0077cc; }
+.confetti:nth-child(6) { left: 60%; animation-delay: 0.3s; background: #ffffff; }
+.confetti:nth-child(7) { left: 70%; animation-delay: 0.8s; background: #004A99; }
+.confetti:nth-child(8) { left: 80%; animation-delay: 1.3s; background: #0077cc; }
+.confetti:nth-child(9) { left: 90%; animation-delay: 1.8s; background: #ffffff; }
+
+.celebration-card {
+    background: linear-gradient(135deg, #004A99 0%, #0077cc 100%);
+    border: none;
+    border-radius: 20px;
+    color: white;
+    animation: bounce 2s ease-in-out;
+}
+
+.badge-container {
+    animation: glow 2s ease-in-out infinite;
+    border-radius: 50%;
+    padding: 20px;
+    background: white;
+    display: inline-block;
+    margin: 20px 0;
+}
+
+.badge-image {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 50%;
+}
+
+.celebration-title {
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+}
+
+.user-name {
+    font-size: 2.5rem;
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.module-title {
+    font-size: 1.5rem;
+    margin: 20px 0;
+    opacity: 0.9;
+}
+
+.badge-name {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 15px 0;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.score-display {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #ffffff;
+    margin: 15px 0;
+}
+
+.encouragement {
+    font-size: 1.2rem;
+    margin: 20px 0;
+    opacity: 0.95;
+    line-height: 1.6;
+}
+
+.continue-btn {
+    background: linear-gradient(45deg, #004A99, #0077cc);
+    border: none;
+    border-radius: 50px;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    margin: 20px 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 74, 153, 0.3);
+}
+
+.continue-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 74, 153, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.dashboard-btn {
+    background: linear-gradient(45deg, #ffffff, #f8f9fa);
+    color: #004A99;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+    border: 2px solid #004A99;
+}
+
+.dashboard-btn:hover {
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+    color: #004A99;
+    text-decoration: none;
+}
+</style>
+
+<!-- Confetti Animation -->
+<div class="confetti"></div>
+<div class="confetti"></div>
+<div class="confetti"></div>
+<div class="confetti"></div>
+<div class="confetti"></div>
+<div class="confetti"></div>
+<div class="confetti"></div>
+<div class="confetti"></div>
+<div class="confetti"></div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card celebration-card">
+                    <div class="card-body text-center py-5">
+                        <!-- Trophy Icon -->
+                        <div class="mb-4">
+                            <i class="fas fa-trophy" style="font-size: 4rem; color: #ffd700;"></i>
+                        </div>
+                        
+                        <!-- Celebration Title -->
+                        <h1 class="celebration-title">
+                            <i class="fas fa-star"></i> Félicitations! <i class="fas fa-star"></i>
+                        </h1>
+                        
+                        <!-- User Name -->
+                        <div class="user-name">{{ user.first_name }}!</div>
+                        
+                        <!-- Achievement Message -->
+                        <div class="module-title">
+                            Vous avez brillamment réussi le module<br>
+                            <strong>{{ badge_info.module_title }}</strong>
+                        </div>
+                        
+                        <!-- Score Display -->
+                        <div class="score-display">
+                            <i class="fas fa-chart-line"></i> Score obtenu: {{ "%.1f"|format(badge_info.score) }}%
+                        </div>
+                        
+                        <!-- Badge Display -->
+                        <div class="badge-container">
+                            <img src="{{ url_for('static', filename='images/badges/' + badge.image_filename) }}" 
+                                 alt="{{ badge.name }}" 
+                                 class="badge-image"
+                                 onerror="this.src='{{ url_for('static', filename='images/badges/default_badge.svg') }}'">
+                        </div>
+                        
+                        <!-- Badge Name -->
+                        <div class="badge-name">
+                            <i class="fas fa-medal"></i> {{ badge.name }}
+                        </div>
+                        
+                        <!-- Badge Description -->
+                        {% if badge.description %}
+                        <div class="encouragement">
+                            {{ badge.description }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Encouragement Message -->
+                        <div class="encouragement">
+                            <i class="fas fa-lightbulb"></i> 
+                            Votre engagement et votre persévérance dans l'apprentissage de la cybersécurité 
+                            sont remarquables. Continuez sur cette excellente voie pour devenir un expert 
+                            en sécurité informatique!
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="mt-4">
+                            <a href="{{ url_for('modules.continue_to_results', module_id=module.id) }}" 
+                               class="continue-btn">
+                                <i class="fas fa-chart-bar mr-2"></i>Voir les résultats détaillés
+                            </a>
+                            
+                            <a href="{{ url_for('main.dashboard') }}" 
+                               class="continue-btn dashboard-btn">
+                                <i class="fas fa-home mr-2"></i>Retour au tableau de bord
+                            </a>
+                        </div>
+                        
+                        <!-- Progress Indicator -->
+                        <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.2);">
+                            <small style="opacity: 0.8;">
+                                <i class="fas fa-info-circle"></i> 
+                                Votre progression a été automatiquement sauvegardée
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Auto-redirect after 30 seconds if user doesn't click anything
+setTimeout(function() {
+    if (confirm('Souhaitez-vous voir les résultats détaillés maintenant?')) {
+        window.location.href = "{{ url_for('modules.continue_to_results', module_id=module.id) }}";
+    }
+}, 30000);
+
+// Add some interactive celebration effects
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click celebration effect
+    document.querySelector('.badge-container').addEventListener('click', function() {
+        this.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            this.style.transform = 'scale(1)';
+        }, 200);
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-success alert-feedback">
+                <h4 class="alert-heading">Analyse pédagogique : Notification douanière fictive</h4>
+                <hr>
+                <ul>
+                    <li><strong>Expéditeur douteux :</strong> L’adresse "douane-maroc@porttanger.ma" n’est pas une adresse officielle de l’Administration des Douanes du Maroc.</li>
+                    <li><strong>Lien frauduleux :</strong> Le domaine "paiement-douane-maroc.com" n’appartient pas à l’État marocain. Les paiements officiels se font sur des sites gouvernementaux (.gov.ma).</li>
+                    <li><strong>Pièce jointe suspecte :</strong> Les fichiers .zip sont souvent utilisés pour diffuser des malwares.</li>
+                    <li><strong>Pression et urgence :</strong> Les messages qui vous pressent d’agir rapidement sont typiques des tentatives de fraude.</li>
+                    <li><strong>Bon réflexe :</strong> Toujours signaler ce type de message à la DSI ou à la Sécurité de Tanger Alliance.</li>
+                </ul>
+                <hr>
+                <p>Pour plus d’informations, consultez la <a href="https://www.douane.gov.ma/" target="_blank">page officielle de l’Administration des Douanes du Maroc</a> ou contactez votre responsable sécurité.</p>
+            </div>
+            <a class="btn btn-primary" href="{{ url_for('main.simulations') }}">Retour aux simulations</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

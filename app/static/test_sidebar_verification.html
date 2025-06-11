@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Vérification Sidebar - Tanger Alliance</title>
+    <link rel="stylesheet" href="app/static/adminlte/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="app/static/adminlte/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="app/static/css/main.css">
+    <link rel="stylesheet" href="app/static/css/dark-mode.css">
+    <style>
+        /* Test styles for verification */
+        .test-container {
+            padding: 20px;
+            background: #f4f4f4;
+            margin: 20px;
+            border-radius: 8px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            margin: 5px;
+            padding: 10px 15px;
+            background: var(--tanger-alliance-main-blue);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background: #1a3d73;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .test-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        @media (max-width: 768px) {
+            .test-container {
+                margin: 10px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+
+<div class="wrapper">
+    <!-- Navbar -->
+    <nav class="main-header navbar navbar-expand navbar-primary navbar-light">
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button">
+                    <i class="fas fa-bars"></i>
+                </a>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <span class="nav-link">Test de Vérification Sidebar</span>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <button id="darkModeToggle" class="btn btn-navbar" title="Basculer le mode sombre">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Main Sidebar -->
+    <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <!-- Brand Logo -->
+        <a href="#" class="brand-link">
+            <img src="app/static/images/tanger-alliance-logo.png" alt="Tanger Alliance Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+            <span class="brand-text font-weight-light">Tanger Alliance</span>
+        </a>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Sidebar user panel -->
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="image">
+                    <img src="app/static/images/default-profile.png" class="img-circle elevation-2" alt="User Image">
+                </div>
+                <div class="info">
+                    <a href="#" class="d-block">Test User</a>
+                </div>
+            </div>
+
+            <!-- Sidebar Menu -->
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <p>Tableau de Bord</p>
+                        </a>
+                    </li>
+                    <li class="nav-item menu-open">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-graduation-cap"></i>
+                            <p>
+                                Modules de Formation
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Sécurité des Mots de Passe</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Sécurité Mobile</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-question-circle"></i>
+                            <p>Quiz</p>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <div class="content-header">
+            <div class="container-fluid">
+                <h1 class="m-0">Test de Vérification Sidebar</h1>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="test-container">
+                    <h2>Tests de Fonctionnalité JavaScript</h2>
+                    
+                    <!-- Test 1: Sidebar Toggle -->
+                    <div class="test-section">
+                        <h3>1. Test Sidebar Collapse/Expand</h3>
+                        <button class="test-button" onclick="testSidebarToggle()">Tester Collapse/Expand</button>
+                        <div id="sidebar-test-result" class="test-result"></div>
+                    </div>
+
+                    <!-- Test 2: Treeview Functionality -->
+                    <div class="test-section">
+                        <h3>2. Test TreeView Collapse/Expand</h3>
+                        <button class="test-button" onclick="testTreeview()">Tester TreeView</button>
+                        <div id="treeview-test-result" class="test-result"></div>
+                    </div>
+
+                    <!-- Test 3: Dark Mode Toggle -->
+                    <div class="test-section">
+                        <h3>3. Test Dark Mode</h3>
+                        <button class="test-button" onclick="testDarkMode()">Tester Mode Sombre</button>
+                        <div id="darkmode-test-result" class="test-result"></div>
+                    </div>
+
+                    <!-- Test 4: Responsive Behavior -->
+                    <div class="test-section">
+                        <h3>4. Test Responsivité</h3>
+                        <button class="test-button" onclick="testResponsive()">Tester Responsivité</button>
+                        <div id="responsive-test-result" class="test-result"></div>
+                    </div>
+
+                    <!-- Test 5: Performance -->
+                    <div class="test-section">
+                        <h3>5. Test Performance</h3>
+                        <button class="test-button" onclick="testPerformance()">Tester Performance</button>
+                        <div id="performance-test-result" class="test-result"></div>
+                    </div>
+
+                    <!-- Test 6: Accessibility -->
+                    <div class="test-section">
+                        <h3>6. Test Accessibilité</h3>
+                        <button class="test-button" onclick="testAccessibility()">Tester Accessibilité</button>
+                        <div id="accessibility-test-result" class="test-result"></div>
+                    </div>
+
+                    <!-- Test 7: Browser Compatibility -->
+                    <div class="test-section">
+                        <h3>7. Test Compatibilité Navigateur</h3>
+                        <button class="test-button" onclick="testBrowserCompatibility()">Tester Compatibilité</button>
+                        <div id="browser-test-result" class="test-result"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="app/static/adminlte/plugins/jquery/jquery.min.js"></script>
+<script src="app/static/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="app/static/adminlte/dist/js/adminlte.min.js"></script>
+<script src="app/static/js/dark-mode.js"></script>
+
+<script>
+// Test Functions
+function testSidebarToggle() {
+    const result = document.getElementById('sidebar-test-result');
+    const startTime = performance.now();
+    
+    try {
+        // Test sidebar toggle functionality
+        const body = $('body');
+        const initialState = body.hasClass('sidebar-collapse');
+        
+        // Trigger sidebar toggle
+        $('[data-widget="pushmenu"]').trigger('click');
+        
+        // Check if state changed
+        setTimeout(() => {
+            const newState = body.hasClass('sidebar-collapse');
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2);
+            
+            if (newState !== initialState) {
+                result.className = 'test-result test-success';
+                result.innerHTML = `✅ SUCCÈS: Sidebar toggle fonctionne (${duration}ms)<br>État initial: ${initialState ? 'Collapsed' : 'Expanded'}<br>Nouvel état: ${newState ? 'Collapsed' : 'Expanded'}`;
+            } else {
+                result.className = 'test-result test-error';
+                result.innerHTML = `❌ ÉCHEC: Sidebar toggle ne fonctionne pas`;
+            }
+        }, 100);
+        
+    } catch (error) {
+        result.className = 'test-result test-error';
+        result.innerHTML = `❌ ERREUR: ${error.message}`;
+    }
+}
+
+function testTreeview() {
+    const result = document.getElementById('treeview-test-result');
+    const startTime = performance.now();
+    
+    try {
+        // Test treeview functionality
+        const treeviewItem = $('.nav-item.menu-open').first();
+        const treeviewMenu = treeviewItem.find('.nav-treeview').first();
+        const initialVisible = treeviewMenu.is(':visible');
+        
+        // Trigger treeview toggle
+        treeviewItem.find('> .nav-link').trigger('click');
+        
+        setTimeout(() => {
+            const newVisible = treeviewMenu.is(':visible');
+            const endTime = performance.now();
+            const duration = (endTime - startTime).toFixed(2);
+            
+            if (newVisible !== initialVisible) {
+                result.className = 'test-result test-success';
+                result.innerHTML = `✅ SUCCÈS: TreeView toggle fonctionne (${duration}ms)<br>Visible initial: ${initialVisible}<br>Nouveau visible: ${newVisible}`;
+            } else {
+                result.className = 'test-result test-info';
+                result.innerHTML = `ℹ️ INFO: TreeView déjà dans l'état correct (${duration}ms)`;
+            }
+        }, 350); // AdminLTE animation duration
+        
+    } catch (error) {
+        result.className = 'test-result test-error';
+        result.innerHTML = `❌ ERREUR: ${error.message}`;
+    }
+}
+
+function testDarkMode() {
+    const result = document.getElementById('darkmode-test-result');
+    const startTime = performance.now();
+    
+    try {
+        const initialTheme = localStorage.getItem('theme') || 'light';
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        
+        if (darkModeToggle) {
+            // Trigger dark mode toggle
+            darkModeToggle.click();
+            
+            setTimeout(() => {
+                const newTheme = localStorage.getItem('theme');
+                const endTime = performance.now();
+                const duration = (endTime - startTime).toFixed(2);
+                
+                if (newTheme !== initialTheme) {
+                    result.className = 'test-result test-success';
+                    result.innerHTML = `✅ SUCCÈS: Dark mode toggle fonctionne (${duration}ms)<br>Thème initial: ${initialTheme}<br>Nouveau thème: ${newTheme}`;
+                } else {
+                    result.className = 'test-result test-error';
+                    result.innerHTML = `❌ ÉCHEC: Dark mode toggle ne change pas le thème`;
+                }
+            }, 100);
+        } else {
+            result.className = 'test-result test-error';
+            result.innerHTML = `❌ ERREUR: Bouton dark mode non trouvé`;
+        }
+        
+    } catch (error) {
+        result.className = 'test-result test-error';
+        result.innerHTML = `❌ ERREUR: ${error.message}`;
+    }
+}
+
+function testResponsive() {
+    const result = document.getElementById('responsive-test-result');
+    const startTime = performance.now();
+    
+    try {
+        const windowWidth = window.innerWidth;
+        const sidebar = $('.main-sidebar');
+        const body = $('body');
+        
+        // Test responsive behavior
+        const isMobile = windowWidth <= 768;
+        const hasOverlay = $('#sidebar-overlay').length > 0;
+        const sidebarVisible = sidebar.is(':visible');
+        
+        const endTime = performance.now();
+        const duration = (endTime - startTime).toFixed(2);
+        
+        let responsiveTests = [];
+        responsiveTests.push(`Largeur écran: ${windowWidth}px`);
+        responsiveTests.push(`Mobile: ${isMobile ? 'Oui' : 'Non'}`);
+        responsiveTests.push(`Overlay présent: ${hasOverlay ? 'Oui' : 'Non'}`);
+        responsiveTests.push(`Sidebar visible: ${sidebarVisible ? 'Oui' : 'Non'}`);
+        
+        if (isMobile && hasOverlay) {
+            result.className = 'test-result test-success';
+            result.innerHTML = `✅ SUCCÈS: Comportement responsive correct (${duration}ms)<br>${responsiveTests.join('<br>')}`;
+        } else if (!isMobile) {
+            result.className = 'test-result test-success';
+            result.innerHTML = `✅ SUCCÈS: Mode desktop normal (${duration}ms)<br>${responsiveTests.join('<br>')}`;
+        } else {
+            result.className = 'test-result test-info';
+            result.innerHTML = `ℹ️ INFO: Tests responsive (${duration}ms)<br>${responsiveTests.join('<br>')}`;
+        }
+        
+    } catch (error) {
+        result.className = 'test-result test-error';
+        result.innerHTML = `❌ ERREUR: ${error.message}`;
+    }
+}
+
+function testPerformance() {
+    const result = document.getElementById('performance-test-result');
+    const startTime = performance.now();
+    
+    try {
+        // Test performance metrics
+        const performanceData = {
+            domContentLoaded: 0,
+            loadComplete: 0,
+            scriptCount: document.scripts.length,
+            cssCount: document.styleSheets.length,
+            memoryUsage: navigator.deviceMemory || 'Non disponible',
+            connection: navigator.connection ? navigator.connection.effectiveType : 'Non disponible'
+        };
+        
+        // Simulate sidebar operations for performance testing
+        let operationTimes = [];
+        
+        for (let i = 0; i < 5; i++) {
+            const opStart = performance.now();
+            $('body').toggleClass('sidebar-collapse');
+            const opEnd = performance.now();
+            operationTimes.push(opEnd - opStart);
+        }
+        
+        const avgOperationTime = operationTimes.reduce((a, b) => a + b, 0) / operationTimes.length;
+        const endTime = performance.now();
+        const totalDuration = (endTime - startTime).toFixed(2);
+        
+        let performanceInfo = [];
+        performanceInfo.push(`Scripts chargés: ${performanceData.scriptCount}`);
+        performanceInfo.push(`CSS chargés: ${performanceData.cssCount}`);
+        performanceInfo.push(`Temps moyen toggle: ${avgOperationTime.toFixed(2)}ms`);
+        performanceInfo.push(`Mémoire: ${performanceData.memoryUsage}GB`);
+        performanceInfo.push(`Connexion: ${performanceData.connection}`);
+        
+        if (avgOperationTime < 50) {
+            result.className = 'test-result test-success';
+            result.innerHTML = `✅ SUCCÈS: Performance excellente (${totalDuration}ms)<br>${performanceInfo.join('<br>')}`;
+        } else if (avgOperationTime < 100) {
+            result.className = 'test-result test-info';
+            result.innerHTML = `ℹ️ INFO: Performance acceptable (${totalDuration}ms)<br>${performanceInfo.join('<br>')}`;
+        } else {
+            result.className = 'test-result test-error';
+            result.innerHTML = `⚠️ ATTENTION: Performance lente (${totalDuration}ms)<br>${performanceInfo.join('<br>')}`;
+        }
+        
+    } catch (error) {
+        result.className = 'test-result test-error';
+        result.innerHTML = `❌ ERREUR: ${error.message}`;
+    }
+}
+
+function testAccessibility() {
+    const result = document.getElementById('accessibility-test-result');
+    const startTime = performance.now();
+    
+    try {
+        const accessibilityChecks = [];
+        
+        // Check ARIA attributes
+        const navItems = $('.nav-link');
+        const hasAriaLabels = navItems.filter('[aria-label], [title]').length;
+        accessibilityChecks.push(`Éléments avec ARIA: ${hasAriaLabels}/${navItems.length}`);
+        
+        // Check keyboard navigation
+        const focusableElements = $('a, button, [tabindex]:not([tabindex="-1"])');
+        accessibilityChecks.push(`Éléments focusables: ${focusableElements.length}`);
+        
+        // Check color contrast (basic check)
+        const sidebarBg = $('.main-sidebar').css('background-color');
+        const sidebarColor = $('.main-sidebar .nav-link').css('color');
+        accessibilityChecks.push(`Couleur sidebar: ${sidebarBg}`);
+        accessibilityChecks.push(`Couleur texte: ${sidebarColor}`);
+        
+        // Check semantic structure
+        const navElement = $('nav.mt-2').length;
+        const ulElement = $('.nav-sidebar').length;
+        accessibilityChecks.push(`Structure nav: ${navElement > 0 ? 'Correcte' : 'Incorrecte'}`);
+        accessibilityChecks.push(`Structure ul: ${ulElement > 0 ? 'Correcte' : 'Incorrecte'}`);
+        
+        const endTime = performance.now();
+        const duration = (endTime - startTime).toFixed(2);
+        
+        const accessibilityScore = (hasAriaLabels > 0 ? 25 : 0) + 
+                                  (focusableElements.length > 5 ? 25 : 0) + 
+                                  (navElement > 0 ? 25 : 0) + 
+                                  (ulElement > 0 ? 25 : 0);
+        
+        if (accessibilityScore >= 75) {
+            result.className = 'test-result test-success';
+            result.innerHTML = `✅ SUCCÈS: Bonne accessibilité (${duration}ms, Score: ${accessibilityScore}/100)<br>${accessibilityChecks.join('<br>')}`;
+        } else if (accessibilityScore >= 50) {
+            result.className = 'test-result test-info';
+            result.innerHTML = `ℹ️ INFO: Accessibilité moyenne (${duration}ms, Score: ${accessibilityScore}/100)<br>${accessibilityChecks.join('<br>')}`;
+        } else {
+            result.className = 'test-result test-error';
+            result.innerHTML = `⚠️ ATTENTION: Accessibilité faible (${duration}ms, Score: ${accessibilityScore}/100)<br>${accessibilityChecks.join('<br>')}`;
+        }
+        
+    } catch (error) {
+        result.className = 'test-result test-error';
+        result.innerHTML = `❌ ERREUR: ${error.message}`;
+    }
+}
+
+function testBrowserCompatibility() {
+    const result = document.getElementById('browser-test-result');
+    const startTime = performance.now();
+    
+    try {
+        const browserInfo = {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            cookieEnabled: navigator.cookieEnabled,
+            onLine: navigator.onLine
+        };
+        
+        // Test feature support
+        const features = {
+            localStorage: typeof Storage !== 'undefined',
+            flexbox: CSS.supports('display', 'flex'),
+            gridLayout: CSS.supports('display', 'grid'),
+            transforms: CSS.supports('transform', 'translateX(0)'),
+            transitions: CSS.supports('transition', 'all 0.3s'),
+            modernJS: typeof Promise !== 'undefined'
+        };
+        
+        // Test jQuery and AdminLTE
+        const libraries = {
+            jQuery: typeof $ !== 'undefined',
+            AdminLTE: typeof $.fn.Layout !== 'undefined',
+            Bootstrap: typeof $.fn.modal !== 'undefined'
+        };
+        
+        const endTime = performance.now();
+        const duration = (endTime - startTime).toFixed(2);
+        
+        // Detect browser
+        let browser = 'Inconnu';
+        if (browserInfo.userAgent.includes('Chrome')) browser = 'Chrome';
+        else if (browserInfo.userAgent.includes('Firefox')) browser = 'Firefox';
+        else if (browserInfo.userAgent.includes('Safari')) browser = 'Safari';
+        else if (browserInfo.userAgent.includes('Edge')) browser = 'Edge';
+        
+        const featureSupport = Object.values(features).filter(Boolean).length;
+        const librarySupport = Object.values(libraries).filter(Boolean).length;
+        
+        let compatibilityInfo = [];
+        compatibilityInfo.push(`Navigateur: ${browser}`);
+        compatibilityInfo.push(`Plateforme: ${browserInfo.platform}`);
+        compatibilityInfo.push(`Features CSS/JS: ${featureSupport}/${Object.keys(features).length}`);
+        compatibilityInfo.push(`Bibliothèques: ${librarySupport}/${Object.keys(libraries).length}`);
+        compatibilityInfo.push(`Cookies: ${browserInfo.cookieEnabled ? 'Activés' : 'Désactivés'}`);
+        compatibilityInfo.push(`En ligne: ${browserInfo.onLine ? 'Oui' : 'Non'}`);
+        
+        if (featureSupport >= 5 && librarySupport >= 2) {
+            result.className = 'test-result test-success';
+            result.innerHTML = `✅ SUCCÈS: Excellente compatibilité (${duration}ms)<br>${compatibilityInfo.join('<br>')}`;
+        } else if (featureSupport >= 3 && librarySupport >= 1) {
+            result.className = 'test-result test-info';
+            result.innerHTML = `ℹ️ INFO: Compatibilité partielle (${duration}ms)<br>${compatibilityInfo.join('<br>')}`;
+        } else {
+            result.className = 'test-result test-error';
+            result.innerHTML = `⚠️ ATTENTION: Compatibilité limitée (${duration}ms)<br>${compatibilityInfo.join('<br>')}`;
+        }
+        
+    } catch (error) {
+        result.className = 'test-result test-error';
+        result.innerHTML = `❌ ERREUR: ${error.message}`;
+    }
+}
+
+// Auto-run some tests on page load
+$(document).ready(function() {
+    console.log('Test page loaded, AdminLTE version:', window.adminlte || 'Unknown');
+    
+    // Add test info
+    const testInfo = `
+        <div class="test-section">
+            <h3>Informations Système</h3>
+            <div class="test-result test-info">
+                <strong>Page de test chargée avec succès</strong><br>
+                Navigateur: ${navigator.userAgent}<br>
+                Résolution: ${window.innerWidth} x ${window.innerHeight}<br>
+                jQuery: ${typeof $ !== 'undefined' ? $.fn.jquery : 'Non chargé'}<br>
+                AdminLTE: ${typeof $.fn.Layout !== 'undefined' ? 'Chargé' : 'Non chargé'}<br>
+                Dark Mode: ${localStorage.getItem('theme') || 'light'}
+            </div>
+        </div>
+    `;
+    $('.test-container').prepend(testInfo);
+});
+</script>
+
+</body>
+</html>

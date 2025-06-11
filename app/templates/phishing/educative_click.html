@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card card-danger">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-exclamation-triangle"></i> {{ title }}
+                            </h3>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="alert alert-danger">
+                                <h4><i class="fas fa-fish"></i> Vous venez de tomber dans un piège de phishing !</h4>
+                                <p class="mb-0">Ceci était une simulation à des fins éducatives.</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <img src="{{ url_for('static', filename='images/phishing-warning.png') }}" 
+                                     alt="Phishing Warning" class="img-fluid" style="max-width: 200px;">
+                            </div>
+
+                            <div class="alert alert-info text-left">
+                                <h5><i class="fas fa-lightbulb"></i> Ce que vous devez retenir :</h5>
+                                <ul class="mb-0">
+                                    <li><strong>Vérifiez toujours l'expéditeur</strong> - Les emails de phishing utilisent souvent des adresses similaires mais pas identiques aux vraies organisations</li>
+                                    <li><strong>Méfiez-vous de l'urgence</strong> - Les messages créant un sentiment d'urgence sont souvent suspects</li>
+                                    <li><strong>Ne cliquez jamais directement</strong> - Connectez-vous toujours directement sur le site officiel</li>
+                                    <li><strong>En cas de doute, signalez</strong> - Contactez l'équipe IT ou utilisez le bouton de signalement</li>
+                                </ul>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-success">
+                                        <div class="card-header">
+                                            <h5 class="card-title text-success">
+                                                <i class="fas fa-shield-alt"></i> Que faire maintenant ?
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                <li><i class="fas fa-check text-success"></i> Consultez le module de formation anti-phishing</li>
+                                                <li><i class="fas fa-check text-success"></i> Pratiquez avec d'autres simulations</li>
+                                                <li><i class="fas fa-check text-success"></i> Partagez ces conseils avec vos collègues</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-warning">
+                                        <div class="card-header">
+                                            <h5 class="card-title text-warning">
+                                                <i class="fas fa-exclamation-circle"></i> Signaux d'alarme
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <ul class="list-unstyled">
+                                                <li><i class="fas fa-times text-danger"></i> URLs suspectes ou raccourcies</li>
+                                                <li><i class="fas fa-times text-danger"></i> Demandes d'informations sensibles</li>
+                                                <li><i class="fas fa-times text-danger"></i> Fautes d'orthographe inhabituelles</li>
+                                                <li><i class="fas fa-times text-danger"></i> Pièces jointes inattendues</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <a href="{{ url_for('modules.module_detail', module_id=2) }}" class="btn btn-primary">
+                                    <i class="fas fa-graduation-cap"></i> Suivre le Module Anti-Phishing
+                                </a>
+                                <a href="{{ url_for('main.simulations') }}" class="btn btn-info">
+                                    <i class="fas fa-redo"></i> Autres Simulations
+                                </a>
+                                <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                                    <i class="fas fa-home"></i> Retour au Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Card -->
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-chart-bar"></i> Statistiques de cette Simulation
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="description-block">
+                                        <h5 class="description-header text-danger">❌</h5>
+                                        <span class="description-text">PIÉGÉ</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="description-block">
+                                        <h5 class="description-header">{{ target.simulation.campaign.name }}</h5>
+                                        <span class="description-text">CAMPAGNE</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="description-block">
+                                        <h5 class="description-header">{{ target.clicked_at.strftime('%H:%M') if target.clicked_at }}</h5>
+                                        <span class="description-text">HEURE DU CLIC</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+// Auto-redirect après 30 secondes
+setTimeout(function() {
+    if (confirm('Voulez-vous être redirigé vers le module de formation anti-phishing?')) {
+        window.location.href = "{{ url_for('modules.module_detail', module_id=2) }}";
+    }
+}, 30000);
+</script>
+
+<style>
+.card-danger {
+    box-shadow: 0 0 15px rgba(220, 53, 69, 0.3);
+}
+
+.description-block {
+    margin-bottom: 20px;
+}
+
+.description-header {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.description-text {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+}
+</style>
+{% endblock %}

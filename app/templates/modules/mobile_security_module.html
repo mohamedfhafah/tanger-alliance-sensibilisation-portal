@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+{% from 'macros/quiz_macros.html' import render_quiz_button %}
+
+{% block title %}Sécurité Mobile - Portail Sécurité{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules-common.css') }}">
+<style>
+    /* Styles spécifiques au module de sécurité mobile */
+    .mobile-security-module .nav-tabs .nav-link {
+        color: var(--primary-orange);
+    }
+    
+    .mobile-security-module .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, #ff8c42 100%);
+        color: white;
+        border-color: var(--primary-orange) var(--primary-orange) #fff;
+    }
+    
+    .mobile-security-module .jumbotron.bg-warning {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, #ff8c42 100%) !important;
+    }
+    
+    .mobile-security-section {
+        border-left-color: var(--primary-orange);
+    }
+    
+    .mobile-security-section::before {
+        background: linear-gradient(180deg, var(--primary-orange) 0%, rgba(253, 126, 20, 0.7) 100%);
+    }
+    
+    /* Animation d'entrée pour les sections */
+    .mobile-security-section {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    /* Icônes spécifiques */
+    .mobile-security-module .icon-wrapper {
+        background: linear-gradient(135deg, var(--primary-orange) 0%, #ff8c42 100%);
+    }
+    
+    /* Styles pour les cartes d'applications mobiles */
+    .app-card {
+        transition: all var(--transition-medium);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .app-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: var(--shadow-heavy);
+    }
+    
+    .app-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-orange) 0%, #ff8c42 100%);
+        transform: scaleX(0);
+        transition: transform var(--transition-medium);
+    }
+    
+    .app-card:hover::before {
+        transform: scaleX(1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">{{ module.title if module else 'Sécurité Mobile' }}</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}"><i class="fas fa-home"></i> Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.index') }}">Modules</a></li>
+                    <li class="breadcrumb-item active">{{ module.title if module else 'Sécurité Mobile' }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content mobile-module">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-mobile-alt mr-1"></i>
+                            Apprenez à sécuriser vos appareils mobiles
+                        </h3>
+                        <div class="card-tools">
+                            <div class="progress" style="width: 200px; height: 20px;">
+                                <div class="progress-bar" id="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small id="progress-text" class="ml-2">0 section(s) terminée(s) sur 6</small>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="mobileTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="intro-tab" data-toggle="tab" href="#intro" role="tab" aria-controls="intro" aria-selected="true">1. Introduction</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="securite-base-tab" data-toggle="tab" href="#securite-base" role="tab" aria-controls="securite-base" aria-selected="false">2. Sécurité de Base</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="applications-tab" data-toggle="tab" href="#applications" role="tab" aria-controls="applications" aria-selected="false">3. Applications</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="politiques-tab" data-toggle="tab" href="#politiques" role="tab" aria-controls="politiques" aria-selected="false">4. Politiques</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="checklist-tab" data-toggle="tab" href="#checklist" role="tab" aria-controls="checklist" aria-selected="false">5. Check-list</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="conclusion-tab" data-toggle="tab" href="#conclusion" role="tab" aria-controls="conclusion" aria-selected="false">6. Conclusion</a>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="mobileTabsContent">
+                            <!-- Section 1: Introduction -->
+                            <div class="tab-pane fade show active mobile-section module-section" id="intro" role="tabpanel" aria-labelledby="intro-tab">
+                                <h4>Introduction à la Sécurité Mobile</h4>
+                                <p>Dans un monde de plus en plus connecté, la sécurité des appareils mobiles est devenue cruciale pour Tanger Alliance. Ce module vous guidera à travers les meilleures pratiques pour protéger vos smartphones et tablettes.</p>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="device-card">
+                                            <h5><i class="fas fa-mobile-alt text-primary"></i> Smartphones</h5>
+                                            <p>Appareils les plus utilisés et les plus vulnérables aux attaques.</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="device-card">
+                                            <h5><i class="fas fa-tablet-alt text-info"></i> Tablettes</h5>
+                                            <p>Souvent utilisées pour le travail, nécessitent une protection renforcée.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn btn-module mt-3" onclick="moduleManager.markSectionComplete('intro', 'securite-base')"><i class="fas fa-check"></i> Terminer et suivant</button>
+                                </div>
+                            </div>
+
+                            <!-- Section 2: Sécurité de Base -->
+                            <div class="tab-pane fade mobile-section module-section" id="securite-base" role="tabpanel" aria-labelledby="securite-base-tab">
+                                <h4>Paramètres de Sécurité de Base</h4>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="best-practice">
+                                            <h6><i class="fas fa-lock"></i> Verrouillage d'écran</h6>
+                                            <ul>
+                                                <li>Code PIN complexe (6+ chiffres)</li>
+                                                <li>Mot de passe alphanumérique</li>
+                                                <li>Empreinte digitale</li>
+                                                <li>Reconnaissance faciale</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="info-box">
+                                            <h6><i class="fas fa-wifi"></i> Connectivité</h6>
+                                            <ul>
+                                                <li>Désactiver WiFi automatique</li>
+                                                <li>Éviter les réseaux publics</li>
+                                                <li>Utiliser un VPN</li>
+                                                <li>Bluetooth sécurisé</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="warning-box">
+                                            <h6><i class="fas fa-download"></i> Applications</h6>
+                                            <ul>
+                                                <li>Sources officielles uniquement</li>
+                                                <li>Vérifier les permissions</li>
+                                                <li>Mises à jour régulières</li>
+                                                <li>Antivirus mobile</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn btn-module mt-3" onclick="moduleManager.markSectionComplete('securite-base', 'applications')"><i class="fas fa-check"></i> Terminer et suivant</button>
+                                </div>
+                            </div>
+
+                            <!-- Section 3: Applications -->
+                            <div class="tab-pane fade mobile-section module-section" id="applications" role="tabpanel" aria-labelledby="applications-tab">
+                                <h4>Gestion Sécurisée des Applications</h4>
+                                <div class="timeline">
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6>1. Évaluation</h6>
+                                            <p>Analyser les besoins métier et les risques associés</p>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6>2. Sélection</h6>
+                                            <p>Choisir des applications approuvées par l'entreprise</p>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6>3. Installation</h6>
+                                            <p>Installer uniquement depuis les stores officiels</p>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-marker"></div>
+                                        <div class="timeline-content">
+                                            <h6>4. Surveillance</h6>
+                                            <p>Monitorer l'utilisation et les mises à jour</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn btn-module mt-3" onclick="moduleManager.markSectionComplete('applications', 'politiques')"><i class="fas fa-check"></i> Terminer et suivant</button>
+                                </div>
+                            </div>
+
+                            <!-- Section 4: Politiques -->
+                            <div class="tab-pane fade mobile-section module-section" id="politiques" role="tabpanel" aria-labelledby="politiques-tab">
+                                <h4>Politiques de Sécurité Mobile</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5>Politique BYOD</h5>
+                                        <ul>
+                                            <li>Enregistrement obligatoire des appareils</li>
+                                            <li>Chiffrement des données</li>
+                                            <li>Séparation vie privée/professionnelle</li>
+                                            <li>Effacement à distance en cas de perte</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h5>Gestion des Incidents</h5>
+                                        <ul>
+                                            <li>Signalement immédiat des pertes/vols</li>
+                                            <li>Procédure de blocage d'urgence</li>
+                                            <li>Analyse post-incident</li>
+                                            <li>Formation de sensibilisation</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn btn-module mt-3" onclick="moduleManager.markSectionComplete('politiques', 'checklist')"><i class="fas fa-check"></i> Terminer et suivant</button>
+                                </div>
+                            </div>
+
+                            <!-- Section 5: Check-list -->
+                            <div class="tab-pane fade mobile-section module-section" id="checklist" role="tabpanel" aria-labelledby="checklist-tab">
+                                <h4>Check-list de Sécurité Mobile</h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Configuration de base</h6>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check1">
+                                            <label class="custom-control-label" for="check1">Code de verrouillage activé</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check2">
+                                            <label class="custom-control-label" for="check2">Verrouillage automatique configuré</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check3">
+                                            <label class="custom-control-label" for="check3">Chiffrement activé</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check4">
+                                            <label class="custom-control-label" for="check4">Mises à jour automatiques</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check5">
+                                            <label class="custom-control-label" for="check5">Sauvegarde configurée</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Sécurité avancée</h6>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check6">
+                                            <label class="custom-control-label" for="check6">VPN installé et configuré</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check7">
+                                            <label class="custom-control-label" for="check7">Antivirus mobile installé</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check8">
+                                            <label class="custom-control-label" for="check8">Localisation activée</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check9">
+                                            <label class="custom-control-label" for="check9">Effacement à distance configuré</label>
+                                        </div>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="check10">
+                                            <label class="custom-control-label" for="check10">Applications approuvées uniquement</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="progress mt-3">
+                                    <div class="progress-bar" id="checklist-progress" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn btn-module mt-3" onclick="moduleManager.markSectionComplete('checklist', 'conclusion')"><i class="fas fa-check"></i> Terminer et suivant</button>
+                                </div>
+                            </div>
+
+                            <!-- Section 6: Conclusion -->
+                            <div class="tab-pane fade mobile-section module-section" id="conclusion" role="tabpanel" aria-labelledby="conclusion-tab">
+                                <h4>Conclusion</h4>
+                                <p>Félicitations ! Vous avez maintenant les connaissances nécessaires pour sécuriser efficacement vos appareils mobiles.</p>
+                                <div class="best-practice">
+                                    <h6>Points clés à retenir :</h6>
+                                    <ul>
+                                        <li>Toujours utiliser un verrouillage d'écran fort</li>
+                                        <li>Maintenir les applications et le système à jour</li>
+                                        <li>Éviter les réseaux WiFi publics non sécurisés</li>
+                                        <li>Installer uniquement des applications approuvées</li>
+                                        <li>Signaler immédiatement toute perte ou vol</li>
+                                    </ul>
+                                </div>
+                                <div class="text-center">
+                                    <button class="btn btn-module mt-3" onclick="moduleManager.markSectionComplete('conclusion')"><i class="fas fa-check"></i> Terminer</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    {{ render_quiz_button(module, progress) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialisation du gestionnaire de module
+    window.moduleManager = new ModuleManager({{ module.id if module else 5 }}, 6, 'mobile');
+    
+    // Configuration de la progression des checklists
+    moduleManager.setupChecklistProgress();
+    
+    // Fonction de compatibilité pour les anciens appels
+    function markSectionComplete(sectionId, nextSectionId) {
+        moduleManager.markSectionComplete(sectionId, nextSectionId);
+    }
+</script>
+{% endblock %}

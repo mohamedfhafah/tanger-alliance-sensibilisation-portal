@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-shield-alt"></i> {{ title }}
+                            </h3>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="alert alert-success">
+                                <h4><i class="fas fa-check-circle"></i> Excellent réflexe de sécurité !</h4>
+                                <p class="mb-0">Vous avez correctement identifié et signalé cette tentative de phishing.</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <img src="{{ url_for('static', filename='images/security-success.png') }}" 
+                                     alt="Security Success" class="img-fluid" style="max-width: 200px;">
+                            </div>
+
+                            <div class="alert alert-info text-left">
+                                <h5><i class="fas fa-lightbulb"></i> Pourquoi c'était du phishing :</h5>
+                                <ul class="mb-0">
+                                    <li><strong>Adresse expéditeur suspecte</strong> - L'email ne provenait pas du vrai domaine officiel</li>
+                                    <li><strong>Urgence artificielle</strong> - Le message créait un faux sentiment d'urgence</li>
+                                    <li><strong>Demande d'action immédiate</strong> - Demande de clic ou de connexion sans vérification</li>
+                                    <li><strong>Détails manquants</strong> - Absence d'informations personnalisées normalement présentes</li>
+                                </ul>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-success">
+                                        <div class="card-header">
+                                            <h5 class="card-title text-success">
+                                                <i class="fas fa-trophy"></i> Votre Score de Sécurité
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="progress mb-3">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                     style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                                    100%
+                                                </div>
+                                            </div>
+                                            <p class="text-success"><strong>Parfait !</strong> Vous avez adopté le bon comportement face au phishing.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="card card-outline card-info">
+                                        <div class="card-header">
+                                            <h5 class="card-title text-info">
+                                                <i class="fas fa-medal"></i> Récompenses
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="text-center">
+                                                <i class="fas fa-award fa-3x text-warning mb-2"></i>
+                                                <h6>Badge: Détecteur de Phishing</h6>
+                                                <small class="text-muted">+10 points de sécurité</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card card-outline card-primary">
+                                        <div class="card-header">
+                                            <h5 class="card-title text-primary">
+                                                <i class="fas fa-users"></i> Continuez à Protéger Tanger Alliance
+                                            </h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p>En signalant cette tentative de phishing, vous aidez à protéger toute l'organisation. 
+                                               Votre vigilance contribue à la sécurité collective du port de Tanger Med.</p>
+                                            <div class="text-center">
+                                                <span class="badge badge-success p-2">
+                                                    <i class="fas fa-users"></i> Héros de la Cybersécurité
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <a href="{{ url_for('modules.module_detail', module_id=2) }}" class="btn btn-primary">
+                                    <i class="fas fa-graduation-cap"></i> Approfondir ses Connaissances
+                                </a>
+                                <a href="{{ url_for('main.simulations') }}" class="btn btn-success">
+                                    <i class="fas fa-redo"></i> Autres Simulations
+                                </a>
+                                <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                                    <i class="fas fa-home"></i> Retour au Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Card -->
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-chart-line"></i> Statistiques de cette Simulation
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <div class="description-block">
+                                        <h5 class="description-header text-success">✅</h5>
+                                        <span class="description-text">SIGNALÉ</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="description-block">
+                                        <h5 class="description-header">{{ target.simulation.campaign.name }}</h5>
+                                        <span class="description-text">CAMPAGNE</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="description-block">
+                                        <h5 class="description-header">{{ target.reported_at.strftime('%H:%M') if target.reported_at }}</h5>
+                                        <span class="description-text">HEURE DU SIGNALEMENT</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips Card -->
+                    <div class="card card-warning">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-lightbulb"></i> Conseils pour l'Avenir
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-eye text-info"></i> Restez Vigilant</h6>
+                                    <ul class="small">
+                                        <li>Vérifiez toujours l'adresse de l'expéditeur</li>
+                                        <li>Survolez les liens sans cliquer pour voir la destination</li>
+                                        <li>Méfiez-vous des messages urgents</li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-share text-success"></i> Partagez vos Connaissances</h6>
+                                    <ul class="small">
+                                        <li>Sensibilisez vos collègues</li>
+                                        <li>Signalez tout email suspect à l'IT</li>
+                                        <li>Participez aux formations de sécurité</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+// Celebration animation
+$(document).ready(function() {
+    // Add some celebration effects
+    setTimeout(function() {
+        $('.card-success').addClass('animate__animated animate__pulse');
+    }, 500);
+    
+    // Update user points (simulate)
+    updateUserPoints(10);
+});
+
+function updateUserPoints(points) {
+    // This would typically update the user's security score
+    // For now, just show a notification
+    toastr.success(`+${points} points de sécurité ajoutés à votre profil!`);
+}
+</script>
+
+<style>
+.card-success {
+    box-shadow: 0 0 15px rgba(40, 167, 69, 0.3);
+}
+
+.progress {
+    height: 20px;
+}
+
+.description-block {
+    margin-bottom: 20px;
+}
+
+.description-header {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.description-text {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+}
+
+.animate__pulse {
+    animation: pulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+</style>
+{% endblock %}

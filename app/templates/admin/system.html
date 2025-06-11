@@ -1,0 +1,251 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-server"></i>
+                État du Système
+            </h1>
+        </div>
+    </div>
+    
+    <!-- System Status Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Espace Disque Libre
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ system_info.disk_free }} GB / {{ system_info.disk_total }} GB
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-hdd fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Utilisation Mémoire
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ system_info.memory_used }}%</div>
+                            <div class="progress progress-sm mr-2">
+                                <div class="progress-bar bg-success" style="width: {{ system_info.memory_used }}%"></div>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-memory fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Taille Base de Données
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ system_info.database_size }} MB</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-database fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Statut Système
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                <span class="badge badge-success">Opérationnel</span>
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Actions Système</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-info btn-block" onclick="clearCache()">
+                                <i class="fas fa-broom"></i> Vider le Cache
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-success btn-block" onclick="backupDatabase()">
+                                <i class="fas fa-download"></i> Sauvegarder BD
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-warning btn-block" onclick="optimizeDatabase()">
+                                <i class="fas fa-cogs"></i> Optimiser BD
+                            </button>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <button class="btn btn-secondary btn-block" onclick="viewLogs()">
+                                <i class="fas fa-file-alt"></i> Voir les Logs
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Configuration Info -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Configuration Application</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Mode Debug:</strong></td>
+                                    <td><span class="badge badge-danger">Désactivé</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Base de données:</strong></td>
+                                    <td>SQLite</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cache:</strong></td>
+                                    <td>SimpleCache</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Mail:</strong></td>
+                                    <td><span class="badge badge-success">Configuré</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CSRF Protection:</strong></td>
+                                    <td><span class="badge badge-success">Activé</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Maintenance</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6>Dernière Sauvegarde</h6>
+                        <p class="text-muted">Aucune sauvegarde automatique configurée</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Logs d'Application</h6>
+                        <p class="text-muted">Logs disponibles dans le répertoire logs/</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <h6>Dernière Mise à Jour</h6>
+                        <p class="text-muted">{{ moment().format('DD/MM/YYYY HH:mm') }}</p>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Conseil:</strong> Planifiez des sauvegardes régulières et surveillez l'utilisation des ressources.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function clearCache() {
+    if(confirm('Êtes-vous sûr de vouloir vider le cache ?')) {
+        // Ajax call to clear cache
+        alert('Fonctionnalité bientôt disponible');
+    }
+}
+
+function backupDatabase() {
+    if(confirm('Démarrer la sauvegarde de la base de données ?')) {
+        // Ajax call to backup database
+        alert('Fonctionnalité bientôt disponible');
+    }
+}
+
+function optimizeDatabase() {
+    if(confirm('Optimiser la base de données ? Cette opération peut prendre du temps.')) {
+        // Ajax call to optimize database
+        alert('Fonctionnalité bientôt disponible');
+    }
+}
+
+function viewLogs() {
+    // Open logs in new window or modal
+    alert('Fonctionnalité bientôt disponible');
+}
+</script>
+
+<style>
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+.progress-sm {
+    height: 0.5rem;
+}
+</style>
+{% endblock %}

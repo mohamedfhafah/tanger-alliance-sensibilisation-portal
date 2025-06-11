@@ -1,0 +1,1120 @@
+{% extends "base.html" %}
+{% from 'macros/quiz_macros.html' import render_quiz_button %}
+
+{% block title %}{{ module.title if module else 'Protection des données sensibles' }} - Tanger Alliance Security{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules-common.css') }}">
+<style>
+    /* Styles spécifiques au module de protection des données */
+    .data-protection-module {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .data-protection-module .nav-tabs .nav-link {
+        color: #28a745;
+        border: 2px solid transparent;
+        border-radius: 10px 10px 0 0;
+        margin-right: 5px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .data-protection-module .nav-tabs .nav-link:hover {
+        background: rgba(40, 167, 69, 0.1);
+        border-color: #28a745;
+        transform: translateY(-2px);
+    }
+    
+    .data-protection-module .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-color: #28a745;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .data-protection-section {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1rem 0;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border-left: 5px solid #28a745;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .data-protection-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(180deg, #28a745 0%, rgba(40, 167, 69, 0.7) 100%);
+    }
+    
+    .data-protection-section h3 {
+        color: #28a745;
+        margin-bottom: 1.5rem;
+        font-weight: 700;
+    }
+    
+    .data-protection-section h4 {
+        color: #495057;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .risk-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .risk-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .completed-badge {
+        background-color: #198754;
+        color: white;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        margin-left: 10px;
+    }
+    
+    .icon-wrapper i {
+        color: white;
+        font-size: 2rem;
+    }
+    
+    .simulator-container {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 2px dashed #28a745;
+    }
+    
+    .data-classification-tool {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .classification-level {
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: 600;
+        margin: 0.25rem;
+        display: inline-block;
+    }
+    
+    .level-public { background: #d4edda; color: #155724; }
+    .level-internal { background: #fff3cd; color: #856404; }
+    .level-confidential { background: #f8d7da; color: #721c24; }
+    .level-secret { background: #d1ecf1; color: #0c5460; }
+    
+    .gdpr-compliance-checker {
+        background: linear-gradient(135deg, #e8f5e8 0%, #c3e6cb 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+    }
+    
+    .compliance-item {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-left: 4px solid #28a745;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .compliance-item:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .compliance-item.checked {
+        background: #d4edda;
+        border-left-color: #28a745;
+    }
+    
+    .btn-data-protection {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        color: white;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+    
+    .btn-data-protection:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        color: white;
+    }
+    
+    .progress-bar-data {
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        border-radius: 10px;
+    }
+    
+    .alert-data {
+        border-radius: 10px;
+        border: none;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .data-breach-simulator {
+        background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 2px solid #e53e3e;
+    }
+    
+    .timeline-item {
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-left: 4px solid #28a745;
+        position: relative;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 12px;
+        height: 12px;
+        background: #007bff;
+        border-radius: 50%;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .data-protection-section {
+        animation: fadeInUp 0.6s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="data-protection-module">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-user-shield mr-1"></i>
+                            {{ module.title if module else 'Protection des données sensibles' }}
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Onglets de navigation -->
+                        <ul class="nav nav-tabs" id="dataProtectionTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="intro-tab" data-toggle="tab" href="#intro" role="tab" aria-controls="intro" aria-selected="true">
+                                    <i class="fas fa-info-circle mr-1"></i>1. Introduction
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="types-tab" data-toggle="tab" href="#types" role="tab" aria-controls="types" aria-selected="false">
+                                    <i class="fas fa-database mr-1"></i>2. Types de Données
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="classification-tab" data-toggle="tab" href="#classification" role="tab" aria-controls="classification" aria-selected="false">
+                                    <i class="fas fa-tags mr-1"></i>3. Classification
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="protection-tab" data-toggle="tab" href="#protection" role="tab" aria-controls="protection" aria-selected="false">
+                                    <i class="fas fa-shield-alt mr-1"></i>4. Protection
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="compliance-tab" data-toggle="tab" href="#compliance" role="tab" aria-controls="compliance" aria-selected="false">
+                                    <i class="fas fa-gavel mr-1"></i>5. Conformité
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="simulator-tab" data-toggle="tab" href="#simulator" role="tab" aria-controls="simulator" aria-selected="false">
+                                    <i class="fas fa-gamepad mr-1"></i>6. Simulateur
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- Contenu des onglets -->
+                        <div class="tab-content" id="dataProtectionTabsContent">
+                            <!-- Onglet Introduction -->
+                            <div class="tab-pane fade show active" id="intro" role="tabpanel" aria-labelledby="intro-tab">
+                                <div class="data-protection-section">
+                                    <div class="jumbotron bg-primary text-white text-center mb-4">
+                                        <h1 class="display-4"><i class="fas fa-user-shield mr-3"></i>Protection des Données Sensibles</h1>
+                                        <p class="lead">Maîtrisez la protection des informations confidentielles</p>
+                                        <hr class="my-4" style="border-color: rgba(255,255,255,0.3);">
+                                        <p>Apprenez à identifier, classifier et protéger les données sensibles dans l'environnement portuaire de Tanger Alliance.</p>
+                                    </div>
+
+                                    <h3 class="text-primary mb-4"><i class="fas fa-exclamation-triangle mr-2"></i>Pourquoi c'est ESSENTIEL ?</h3>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card risk-card border-primary h-100">
+                                                <div class="card-header bg-primary text-white text-center">
+                                                    <i class="fas fa-euro-sign fa-2x"></i>
+                                                    <h5 class="mt-2 mb-0">Impact Financier</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-arrow-right text-primary mr-2"></i>Amendes RGPD jusqu'à <strong>4% du CA</strong></li>
+                                                        <li><i class="fas fa-arrow-right text-primary mr-2"></i>Coût moyen d'une violation : <strong>4,45M€</strong></li>
+                                                        <li><i class="fas fa-arrow-right text-primary mr-2"></i>Perte de contrats clients</li>
+                                                        <li><i class="fas fa-arrow-right text-primary mr-2"></i>Frais juridiques et techniques</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card risk-card border-warning h-100">
+                                                <div class="card-header bg-warning text-dark text-center">
+                                                    <i class="fas fa-handshake fa-2x"></i>
+                                                    <h5 class="mt-2 mb-0">Impact Relationnel</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-arrow-right text-warning mr-2"></i>Perte de confiance des clients</li>
+                                                        <li><i class="fas fa-arrow-right text-warning mr-2"></i>Détérioration des partenariats</li>
+                                                        <li><i class="fas fa-arrow-right text-warning mr-2"></i>Impact sur les relations employés</li>
+                                                        <li><i class="fas fa-arrow-right text-warning mr-2"></i>Difficultés de recrutement</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card risk-card border-danger h-100">
+                                                <div class="card-header bg-danger text-white text-center">
+                                                    <i class="fas fa-building fa-2x"></i>
+                                                    <h5 class="mt-2 mb-0">Impact Réputationnel</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-arrow-right text-danger mr-2"></i>Couverture médiatique négative</li>
+                                                        <li><i class="fas fa-arrow-right text-danger mr-2"></i>Baisse de la valeur de l'entreprise</li>
+                                                        <li><i class="fas fa-arrow-right text-danger mr-2"></i>Perte de position concurrentielle</li>
+                                                        <li><i class="fas fa-arrow-right text-danger mr-2"></i>Impact sur l'image de marque</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-info alert-data">
+                                        <h5><i class="fas fa-lightbulb mr-2"></i>Le saviez-vous ?</h5>
+                                        <p class="mb-0">Dans le secteur portuaire, les données sensibles incluent les manifestes de cargaison, les informations douanières, les données personnelles des passagers et les informations commerciales confidentielles. Une seule violation peut compromettre des milliers de transactions commerciales.</p>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-data-protection" onclick="markSectionComplete('intro', 'types')">
+                                            <i class="fas fa-arrow-right mr-2"></i>Commencer l'apprentissage
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Types de Données -->
+                            <div class="tab-pane fade" id="types" role="tabpanel" aria-labelledby="types-tab">
+                                <div class="data-protection-section">
+                                    <h3><i class="fas fa-database mr-2"></i>Types de Données Sensibles</h3>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-info text-white">
+                                                    <h5><i class="fas fa-user mr-2"></i>Données Personnelles</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li>Noms, prénoms, adresses</li>
+                                                        <li>Numéros de téléphone, emails</li>
+                                                        <li>Numéros d'identification (CIN, passeport)</li>
+                                                        <li>Données biométriques</li>
+                                                        <li>Informations de géolocalisation</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-success text-white">
+                                                    <h5><i class="fas fa-building mr-2"></i>Données Commerciales</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li>Contrats et accords commerciaux</li>
+                                                        <li>Stratégies et plans d'affaires</li>
+                                                        <li>Informations financières</li>
+                                                        <li>Données de performance</li>
+                                                        <li>Listes de clients et fournisseurs</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-warning text-dark">
+                                                    <h5><i class="fas fa-ship mr-2"></i>Données Portuaires</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li>Manifestes de cargaison</li>
+                                                        <li>Informations douanières</li>
+                                                        <li>Données de sécurité portuaire</li>
+                                                        <li>Plans d'infrastructure</li>
+                                                        <li>Horaires et mouvements de navires</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-danger text-white">
+                                                    <h5><i class="fas fa-cog mr-2"></i>Données Techniques</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li>Codes d'accès et mots de passe</li>
+                                                        <li>Configurations système</li>
+                                                        <li>Logs et journaux d'audit</li>
+                                                        <li>Propriété intellectuelle</li>
+                                                        <li>Données de recherche et développement</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-warning alert-data">
+                                        <h5><i class="fas fa-exclamation-triangle mr-2"></i>Attention !</h5>
+                                        <p class="mb-0">Toutes ces données nécessitent des niveaux de protection différents. Il est crucial de bien identifier le type de données avant de déterminer les mesures de protection appropriées.</p>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-data-protection" onclick="markSectionComplete('types', 'classification')">
+                                            <i class="fas fa-arrow-right mr-2"></i>Apprendre la classification
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Classification -->
+                            <div class="tab-pane fade" id="classification" role="tabpanel" aria-labelledby="classification-tab">
+                                <div class="data-protection-section">
+                                    <h3><i class="fas fa-tags mr-2"></i>Classification des Données</h3>
+                                    
+                                    <div class="data-classification-tool">
+                                        <h4>Outil de Classification Interactive</h4>
+                                        <p>Sélectionnez un type de données pour voir sa classification :</p>
+                                        
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <select class="form-control" id="dataTypeSelector" onchange="classifyData()">
+                                                    <option value="">Choisissez un type de données...</option>
+                                                    <option value="manifest">Manifeste de cargaison</option>
+                                                    <option value="employee_id">Numéro d'employé</option>
+                                                    <option value="contract">Contrat commercial confidentiel</option>
+                                                    <option value="public_schedule">Horaires publics des navires</option>
+                                                    <option value="security_plan">Plan de sécurité portuaire</option>
+                                                    <option value="customer_list">Liste des clients</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="classificationResult"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h4>Niveaux de Classification</h4>
+                                    <div class="row mb-4">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card border-success h-100">
+                                                <div class="card-header bg-success text-white text-center">
+                                                    <h6>PUBLIC</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Définition :</strong> Informations destinées au public</p>
+                                                    <p><strong>Exemples :</strong></p>
+                                                    <ul class="small">
+                                                        <li>Horaires publics</li>
+                                                        <li>Communiqués de presse</li>
+                                                        <li>Informations marketing</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card border-warning h-100">
+                                                <div class="card-header bg-warning text-dark text-center">
+                                                    <h6>INTERNE</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Définition :</strong> Informations internes à l'organisation</p>
+                                                    <p><strong>Exemples :</strong></p>
+                                                    <ul class="small">
+                                                        <li>Procédures internes</li>
+                                                        <li>Organigrammes</li>
+                                                        <li>Rapports d'activité</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card border-danger h-100">
+                                                <div class="card-header bg-danger text-white text-center">
+                                                    <h6>CONFIDENTIEL</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Définition :</strong> Informations sensibles à accès restreint</p>
+                                                    <p><strong>Exemples :</strong></p>
+                                                    <ul class="small">
+                                                        <li>Contrats clients</li>
+                                                        <li>Données personnelles</li>
+                                                        <li>Informations financières</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="card border-dark h-100">
+                                                <div class="card-header bg-dark text-white text-center">
+                                                    <h6>SECRET</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Définition :</strong> Informations ultra-sensibles</p>
+                                                    <p><strong>Exemples :</strong></p>
+                                                    <ul class="small">
+                                                        <li>Plans de sécurité</li>
+                                                        <li>Codes d'accès critiques</li>
+                                                        <li>Stratégies confidentielles</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-data-protection" onclick="markSectionComplete('classification', 'protection')">
+                                            <i class="fas fa-arrow-right mr-2"></i>Apprendre les mesures de protection
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Protection -->
+                            <div class="tab-pane fade" id="protection" role="tabpanel" aria-labelledby="protection-tab">
+                                <div class="data-protection-section">
+                                    <h3><i class="fas fa-shield-alt mr-2"></i>Mesures de Protection</h3>
+                                    
+                                    <h4>Mesures Techniques</h4>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card">
+                                                <div class="card-header bg-primary text-white">
+                                                    <h5><i class="fas fa-lock mr-2"></i>Chiffrement</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li><strong>En transit :</strong> HTTPS, TLS, VPN</li>
+                                                        <li><strong>Au repos :</strong> AES-256, chiffrement de base de données</li>
+                                                        <li><strong>Emails :</strong> S/MIME, PGP</li>
+                                                        <li><strong>Stockage :</strong> Disques chiffrés, coffres-forts numériques</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card">
+                                                <div class="card-header bg-success text-white">
+                                                    <h5><i class="fas fa-user-check mr-2"></i>Contrôle d'Accès</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li><strong>Authentification :</strong> Multi-facteurs (2FA/MFA)</li>
+                                                        <li><strong>Autorisation :</strong> Principe du moindre privilège</li>
+                                                        <li><strong>Audit :</strong> Logs d'accès et traçabilité</li>
+                                                        <li><strong>Révocation :</strong> Désactivation immédiate</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h4>Mesures Organisationnelles</h4>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card">
+                                                <div class="card-header bg-warning text-dark">
+                                                    <h5><i class="fas fa-users mr-2"></i>Formation et Sensibilisation</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li>Formation régulière du personnel</li>
+                                                        <li>Sensibilisation aux risques</li>
+                                                        <li>Tests de phishing</li>
+                                                        <li>Mise à jour des connaissances</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card">
+                                                <div class="card-header bg-info text-white">
+                                                    <h5><i class="fas fa-file-contract mr-2"></i>Politiques et Procédures</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li>Politique de sécurité des données</li>
+                                                        <li>Procédures de classification</li>
+                                                        <li>Gestion des incidents</li>
+                                                        <li>Accords de confidentialité</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-success alert-data">
+                                        <h5><i class="fas fa-check-circle mr-2"></i>Bonnes Pratiques</h5>
+                                        <ul class="mb-0">
+                                            <li>Appliquer le principe du "besoin d'en connaître"</li>
+                                            <li>Effectuer des sauvegardes régulières et sécurisées</li>
+                                            <li>Mettre à jour régulièrement les systèmes</li>
+                                            <li>Surveiller et auditer les accès aux données</li>
+                                            <li>Planifier la réponse aux incidents</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-data-protection" onclick="markSectionComplete('protection', 'compliance')">
+                                            <i class="fas fa-arrow-right mr-2"></i>Découvrir la conformité réglementaire
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Conformité -->
+                            <div class="tab-pane fade" id="compliance" role="tabpanel" aria-labelledby="compliance-tab">
+                                <div class="data-protection-section">
+                                    <h3><i class="fas fa-gavel mr-2"></i>Conformité Réglementaire</h3>
+                                    
+                                    <div class="gdpr-compliance-checker">
+                                        <h4><i class="fas fa-clipboard-check mr-2"></i>Vérificateur de Conformité RGPD</h4>
+                                        <p>Cochez les éléments que votre organisation respecte :</p>
+                                        
+                                        <div class="compliance-item" onclick="toggleCompliance(this)">
+                                            <i class="fas fa-square-check mr-2"></i>
+                                            <strong>Consentement explicite :</strong> Obtention du consentement clair pour le traitement des données personnelles
+                                        </div>
+                                        
+                                        <div class="compliance-item" onclick="toggleCompliance(this)">
+                                            <i class="fas fa-square-check mr-2"></i>
+                                            <strong>Droit à l'information :</strong> Information claire sur l'utilisation des données
+                                        </div>
+                                        
+                                        <div class="compliance-item" onclick="toggleCompliance(this)">
+                                            <i class="fas fa-square-check mr-2"></i>
+                                            <strong>Droit d'accès :</strong> Possibilité pour les individus d'accéder à leurs données
+                                        </div>
+                                        
+                                        <div class="compliance-item" onclick="toggleCompliance(this)">
+                                            <i class="fas fa-square-check mr-2"></i>
+                                            <strong>Droit de rectification :</strong> Correction des données inexactes
+                                        </div>
+                                        
+                                        <div class="compliance-item" onclick="toggleCompliance(this)">
+                                            <i class="fas fa-square-check mr-2"></i>
+                                            <strong>Droit à l'effacement :</strong> Suppression des données sur demande
+                                        </div>
+                                        
+                                        <div class="compliance-item" onclick="toggleCompliance(this)">
+                                            <i class="fas fa-square-check mr-2"></i>
+                                            <strong>Notification de violation :</strong> Signalement des violations dans les 72h
+                                        </div>
+                                        
+                                        <div class="mt-3">
+                                            <div class="progress">
+                                                <div class="progress-bar progress-bar-data" id="complianceProgress" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                                            </div>
+                                            <p class="mt-2 text-center" id="complianceStatus">Commencez à cocher les éléments pour évaluer votre conformité</p>
+                                        </div>
+                                    </div>
+
+                                    <h4>Réglementations Clés</h4>
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card">
+                                                <div class="card-header bg-primary text-white">
+                                                    <h5><i class="fas fa-flag mr-2"></i>RGPD (Europe)</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li>Applicable aux données des citoyens UE</li>
+                                                        <li>Amendes jusqu'à 4% du CA annuel</li>
+                                                        <li>Consentement explicite requis</li>
+                                                        <li>Droit à l'oubli et portabilité</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card">
+                                                <div class="card-header bg-success text-white">
+                                                    <h5><i class="fas fa-flag mr-2"></i>Loi 09-08 (Maroc)</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul>
+                                                        <li>Protection des données personnelles</li>
+                                                        <li>Contrôle par la CNDP</li>
+                                                        <li>Déclaration obligatoire des traitements</li>
+                                                        <li>Sanctions pénales et administratives</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-info alert-data">
+                                        <h5><i class="fas fa-info-circle mr-2"></i>Important pour Tanger Alliance</h5>
+                                        <p class="mb-0">En tant qu'acteur international, Tanger Alliance doit respecter à la fois la réglementation marocaine et les standards internationaux comme le RGPD pour les données des citoyens européens transitant par le port.</p>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-data-protection" onclick="markSectionComplete('compliance', 'simulator')">
+                                            <i class="fas fa-arrow-right mr-2"></i>Tester vos connaissances
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Simulateur -->
+                            <div class="tab-pane fade" id="simulator" role="tabpanel" aria-labelledby="simulator-tab">
+                                <div class="data-protection-section">
+                                    <h3><i class="fas fa-gamepad mr-2"></i>Simulateur de Gestion des Données</h3>
+                                    
+                                    <div class="data-breach-simulator">
+                                        <h4><i class="fas fa-exclamation-triangle mr-2"></i>Simulateur de Violation de Données</h4>
+                                        <p>Testez votre réaction face à une violation de données :</p>
+                                        
+                                        <div class="scenario-container" id="scenarioContainer">
+                                            <div class="alert alert-danger">
+                                                <h5>🚨 ALERTE SÉCURITÉ 🚨</h5>
+                                                <p><strong>Scénario :</strong> Un employé signale avoir reçu un email suspect demandant les manifestes de cargaison de la semaine. Il a cliqué sur le lien et saisi ses identifiants sur une page qui ressemblait au portail interne.</p>
+                                            </div>
+                                            
+                                            <div class="timeline-container" id="timelineContainer">
+                                                <h6>Chronologie de réaction (cliquez sur les étapes dans l'ordre) :</h6>
+                                                <div class="timeline-item" data-step="1" onclick="selectTimelineStep(1)">
+                                                    <strong>Étape 1 :</strong> Isoler immédiatement le poste de l'employé
+                                                </div>
+                                                <div class="timeline-item" data-step="2" onclick="selectTimelineStep(2)">
+                                                    <strong>Étape 2 :</strong> Changer les mots de passe de l'employé
+                                                </div>
+                                                <div class="timeline-item" data-step="3" onclick="selectTimelineStep(3)">
+                                                    <strong>Étape 3 :</strong> Alerter l'équipe de sécurité IT
+                                                </div>
+                                                <div class="timeline-item" data-step="4" onclick="selectTimelineStep(4)">
+                                                    <strong>Étape 4 :</strong> Évaluer l'étendue de la compromission
+                                                </div>
+                                                <div class="timeline-item" data-step="5" onclick="selectTimelineStep(5)">
+                                                    <strong>Étape 5 :</strong> Notifier la direction et les autorités si nécessaire
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mt-3">
+                                                <button class="btn btn-warning" onclick="resetSimulation()">Recommencer</button>
+                                                <button class="btn btn-success" onclick="checkSimulationResult()">Vérifier ma réponse</button>
+                                            </div>
+                                            
+                                            <div id="simulationResult" class="mt-3"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="simulator-container">
+                                        <h4><i class="fas fa-calculator mr-2"></i>Calculateur d'Impact de Violation</h4>
+                                        <p>Estimez l'impact financier d'une violation de données :</p>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Nombre de personnes affectées :</label>
+                                                    <input type="number" class="form-control" id="affectedPersons" placeholder="Ex: 1000" onchange="calculateImpact()">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Type de données :</label>
+                                                    <select class="form-control" id="dataType" onchange="calculateImpact()">
+                                                        <option value="">Sélectionnez...</option>
+                                                        <option value="personal">Données personnelles</option>
+                                                        <option value="financial">Données financières</option>
+                                                        <option value="commercial">Données commerciales</option>
+                                                        <option value="technical">Données techniques</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label>Chiffre d'affaires annuel (€) :</label>
+                                                    <input type="number" class="form-control" id="annualRevenue" placeholder="Ex: 50000000" onchange="calculateImpact()">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="impactResult" class="alert alert-info">
+                                                    <h6>Estimation de l'impact :</h6>
+                                                    <p>Remplissez les champs pour voir l'estimation</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Quiz intégré -->
+                                    <div class="mt-4">
+                                        <h4><i class="fas fa-question-circle mr-2"></i>Quiz de Validation</h4>
+                                        <div class="quiz-container">
+                                            <div class="question-container">
+                                                <h5>Question : Quelle est la première action à effectuer en cas de suspicion de violation de données ?</h5>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="quizQuestion" id="q1a" value="a">
+                                                    <label class="form-check-label" for="q1a">
+                                                        Attendre de voir si d'autres incidents se produisent
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="quizQuestion" id="q1b" value="b">
+                                                    <label class="form-check-label" for="q1b">
+                                                        Isoler immédiatement les systèmes compromis
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="quizQuestion" id="q1c" value="c">
+                                                    <label class="form-check-label" for="q1c">
+                                                        Envoyer un email à tous les employés
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="quizQuestion" id="q1d" value="d">
+                                                    <label class="form-check-label" for="q1d">
+                                                        Redémarrer tous les serveurs
+                                                    </label>
+                                                </div>
+                                                <button class="btn btn-primary mt-3" onclick="checkQuizAnswer()">Vérifier la réponse</button>
+                                                <div id="quizResult" class="mt-3"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bouton Quiz Principal -->
+                                    <div class="text-center mt-4">
+                                        {{ render_quiz_button(module) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Barre de progression -->
+                        <div class="progress mt-4" style="height: 10px;">
+                            <div class="progress-bar progress-bar-data" id="moduleProgress" role="progressbar" style="width: 16.67%" aria-valuenow="16.67" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <p class="text-center mt-2"><span id="progressText">Section 1 sur 6 complétée</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    let completedSections = ['intro'];
+    let currentStep = 0;
+    let simulationSteps = [];
+    
+    function initializeModule() {
+        console.log('Module de protection des données initialisé');
+        updateProgress();
+    }
+    
+    function classifyData() {
+        const selector = document.getElementById('dataTypeSelector');
+        const result = document.getElementById('classificationResult');
+        const value = selector.value;
+        
+        const classifications = {
+            'manifest': { level: 'CONFIDENTIEL', class: 'level-confidential', reason: 'Contient des informations commerciales sensibles' },
+            'employee_id': { level: 'INTERNE', class: 'level-internal', reason: 'Information interne à l\'organisation' },
+            'contract': { level: 'SECRET', class: 'level-secret', reason: 'Information stratégique ultra-sensible' },
+            'public_schedule': { level: 'PUBLIC', class: 'level-public', reason: 'Information destinée au public' },
+            'security_plan': { level: 'SECRET', class: 'level-secret', reason: 'Information critique pour la sécurité' },
+            'customer_list': { level: 'CONFIDENTIEL', class: 'level-confidential', reason: 'Données commerciales sensibles' }
+        };
+        
+        if (value && classifications[value]) {
+            const classification = classifications[value];
+            result.innerHTML = `
+                <div class="classification-level ${classification.class}">
+                    ${classification.level}
+                </div>
+                <p class="small mt-2">${classification.reason}</p>
+            `;
+        } else {
+            result.innerHTML = '';
+        }
+    }
+    
+    function toggleCompliance(element) {
+        element.classList.toggle('checked');
+        updateComplianceProgress();
+    }
+    
+    function updateComplianceProgress() {
+        const items = document.querySelectorAll('.compliance-item');
+        const checkedItems = document.querySelectorAll('.compliance-item.checked');
+        const progress = (checkedItems.length / items.length) * 100;
+        
+        const progressBar = document.getElementById('complianceProgress');
+        const status = document.getElementById('complianceStatus');
+        
+        progressBar.style.width = progress + '%';
+        progressBar.textContent = Math.round(progress) + '%';
+        
+        if (progress === 100) {
+            status.textContent = '🎉 Excellent ! Votre organisation semble bien conforme au RGPD';
+            status.className = 'mt-2 text-center text-success font-weight-bold';
+        } else if (progress >= 70) {
+            status.textContent = '👍 Bonne conformité, quelques améliorations possibles';
+            status.className = 'mt-2 text-center text-warning font-weight-bold';
+        } else if (progress >= 40) {
+            status.textContent = '⚠️ Conformité partielle, des efforts sont nécessaires';
+            status.className = 'mt-2 text-center text-warning font-weight-bold';
+        } else {
+            status.textContent = '❌ Conformité insuffisante, action urgente requise';
+            status.className = 'mt-2 text-center text-danger font-weight-bold';
+        }
+    }
+    
+    function selectTimelineStep(step) {
+        const element = document.querySelector(`[data-step="${step}"]`);
+        if (!simulationSteps.includes(step)) {
+            simulationSteps.push(step);
+            element.style.background = '#d4edda';
+            element.style.borderLeftColor = '#28a745';
+        }
+    }
+    
+    function resetSimulation() {
+        simulationSteps = [];
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.style.background = 'white';
+            item.style.borderLeftColor = '#007bff';
+        });
+        document.getElementById('simulationResult').innerHTML = '';
+    }
+    
+    function checkSimulationResult() {
+        const correctOrder = [1, 2, 3, 4, 5];
+        const result = document.getElementById('simulationResult');
+        
+        if (simulationSteps.length === 0) {
+            result.innerHTML = '<div class="alert alert-warning">Veuillez sélectionner au moins une étape.</div>';
+            return;
+        }
+        
+        const isCorrect = JSON.stringify(simulationSteps.slice(0, 3)) === JSON.stringify([1, 2, 3]);
+        
+        if (isCorrect) {
+            result.innerHTML = `
+                <div class="alert alert-success">
+                    <h6>🎉 Excellente réaction !</h6>
+                    <p>Vous avez correctement identifié les premières actions critiques : isoler, sécuriser, alerter.</p>
+                </div>
+            `;
+        } else {
+            result.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6>⚠️ Réaction à améliorer</h6>
+                    <p>L'ordre correct est : 1) Isoler le poste, 2) Changer les mots de passe, 3) Alerter l'équipe IT.</p>
+                </div>
+            `;
+        }
+    }
+    
+    function calculateImpact() {
+        const persons = document.getElementById('affectedPersons').value;
+        const dataType = document.getElementById('dataType').value;
+        const revenue = document.getElementById('annualRevenue').value;
+        const result = document.getElementById('impactResult');
+        
+        if (!persons || !dataType || !revenue) {
+            return;
+        }
+        
+        const multipliers = {
+            'personal': 150,
+            'financial': 300,
+            'commercial': 200,
+            'technical': 250
+        };
+        
+        const costPerPerson = multipliers[dataType] || 150;
+        const directCost = persons * costPerPerson;
+        const rgpdFine = Math.min(revenue * 0.04, 20000000); // Max 4% CA ou 20M€
+        const totalImpact = directCost + (rgpdFine * 0.1); // 10% de risque d'amende max
+        
+        result.innerHTML = `
+            <h6>💰 Estimation de l'impact :</h6>
+            <ul>
+                <li><strong>Coût direct :</strong> ${directCost.toLocaleString()} €</li>
+                <li><strong>Amende RGPD potentielle :</strong> jusqu'à ${rgpdFine.toLocaleString()} €</li>
+                <li><strong>Impact total estimé :</strong> ${totalImpact.toLocaleString()} €</li>
+            </ul>
+            <p class="small text-muted">Cette estimation ne tient pas compte des coûts indirects (réputation, perte de clients, etc.)</p>
+        `;
+        result.className = 'alert alert-warning';
+    }
+    
+    function checkQuizAnswer() {
+        const selected = document.querySelector('input[name="quizQuestion"]:checked');
+        const result = document.getElementById('quizResult');
+        
+        if (!selected) {
+            result.innerHTML = '<div class="alert alert-warning">Veuillez sélectionner une réponse.</div>';
+            return;
+        }
+        
+        if (selected.value === 'b') {
+            result.innerHTML = `
+                <div class="alert alert-success">
+                    <h6>✅ Correct !</h6>
+                    <p>L'isolation immédiate des systèmes compromis est la première priorité pour limiter les dégâts.</p>
+                </div>
+            `;
+        } else {
+            result.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6>❌ Incorrect</h6>
+                    <p>La bonne réponse est : <strong>Isoler immédiatement les systèmes compromis</strong>. C'est la première action pour contenir la violation.</p>
+                </div>
+            `;
+        }
+    }
+    
+    function markSectionComplete(currentSection, nextSection) {
+        if (!completedSections.includes(currentSection)) {
+            completedSections.push(currentSection);
+        }
+        
+        // Ajouter le badge de completion à l'onglet actuel
+        const currentTab = $(`#${currentSection}-tab`);
+        if (currentTab.length && !currentTab.find('.completed-badge').length) {
+            const badge = $('<span class="completed-badge"><i class="fas fa-check-circle"></i> Terminé</span>');
+            currentTab.append(badge);
+        }
+        
+        // Activer l'onglet suivant
+        if (nextSection) {
+            $(`#${nextSection}-tab`).removeClass('disabled').tab('show');
+        }
+        
+        // Marquer le bouton comme terminé
+        if (event && event.target) {
+            event.target.disabled = true;
+            event.target.innerHTML = '<i class="fas fa-check-double"></i> Terminé';
+            event.target.classList.remove('btn-data-protection');
+            event.target.classList.add('btn-success');
+        }
+        
+        updateProgress();
+    }
+    
+    function updateProgress() {
+        const totalSections = 6;
+        const progress = (completedSections.length / totalSections) * 100;
+        
+        document.getElementById('moduleProgress').style.width = progress + '%';
+        document.getElementById('progressText').textContent = `Section ${completedSections.length} sur ${totalSections} complétée${completedSections.length > 1 ? 's' : ''}`;
+        
+        if (progress === 100) {
+            showSuccessMessage('🎉 Félicitations ! Vous avez terminé le module de protection des données sensibles.');
+        }
+    }
+    
+    function showSuccessMessage(message) {
+        const alert = document.createElement('div');
+        alert.className = 'alert alert-success alert-dismissible fade show';
+        alert.innerHTML = `
+            ${message}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        `;
+        document.querySelector('.card-body').insertBefore(alert, document.querySelector('.nav-tabs'));
+    }
+    
+    // Fonction globale pour marquer les sections comme terminées
+    window.markSectionComplete = markSectionComplete;
+    
+    // Initialisation au chargement de la page
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeModule();
+        
+        // Désactiver les onglets non accessibles au début
+        $('#dataProtectionTabs .nav-link:not(.active)').addClass('disabled');
+        
+        // Activer le premier onglet si aucun n'est actif
+        if ($('#dataProtectionTabs .nav-link.active').length === 0) {
+            $('#dataProtectionTabs .nav-link:first').tab('show');
+        }
+    });
+</script>
+{% endblock %}

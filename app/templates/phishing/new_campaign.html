@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Content Header -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">{{ title }}</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('phishing.campaigns') }}">Campagnes</a></li>
+                        <li class="breadcrumb-item active">{{ title }}</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Informations de la Campagne</h3>
+                        </div>
+                        <form method="POST" class="card-body">
+                            {{ form.hidden_tag() }}
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.name.label(class="form-label") }}
+                                        {{ form.name(class="form-control") }}
+                                        {% if form.name.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.name.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.template.label(class="form-label") }}
+                                        {{ form.template(class="form-control") }}
+                                        {% if form.template.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.template.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                {{ form.description.label(class="form-label") }}
+                                {{ form.description(class="form-control", rows="3") }}
+                                {% if form.description.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.description.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <hr>
+                            <h5>Détails de la Simulation</h5>
+                            
+                            <div class="form-group">
+                                {{ form.simulation_title.label(class="form-label") }}
+                                {{ form.simulation_title(class="form-control") }}
+                                {% if form.simulation_title.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.simulation_title.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                {{ form.simulation_description.label(class="form-label") }}
+                                {{ form.simulation_description(class="form-control", rows="2") }}
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.start_date.label(class="form-label") }}
+                                        {{ form.start_date(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.end_date.label(class="form-label") }}
+                                        {{ form.end_date(class="form-control") }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <h5>Ciblage des Utilisateurs</h5>
+                            
+                            <div class="form-group">
+                                <div class="form-check">
+                                    {{ form.target_all(class="form-check-input") }}
+                                    {{ form.target_all.label(class="form-check-label") }}
+                                </div>
+                            </div>
+
+                            <div class="row" id="targeting-options">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.target_departments.label(class="form-label") }}
+                                        {{ form.target_departments(class="form-control", multiple=true, style="height: 120px;") }}
+                                        <small class="text-muted">Maintenez Ctrl/Cmd pour sélectionner plusieurs départements</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        {{ form.target_users.label(class="form-label") }}
+                                        <select name="target_users" class="form-control select2" multiple="multiple" style="height: 120px;">
+                                            {% for user in users %}
+                                                <option value="{{ user.id }}">{{ user.firstname }} {{ user.lastname }} ({{ user.department }})</option>
+                                            {% endfor %}
+                                        </select>
+                                        <small class="text-muted">Recherchez et sélectionnez des utilisateurs spécifiques</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                {{ form.submit(class="btn btn-primary") }}
+                                <a href="{{ url_for('phishing.campaigns') }}" class="btn btn-secondary">Annuler</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <!-- Template Preview -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Aperçu du Template</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="template-preview">
+                                <p class="text-muted">Sélectionnez un template pour voir l'aperçu</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Templates Information -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Templates Disponibles</h3>
+                        </div>
+                        <div class="card-body">
+                            {% for key, template in templates.items() %}
+                            <div class="template-info mb-3 p-3 border rounded" data-template="{{ key }}">
+                                <h6>{{ template.name }}</h6>
+                                <p class="text-muted small mb-2">{{ template.description }}</p>
+                                <div class="template-meta">
+                                    <span class="badge badge-{{ 'success' if template.difficulty == 'beginner' else 'warning' if template.difficulty == 'intermediate' else 'danger' }}">
+                                        {{ template.difficulty|title }}
+                                    </span>
+                                    <span class="badge badge-info">{{ template.sector|title }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+$(document).ready(function() {
+    // Initialize Select2 for user selection
+    $('.select2').select2({
+        placeholder: 'Rechercher des utilisateurs...',
+        allowClear: true
+    });
+
+    // Handle targeting options visibility
+    $('#target_all').change(function() {
+        if ($(this).is(':checked')) {
+            $('#targeting-options').hide();
+        } else {
+            $('#targeting-options').show();
+        }
+    });
+
+    // Template preview
+    const templatePreviews = {
+        'fake_shipping_manifest': `
+            <div class="email-preview">
+                <div class="email-header">
+                    <strong>De:</strong> notifications@maersk.com<br>
+                    <strong>Sujet:</strong> Manifeste d'expédition urgent - Action requise
+                </div>
+                <div class="email-body mt-2">
+                    <p><strong>⚠️ ATTENTION: Manifeste en attente</strong></p>
+                    <p>Votre conteneur nécessite une validation immédiate...</p>
+                </div>
+            </div>
+        `,
+        'fake_customs_notification': `
+            <div class="email-preview">
+                <div class="email-header">
+                    <strong>De:</strong> douanes@gov.ma<br>
+                    <strong>Sujet:</strong> Notification douanière - Paiement requis
+                </div>
+                <div class="email-body mt-2">
+                    <p><strong>🏛️ Administration des Douanes</strong></p>
+                    <p>Des frais supplémentaires sont dus pour votre marchandise...</p>
+                </div>
+            </div>
+        `,
+        'fake_portnet_security_alert': `
+            <div class="email-preview">
+                <div class="email-header">
+                    <strong>De:</strong> security@portnet.ma<br>
+                    <strong>Sujet:</strong> Alerte sécurité - Mise à jour requise
+                </div>
+                <div class="email-body mt-2">
+                    <p><strong>🔒 ALERTE SÉCURITÉ PORTNET</strong></p>
+                    <p>Votre compte nécessite une mise à jour de sécurité...</p>
+                </div>
+            </div>
+        `
+    };
+
+    $('#template').change(function() {
+        const selectedTemplate = $(this).val();
+        if (selectedTemplate && templatePreviews[selectedTemplate]) {
+            $('#template-preview').html(templatePreviews[selectedTemplate]);
+        } else {
+            $('#template-preview').html('<p class="text-muted">Sélectionnez un template pour voir l\'aperçu</p>');
+        }
+    });
+
+    // Highlight selected template info
+    $('#template').change(function() {
+        $('.template-info').removeClass('border-primary');
+        $(`.template-info[data-template="${$(this).val()}"]`).addClass('border-primary');
+    });
+
+    // Auto-populate simulation title based on template
+    $('#template').change(function() {
+        const selectedTemplate = $(this).val();
+        const templateData = {
+            'fake_shipping_manifest': 'Simulation - Faux Manifeste Maersk',
+            'fake_customs_notification': 'Simulation - Fausse Notification Douanes',
+            'fake_portnet_security_alert': 'Simulation - Fausse Alerte PortNet'
+        };
+        
+        if (templateData[selectedTemplate] && !$('#simulation_title').val()) {
+            $('#simulation_title').val(templateData[selectedTemplate]);
+        }
+    });
+
+    // Initialize targeting options visibility
+    $('#target_all').trigger('change');
+});
+</script>
+
+<style>
+.email-preview {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background: #f9f9f9;
+    font-size: 12px;
+}
+
+.email-header {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.template-info.border-primary {
+    border-color: #007bff !important;
+    background-color: #f8f9ff;
+}
+
+.template-meta .badge {
+    margin-right: 5px;
+}
+</style>
+{% endblock %}

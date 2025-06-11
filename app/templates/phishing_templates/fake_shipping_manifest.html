@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manifeste d'Expédition #{{ tracking_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            border: 1px solid #ddd;
+        }
+        .header {
+            background-color: #003366;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .content {
+            padding: 30px;
+        }
+        .alert-box {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .alert-box .icon {
+            color: #856404;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .details-table th,
+        .details-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .details-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .action-button {
+            display: inline-block;
+            background-color: #dc3545;
+            color: white;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .action-button:hover {
+            background-color: #c82333;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        .urgent {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .phishing-link {
+            background-color: #007bff;
+            color: white !important;
+            padding: 15px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 20px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">🚢 MAERSK LOGISTICS</div>
+            <p>Notification de Manifeste d'Expédition</p>
+        </div>
+        
+        <div class="content">
+            <div class="alert-box">
+                <span class="icon">⚠️</span>
+                <strong class="urgent">ACTION REQUISE:</strong> Votre manifeste d'expédition nécessite une validation immédiate
+            </div>
+            
+            <p>Bonjour,</p>
+            
+            <p>Nous avons détecté une <strong class="urgent">irrégularité</strong> dans le manifeste d'expédition de votre conteneur. 
+            Une validation immédiate est requise pour éviter des retards de livraison et des frais supplémentaires.</p>
+            
+            <table class="details-table">
+                <tr>
+                    <th>Numéro de Conteneur:</th>
+                    <td>{{ container_number | default('MSCU7845129') }}</td>
+                </tr>
+                <tr>
+                    <th>Numéro de Suivi:</th>
+                    <td>{{ tracking_number | default('MLG789456123') }}</td>
+                </tr>
+                <tr>
+                    <th>Port de Destination:</th>
+                    <td>{{ destination_port | default('Port de Tanger Med') }}</td>
+                </tr>
+                <tr>
+                    <th>Date d\'Arrivée Prévue:</th>
+                    <td>{{ arrival_date | default('08/06/2025') }}</td>
+                </tr>
+                <tr>
+                    <th>Statut:</th>
+                    <td><span class="urgent">⚠️ EN ATTENTE DE VALIDATION</span></td>
+                </tr>
+            </table>
+            
+            <p><strong>Problème identifié:</strong></p>
+            <ul>
+                <li>Discordance dans la déclaration de marchandises</li>
+                <li>Code HS (Harmonized System) manquant pour certains articles</li>
+                <li>Signature électronique du manifeste expirée</li>
+            </ul>
+            
+            <p class="urgent">🕐 DÉLAI LIMITE: Vous avez 4 heures pour corriger ces informations, 
+            sinon votre conteneur sera bloqué en douane avec des frais de surestarie de 250€ par jour.</p>
+            
+            <p>Cliquez sur le lien ci-dessous pour accéder au portail de validation et corriger votre manifeste:</p>
+            
+            <div style="text-align: center;">
+                <a href="{{ phishing_url | default('/phishing/track?campaign_id=' + campaign_id + '&target_id=' + target_id) }}" 
+                   class="phishing-link">
+                    🔗 VALIDER LE MANIFESTE MAINTENANT
+                </a>
+            </div>
+            
+            <p><strong>Information importante:</strong></p>
+            <p style="font-size: 14px;">
+                Pour des raisons de sécurité, ce lien est valide pendant 6 heures uniquement. 
+                Si vous ne pouvez pas accéder au lien, contactez immédiatement notre service client au +212 539 94 60 00.
+            </p>
+            
+            <p>Merci de votre coopération,</p>
+            <p><strong>Service Logistique Maersk Maroc</strong><br>
+            Département Manifestes & Documentation<br>
+            📧 manifest.validation@maersk-logistics.ma<br>
+            📞 +212 539 94 60 00</p>
+        </div>
+        
+        <div class="footer">
+            <p>Maersk Logistics Maroc - Zone Franche du Port de Tanger Med<br>
+            Ce message est automatique, merci de ne pas répondre directement à cet email.</p>
+            <p style="font-size: 10px; color: #999;">
+                Référence interne: REF-{{ reference_id | default('ML2025060700891') }} | 
+                Généré le {{ current_date | default('07/06/2025 14:32') }}
+            </p>
+        </div>
+    </div>
+</body>
+</html>

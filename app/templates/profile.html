@@ -1,0 +1,470 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  <h1>Mon Profil</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Accueil</a></li>
+  <li class="breadcrumb-item active">Profil</li>
+{% endblock %}
+
+{% block content %}
+<style>
+  /* Profile Info Card Style */
+  .card.card-primary {
+    border: none;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+  .card.card-primary .card-header {
+    background: linear-gradient(90deg, #17a2b8, #0062cc);
+    color: #fff;
+    border: none;
+  }
+  .card.card-primary .card-body {
+    padding: 2rem;
+  }
+  .form-control {
+    border-radius: .5rem;
+  }
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  .btn-primary {
+    border-radius: .5rem;
+    padding: .75rem 1.5rem;
+  }
+  /* Adjust row spacing */
+  .row.mb-4, .row.mt-4 {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+</style>
+<div class="container-fluid">
+  <!-- Global Security Progress -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-shield-alt mr-1"></i> Niveau de sécurité global</h3>
+        </div>
+        <div class="card-body">
+          {% set security_level = (completed_modules / total_modules * 100)|round|int if total_modules > 0 else 0 %}
+          <div class="d-flex align-items-center mb-2">
+            <h5 class="mb-0 mr-2">{{ security_level }}%</h5>
+            <div class="progress flex-grow-1" style="height: 10px;">
+              {% if security_level >= 80 %}
+                <div class="progress-bar bg-success" style="width: {{ security_level }}%;"></div>
+              {% elif security_level >= 50 %}
+                <div class="progress-bar bg-warning" style="width: {{ security_level }}%;"></div>
+              {% else %}
+                <div class="progress-bar bg-danger" style="width: {{ security_level }}%;"></div>
+              {% endif %}
+            </div>
+          </div>
+          <small class="text-muted">
+            {% if security_level >= 80 %}
+              Excellent niveau de sensibilisation à la sécurité !
+            {% elif security_level >= 50 %}
+              Bon niveau de sensibilisation. Continuez à progresser !
+            {% else %}
+              Améliorez votre niveau de sensibilisation en complétant plus de modules.
+            {% endif %}
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <!-- Profile Image -->
+      <div class="card card-primary card-outline">
+        <div class="card-body box-profile">
+          <form id="profileForm" method="POST" action="{{ url_for('main.profile') }}" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="text-center">
+              <img src="{{ url_for('static', filename='profile_pics/' + current_user.profile_picture) }}" 
+                   alt="Photo de profil" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+              <div class="form-group mt-2">
+                {{ form.profile_picture.label(class="form-control-label") }}
+                {{ form.profile_picture(class="form-control-file") }}
+                <button type="submit" class="btn btn-primary">Save</button>
+                {% if form.profile_picture.errors %}
+                  <div class="invalid-feedback d-block">
+                    {% for error in form.profile_picture.errors %}
+                      <span>{{ error }}</span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <small class="form-text text-muted">Formats acceptés: JPG, PNG, JPEG</small>
+              </div>
+            </div>
+          </form>
+          <h3 class="profile-username text-center">
+            {% if current_user.firstname or current_user.lastname %}
+              {{ current_user.firstname }} {{ current_user.lastname }}
+            {% else %}
+              {{ current_user.email.split('@')[0] }}
+            {% endif %}
+          </h3>
+          <p class="text-muted text-center">{{ current_user.email }}</p>
+          <ul class="list-group list-group-unbordered mb-3">
+            <li class="list-group-item">
+              <b>Modules Complétés</b> <a class="float-right">{{ completed_modules }} / {{ total_modules }}</a>
+              <div class="progress mt-2" style="height: 5px;">
+                <div class="progress-bar bg-primary" role="progressbar" 
+                     style="width: {{ completion_percentage }}%;" 
+                     aria-valuenow="{{ completion_percentage }}" 
+                     aria-valuemin="0" 
+                     aria-valuemax="100" 
+                     data-toggle="tooltip" 
+                     title="{{ completion_percentage }}% complété"></div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <b>Score Moyen Quiz</b> <a class="float-right">
+                {% if average_score > 0 or completed_modules > 0 %}
+                  {{ average_score }}%
+                {% else %}
+                  N/A
+                {% endif %}
+              </a>
+              {% if completed_modules > 0 %}
+                <div class="progress mt-2" style="height: 5px;">
+                  {% if average_score >= 70 %}
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {{ average_score }}%;" 
+                         aria-valuenow="{{ average_score }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100" 
+                         data-toggle="tooltip" 
+                         title="Score moyen: {{ average_score }}%"></div>
+                  {% elif average_score >= 50 %}
+                    <div class="progress-bar bg-warning" role="progressbar" 
+                         style="width: {{ average_score }}%;" 
+                         aria-valuenow="{{ average_score }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100" 
+                         data-toggle="tooltip" 
+                         title="Score moyen: {{ average_score }}%"></div>
+                  {% else %}
+                    <div class="progress-bar bg-danger" role="progressbar" 
+                         style="width: {{ average_score }}%;" 
+                         aria-valuenow="{{ average_score }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100" 
+                         data-toggle="tooltip" 
+                         title="Score moyen: {{ average_score }}%"></div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </li>
+          </ul>
+          <!-- Bouton de modification de profil déplacé vers le formulaire à droite -->
+        </div>
+        <!-- /.card-body -->
+      </div>
+      <!-- /.card -->
+    </div>
+    <div class="col-md-8">
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h4 class="mb-0">Informations personnelles</h4>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="row">
+              <!-- Formulaire d'informations personnelles -->
+              <div class="col-md-12">
+                <div class="form-group">
+                  {{ form.email.label(class="form-control-label") }}
+                  {{ form.email(class="form-control") }}
+                  {% if form.email.errors %}
+                    <div class="invalid-feedback d-block">
+                      {% for error in form.email.errors %}
+                        <span>{{ error }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-md-6">
+                    {{ form.firstname.label(class="form-control-label") }}
+                    {{ form.firstname(class="form-control") }}
+                    {% if form.firstname.errors %}
+                      <div class="invalid-feedback d-block">
+                        {% for error in form.firstname.errors %}
+                          <span>{{ error }}</span>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                  <div class="form-group col-md-6">
+                    {{ form.lastname.label(class="form-control-label") }}
+                    {{ form.lastname(class="form-control") }}
+                    {% if form.lastname.errors %}
+                      <div class="invalid-feedback d-block">
+                        {% for error in form.lastname.errors %}
+                          <span>{{ error }}</span>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="form-group">
+                  {{ form.department.label(class="form-control-label") }}
+                  <input type="text" readonly class="form-control-plaintext" value="{{ current_user.department }}">
+                </div>
+                <div class="form-group">
+                  {{ form.submit(class="btn btn-primary") }}
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.row -->
+  
+  <!-- Badges Section -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card card-success card-outline">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-medal mr-1"></i> Mes Badges</h3>
+        </div>
+        <div class="card-body">
+          {% if badges and badges|length > 0 %}
+            <div class="row">
+              {% for badge in badges %}
+                <div class="col-md-2 col-sm-4 col-6 text-center mb-3">
+                  <img src="{{ url_for('static', filename='images/badges/' + badge.image_filename) }}" 
+                       alt="{{ badge.name }}" 
+                       class="img-fluid badge-image" 
+                       style="width: 120px; height: 120px; cursor: help;" 
+                       data-toggle="tooltip" 
+                       data-placement="top" 
+                       title="{{ badge.name }} - {{ badge.description }}">
+                  <p class="mt-1 mb-0" style="font-size: 0.8rem;">{{ badge.name }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-center text-muted">Vous n'avez pas encore débloqué de badges. Complétez les modules pour en gagner !</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.Badges Section -->
+
+  <!-- Simulation Metrics Section -->
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <div class="card card-primary card-outline">
+        <div class="card-header text-primary">
+          <h3 class="card-title"><i class="fas fa-chart-pie mr-1"></i> Statistiques des simulations</h3>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-unbordered mb-3">
+            <li class="list-group-item"><b>Total d'essais</b> <a class="float-right">{{ sim_total }}</a></li>
+            <li class="list-group-item"><b>Réussites</b> <a class="float-right text-success">{{ sim_success_count }}</a></li>
+            <li class="list-group-item"><b>Échecs</b> <a class="float-right text-danger">{{ sim_fail_count }}</a></li>
+            <li class="list-group-item"><b>Taux de réussite</b> <a class="float-right">{{ sim_success_rate }}%</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity Section -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <!-- Bloc activités récentes -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h4 class="mb-0"><i class="fas fa-history mr-1"></i> Activités récentes</h4>
+        </div>
+        <div class="card-body">
+          {% if user_activities %}
+            <div class="timeline">
+              {% for activity in user_activities %}
+                <div class="timeline-item">
+                  <div class="timeline-marker"></div>
+                  <div class="timeline-content">
+                    <h5 class="timeline-title">{{ activity.module_name }}</h5>
+                    <p>
+                      <small class="text-muted">{{ activity.timestamp.strftime('%d/%m/%Y à %H:%M') }}</small><br>
+                      {{ activity.action }}
+                      {% if activity.score %}
+                        <span class="badge badge-info">Score: {{ activity.score|round(1) }}%</span>
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <p class="text-muted">Aucune activité récente à afficher.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.Recent Activity Section -->
+
+  <!-- Quiz Performance Chart -->
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card card-primary card-outline">
+        <div class="card-header">
+          <h3 class="card-title"><i class="fas fa-chart-line mr-1"></i> Évolution des performances</h3>
+        </div>
+        <div class="card-body">
+          <canvas id="quizScoreChart" style="min-height: 250px;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /.Quiz Performance Chart -->
+
+  <!-- Certificate Download -->
+  {% if completed_modules > 0 and not user_certificates %}
+  <div class="row mt-4">
+    <div class="col-md-12 text-center">
+      <a href="{{ url_for('modules.certificate') }}" class="btn btn-primary btn-lg">
+        <i class="fas fa-certificate mr-1"></i> Générer mon certificat
+      </a>
+      <p class="text-muted mt-2"><small>Le certificat regroupe tous vos modules complétés et badges obtenus.</small></p>
+    </div>
+  </div>
+  {% endif %}
+  <!-- /.Certificate Download -->
+
+</div>
+<style>
+  /* Amélioration de l'UI/UX */
+  .card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+  .badge-image {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .badge-image:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  }
+  .progress-bar {
+    transition: width 0.6s ease;
+  }
+  .form-control {
+    margin-bottom: 1rem;
+  }
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  .timeline-item {
+    margin-bottom: 1.5rem;
+  }
+</style>
+{% endblock content %}
+
+{% block scripts %}
+{{ super() }} {# Include scripts from base.html if any #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- stylelint-disable -->
+<!-- Données Jinja pour le graphique -->
+<script type="text/javascript">
+  /* eslint-disable */
+  // Variables globales pour les données du graphique
+  var chartLabels = {{ chart_labels|default('[]')|tojson|safe }};
+  var chartData = {{ chart_data|default('[]')|tojson|safe }};
+</script>
+<script>
+  $(function () {
+    // Initialize Bootstrap tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // Add hover effect to badges
+    $('.badge-image').hover(
+      function() {
+        $(this).css({
+          'transform': 'scale(1.05)',
+          'box-shadow': '0 5px 15px rgba(0,0,0,0.3)',
+          'transition': 'all 0.3s ease'
+        });
+      },
+      function() {
+        $(this).css({
+          'transform': 'scale(1)',
+          'box-shadow': 'none',
+          'transition': 'all 0.3s ease'
+        });
+      }
+    );
+    
+    // Utiliser les variables globales définies plus haut pour le graphique
+    
+    // Initialize Quiz Performance Chart
+    var ctx = document.getElementById('quizScoreChart').getContext('2d');
+    var quizScoreChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartLabels,
+        datasets: [{
+          label: 'Score des quiz (%)',
+          data: chartData,
+          backgroundColor: 'rgba(40, 167, 69, 0.2)',
+          borderColor: 'rgba(40, 167, 69, 1)',
+          borderWidth: 2,
+          pointBackgroundColor: 'rgba(40, 167, 69, 1)',
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `Score: ${context.parsed.y}%`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) {
+                return value + '%';
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

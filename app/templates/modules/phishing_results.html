@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Résultats du Simulateur de Phishing</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Tableau de bord</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.phishing_simulation') }}">Simulateur de Phishing</a></li>
+                    <li class="breadcrumb-item active">Résultats</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Carte de score -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card {% if percentage >= 80 %}card-success{% elif percentage >= 60 %}card-warning{% else %}card-danger{% endif %}">
+                    <div class="card-header">
+                        <h3 class="card-title">Votre score</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-box bg-gradient-info">
+                                    <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Score</span>
+                                        <span class="info-box-number">{{ score }} / {{ total }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box bg-gradient-primary">
+                                    <span class="info-box-icon"><i class="fas fa-percent"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Pourcentage</span>
+                                        <span class="info-box-number">{{ percentage|round|int }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box {% if percentage >= 80 %}bg-gradient-success{% elif percentage >= 60 %}bg-gradient-warning{% else %}bg-gradient-danger{% endif %}">
+                                    <span class="info-box-icon"><i class="fas fa-trophy"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Résultat</span>
+                                        <span class="info-box-number">
+                                            {% if percentage >= 80 %}
+                                                Excellent!
+                                            {% elif percentage >= 60 %}
+                                                Bon travail
+                                            {% else %}
+                                                À améliorer
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            {% if percentage >= 80 %}
+                                <div class="alert alert-success">
+                                    <h5><i class="icon fas fa-check"></i> Félicitations!</h5>
+                                    <p>Vous avez démontré une excellente capacité à identifier les tentatives de phishing. Continuez à rester vigilant et à appliquer ces compétences dans votre quotidien professionnel.</p>
+                                </div>
+                            {% elif percentage >= 60 %}
+                                <div class="alert alert-warning">
+                                    <h5><i class="icon fas fa-exclamation-triangle"></i> Bon travail!</h5>
+                                    <p>Vous avez de bonnes bases pour identifier les tentatives de phishing, mais il y a encore place à l'amélioration. Revoyez les conseils ci-dessous pour renforcer vos compétences.</p>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger">
+                                    <h5><i class="icon fas fa-ban"></i> Attention!</h5>
+                                    <p>Vous avez eu des difficultés à identifier correctement les tentatives de phishing. Nous vous recommandons vivement de revoir le module de formation et de vous entraîner davantage.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Explications et corrections -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Explications détaillées</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <!-- Email 1 -->
+                            <div class="time-label">
+                                <span class="bg-red">Exemple 1 - Phishing</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-fish bg-red"></i>
+                                <div class="timeline-item">
+                                    <h3 class="timeline-header">Email de "Microsoft" concernant la suspension du compte</h3>
+                                    <div class="timeline-body">
+                                        <p><strong>Signes d'alerte:</strong></p>
+                                        <ul>
+                                            <li>Domaine d'expéditeur suspect (microsoft-secure-auth.com n'est pas un domaine officiel de Microsoft)</li>
+                                            <li>Création d'urgence (menace de suspension dans 24 heures)</li>
+                                            <li>Demande de cliquer sur un lien suspect</li>
+                                            <li>Ton alarmiste pour inciter à l'action rapide sans réfléchir</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email 2 -->
+                            <div class="time-label">
+                                <span class="bg-green">Exemple 2 - Légitime</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-check bg-green"></i>
+                                <div class="timeline-item">
+                                    <h3 class="timeline-header">Rappel de formation interne</h3>
+                                    <div class="timeline-body">
+                                        <p><strong>Pourquoi c'est légitime:</strong></p>
+                                        <ul>
+                                            <li>Adresse d'expéditeur officielle de Tanger Alliance</li>
+                                            <li>Contenu attendu dans un contexte professionnel</li>
+                                            <li>Aucune demande d'action immédiate ou d'informations sensibles</li>
+                                            <li>Référence à des systèmes internes cohérents (intranet, salle de conférence)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email 3 -->
+                            <div class="time-label">
+                                <span class="bg-red">Exemple 3 - Phishing</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-fish bg-red"></i>
+                                <div class="timeline-item">
+                                    <h3 class="timeline-header">Confirmation de coordonnées bancaires</h3>
+                                    <div class="timeline-body">
+                                        <p><strong>Signes d'alerte:</strong></p>
+                                        <ul>
+                                            <li>Domaine d'expéditeur suspect (payement-securise.com avec une faute d'orthographe)</li>
+                                            <li>Demande d'informations bancaires extrêmement sensibles</li>
+                                            <li>Urgence mentionnée dans l'objet et le corps du message</li>
+                                            <li>Prétendu expéditeur "Banque Centrale du Maroc" mais depuis un domaine suspect</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email 4 -->
+                            <div class="time-label">
+                                <span class="bg-green">Exemple 4 - Légitime</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-check bg-green"></i>
+                                <div class="timeline-item">
+                                    <h3 class="timeline-header">Expiration d'abonnement Office 365</h3>
+                                    <div class="timeline-body">
+                                        <p><strong>Pourquoi c'est légitime:</strong></p>
+                                        <ul>
+                                            <li>Domaine d'expéditeur officiel (office365.com)</li>
+                                            <li>Le lien fourni est l'URL officielle de Microsoft (portal.office.com)</li>
+                                            <li>Pas de demande d'informations sensibles</li>
+                                            <li>Contenu informatif sans urgence excessive</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email 5 -->
+                            <div class="time-label">
+                                <span class="bg-red">Exemple 5 - Phishing</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-fish bg-red"></i>
+                                <div class="timeline-item">
+                                    <h3 class="timeline-header">Gain d'un iPhone</h3>
+                                    <div class="timeline-body">
+                                        <p><strong>Signes d'alerte:</strong></p>
+                                        <ul>
+                                            <li>Domaine d'expéditeur suspect (prix-specials.net)</li>
+                                            <li>Offre trop belle pour être vraie (un iPhone gratuit)</li>
+                                            <li>Urgence (réclamer dans les 24 heures)</li>
+                                            <li>Objet en majuscules avec points d'exclamation (technique classique d'hameçonnage)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <i class="fas fa-graduation-cap bg-blue"></i>
+                                <div class="timeline-item">
+                                    <h3 class="timeline-header">Conseils généraux pour identifier le phishing</h3>
+                                    <div class="timeline-body">
+                                        <ol>
+                                            <li><strong>Vérifiez l'adresse email de l'expéditeur</strong> - Les domaines légitimes correspondent généralement à l'organisation officielle.</li>
+                                            <li><strong>Méfiez-vous de l'urgence</strong> - Les attaquants utilisent souvent un sentiment d'urgence pour vous faire agir sans réfléchir.</li>
+                                            <li><strong>Survolez les liens</strong> - Avant de cliquer, vérifiez l'URL réelle qui s'affiche au survol.</li>
+                                            <li><strong>Soyez attentif aux fautes</strong> - Les emails de phishing contiennent souvent des erreurs de grammaire ou d'orthographe.</li>
+                                            <li><strong>Ne partagez jamais d'informations sensibles</strong> - Les organisations légitimes ne demandent jamais vos mots de passe ou coordonnées bancaires par email.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <a href="{{ url_for('modules.phishing_simulation') }}" class="btn btn-secondary mr-2">
+                    <i class="fas fa-fish mr-1"></i>Simulateur de Phishing
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+                    <i class="fas fa-home mr-1"></i>Retour au tableau de bord
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

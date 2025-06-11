@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4 simulation-page">
+    <h1 class="mb-4 text-primary"><i class="fas fa-bolt"></i> Alerte sécurité système</h1>
+    <p class="lead">Réagissez face à une alerte critique provenant du système. Sélectionnez tous les éléments suspects dans l'alerte ci-dessous.</p>
+    <div class="card shadow mb-3 border-danger">
+    <div class="card-header bg-danger text-white">
+        <i class="fas fa-shield-alt"></i> <strong>De :</strong> IT Support &lt;it-support@tanger-alliance.com&gt;<br>
+        <strong>Objet :</strong> <span class="text-warning">Alerte critique : Mise à jour urgente requise</span>
+    </div>
+    <div class="card-body">
+        <p class="mb-1">Votre poste doit être mis à jour immédiatement. <a href="#" class="text-danger font-weight-bold">Cliquez ici</a> pour lancer la mise à jour ou téléchargez le fichier .exe joint.</p>
+        <p class="mb-0"><span class="badge badge-warning">Message urgent de la DSI</span></p>
+    </div>
+</div>
+    <form method="post" class="mt-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="mb-3">
+        <p class="font-weight-bold text-danger"><i class="fas fa-exclamation-triangle"></i> Quels éléments de cette alerte sont suspects ?</p>
+        <style>
+          .flag-card { border:1px solid #dee2e6; border-radius:0.5rem; background:#fff; transition:transform .2s,box-shadow .2s; cursor:pointer; position:relative; }
+          .flag-card:hover { transform:translateY(-3px); box-shadow:0 4px 15px rgba(0,0,0,0.08); }
+          .flag-card.selected { border-color:#dc3545; background:#f8d7da; }
+          .flag-card .flag-text { font-weight:500; color:#333; }
+          .flag-card .checkmark { position:absolute; top:.5rem; right:.5rem; font-size:1.2rem; color:#dc3545; display:none; }
+          .flag-card.selected .checkmark { display:block; }
+        </style>
+        <div class="row">
+        {% for flag in sim.flags %}
+            <div class="col-12 col-md-6 mb-3">
+                <div class="flag-card p-3 text-center" data-flag-index="{{ loop.index }}">
+                    <i class="fas fa-exclamation-circle fa-2x mb-2 text-danger"></i>
+                    <div class="flag-text">{{ flag }}</div>
+                    <i class="checkmark fas fa-check-circle"></i>
+                    <input type="checkbox" name="flags" value="{{ flag }}" id="flag{{ loop.index }}" class="d-none">
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+        <script>
+        document.querySelectorAll('.flag-card').forEach(card=>{
+          const idx=card.dataset.flagIndex;
+          const input=document.getElementById('flag'+idx);
+          card.addEventListener('click',()=>{card.classList.toggle('selected'); input.checked=!input.checked;});
+        });
+        </script>
+    </div>
+    <button type="submit" class="btn btn-lg btn-success w-100 mt-2"><i class="fas fa-check-circle"></i> Valider ma sélection</button>
+</form>
+    <a class="btn btn-outline-secondary mt-3 w-100" href="{{ url_for('main.simulations') }}"><i class="fas fa-arrow-left"></i> Retour aux simulations</a>
+    {% if stats %}
+    <div class="alert alert-info mt-3 rounded shadow-sm">
+    <i class="fas fa-chart-bar"></i> <strong>Vos statistiques :</strong><br>
+    Tentatives : <span class="badge badge-secondary">{{ stats.total }}</span><br>
+    Taux de réussite : <span class="badge badge-success">{{ stats.rate }}%</span><br>
+    Dernière réussite : <span class="badge badge-light">{% if stats.last_success %}{{ stats.last_success.strftime('%d/%m/%Y %H:%M') }}{% else %}-{% endif %}</span>
+</div>
+    {% endif %}
+</div>
+{% endblock %}

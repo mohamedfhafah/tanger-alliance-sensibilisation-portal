@@ -8,7 +8,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.env
 
 # Flask
 instance/
@@ -34,6 +33,11 @@ instance/
 ehthumbs.db
 Thumbs.db
 
+# Backups
+backups/
+
 # Logs
 logs/
 *.log
+.pytest_cache/
+.env

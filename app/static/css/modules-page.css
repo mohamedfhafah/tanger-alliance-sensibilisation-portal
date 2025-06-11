@@ -1,0 +1,219 @@
+/* Styles pour la page modules */
+.modules-header {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e0f0ff 100%);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.modules-header:hover {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+
+.modules-title {
+    font-size: 2.4rem;
+    letter-spacing: 0.5px;
+    color: #2c3e50;
+}
+
+.modules-intro {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #505a68;
+}
+
+.modules-progress {
+    height: 10px;
+    border-radius: 6px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.modules-progress .progress-bar {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: width 0.6s ease;
+}
+
+/* Classes de progression pour remplacer les styles inline */
+.progress-value-0 { width: 0%; }
+.progress-value-10 { width: 10%; }
+.progress-value-20 { width: 20%; }
+.progress-value-25 { width: 25%; }
+.progress-value-30 { width: 30%; }
+.progress-value-33 { width: 33%; }
+.progress-value-40 { width: 40%; }
+.progress-value-50 { width: 50%; }
+.progress-value-60 { width: 60%; }
+.progress-value-67 { width: 67%; }
+.progress-value-70 { width: 70%; }
+.progress-value-75 { width: 75%; }
+.progress-value-80 { width: 80%; }
+.progress-value-90 { width: 90%; }
+.progress-value-100 { width: 100%; }
+
+/* Styles pour les barres de progression des modules individuels */
+.module-progress {
+    height: 25px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Classes de pourcentage pour les modules individuels */
+.progress-percent-0 { width: 0%; }
+.progress-percent-10 { width: 10%; }
+.progress-percent-20 { width: 20%; }
+.progress-percent-25 { width: 25%; }
+.progress-percent-30 { width: 30%; }
+.progress-percent-33 { width: 33%; }
+.progress-percent-40 { width: 40%; }
+.progress-percent-50 { width: 50%; }
+.progress-percent-60 { width: 60%; }
+.progress-percent-67 { width: 67%; }
+.progress-percent-70 { width: 70%; }
+.progress-percent-75 { width: 75%; }
+.progress-percent-80 { width: 80%; }
+.progress-percent-90 { width: 90%; }
+.progress-percent-100 { width: 100%; }
+
+/* Style des cartes de module */
+.module-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+    overflow: hidden;
+}
+
+.module-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.module-header {
+    padding: 1rem 1.5rem;
+    border-bottom: none;
+}
+
+/* Styles pour les icônes des modules */
+.module-icon {
+    margin-right: 15px;
+    font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Wrapper pour l'icône et le titre */
+.module-icon-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+}
+
+/* Style du titre à côté de l'icône */
+.module-title {
+    margin-left: 15px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+}
+
+.module-card:hover .module-title {
+    color: #0056b3;
+}
+
+.module-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+}
+
+.module-icon {
+    font-size: 1.3rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    transition: all 0.3s ease;
+}
+
+.module-title {
+    font-weight: 600;
+    margin-left: 15px;
+}
+
+/* Animation au survol */
+.module-card:hover .module-icon {
+    transform: scale(1.1);
+}
+
+/* Styles des badges dans les cartes de module */
+.module-badges .badge {
+    margin-right: 10px;
+    font-size: 0.8rem;
+    padding: 6px 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Style des badges dans les en-têtes de modules */
+.module-header .badge {
+    transition: all 0.3s ease;
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.module-card:hover .module-header .badge {
+    transform: scale(1.05);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* Animation pour les boutons d'action */
+.card-footer .btn {
+    transition: all 0.3s ease;
+}
+
+.card-footer .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Style adaptatif */
+@media (max-width: 767px) {
+    .modules-title {
+        font-size: 1.8rem;
+    }
+    .modules-intro {
+        font-size: 1rem;
+    }
+    
+    .module-icon-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .module-title {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+    
+    .module-icon {
+        width: 35px;
+        height: 35px;
+        margin-right: 10px;
+    }
+    
+    .module-title {
+        font-size: 0.95rem;
+        margin-left: 10px;
+    }
+}

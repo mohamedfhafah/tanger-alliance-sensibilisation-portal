@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock %} - Tanger Alliance Security</title>
+  <link rel="icon" href="{{ url_for('static', filename='images/tanger-alliance-logo.png') }}">
+
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/plugins/fontawesome-free/css/all.min.css') }}">
+  <!-- icheck bootstrap -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/dist/css/adminlte.min.css') }}">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+</head>
+<body class="hold-transition login-page">
+<div class="login-box">
+  <div class="login-logo">
+    <a href="{{ url_for('main.home') }}">
+      <img src="{{ url_for('static', filename='images/tanger-alliance-logo.png') }}" alt="Tanger Alliance Logo" style="width: 200px; max-width: 80%; height: auto;">
+    </a>
+  </div>
+  <!-- /.login-logo -->
+  <div class="card card-outline card-primary">
+    <div class="card-header text-center">
+      <a href="{{ url_for('main.home') }}" class="h1"><b>Portail</b> Sécurité</a>
+    </div>
+    <div class="card-body login-card-body">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
+      {% block page_title_auth %}
+      <p class="login-box-msg">
+        {% if self.title() %}
+          {{ self.title() | replace(" - Tanger Alliance Security", "") }}
+        {% else %}
+          Connectez-vous pour démarrer votre session
+        {% endif %}
+      </p>
+      {% endblock %}
+
+      {% block auth_content %}{% endblock %}
+
+    </div>
+    <!-- /.login-card-body -->
+    <div class="card-footer text-center">
+        {% block auth_footer_links %}{% endblock %}
+    </div>
+  </div>
+</div>
+<!-- /.login-box -->
+
+<!-- jQuery -->
+<script src="{{ url_for('static', filename='adminlte/plugins/jquery/jquery.min.js') }}"></script>
+<!-- Bootstrap 4 -->
+<script src="{{ url_for('static', filename='adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+<!-- AdminLTE App -->
+<script src="{{ url_for('static', filename='adminlte/dist/js/adminlte.min.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

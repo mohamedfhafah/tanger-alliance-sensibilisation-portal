@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Simulation : Notification douanière fictive (Maroc)</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <strong>De :</strong> douane-maroc@porttanger.ma<br>
+                    <strong>À :</strong> employe@tangeralliance.com<br>
+                    <strong>Objet :</strong> [ACTION REQUISE] Votre envoi est bloqué par la douane marocaine
+                </div>
+                <div class="card-body" style="background:#f8f9fa;">
+                    <p>Salam,
+                    <br>Votre colis n° <b>MA987654321</b> est actuellement retenu par la Douane du Port Tanger Med. Afin de poursuivre la livraison, nous vous prions de régler les frais de dossier via le lien suivant :</p>
+                    <div class="mb-3">
+                        <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button name="action" value="link" class="btn btn-link p-0 align-baseline">https://paiement-douane-maroc.com/frais</button>
+                        </form>
+                    </div>
+                    <p>Vous pouvez également télécharger la "facture" jointe :</p>
+                    <form method="post" class="d-inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button name="action" value="attachment" class="btn btn-outline-secondary btn-sm"><i class="fas fa-file-invoice"></i> facture_port.zip</button>
+                    </form>
+                    <hr>
+                    <form method="post" class="d-inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button name="action" value="report" class="btn btn-danger">Signaler ce message</button>
+                    </form>
+                    <form method="post" class="d-inline ms-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button name="action" value="ignore" class="btn btn-secondary">Ignorer</button>
+                    </form>
+                    <div class="mt-3 small text-muted">
+                        <i class="fas fa-info-circle"></i> Cet email est adressé à un employé de Tanger Alliance, et cible les flux logistiques Maroc/Europe.
+                    </div>
+                </div>
+            </div>
+            {% if stats %}
+            <div class="mt-4">
+                <div class="alert alert-info">
+                    <strong>Statistiques personnelles :</strong><br>
+                    Nombre de tentatives : {{ stats.total }}<br>
+                    Bonnes réactions (signalement) : {{ stats.success }}<br>
+                    Taux de réussite : {{ stats.rate }}%
+                </div>
+            </div>
+            {% endif %}
+            {% if feedback %}
+            <div class="alert mt-4 {{ feedback_class }} alert-feedback">{{ feedback }}</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

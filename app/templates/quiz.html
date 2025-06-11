@@ -1,0 +1,697 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  <h1>Quiz</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Accueil</a></li>
+  <li class="breadcrumb-item active">Quiz</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Modern Quiz Interface Styles */
+:root {
+    --primary-gradient: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    --success-gradient: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+    --warning-gradient: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+    --danger-gradient: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --card-shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.15);
+    --border-radius: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.container-fluid {
+    padding: 2rem 1rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+}
+
+/* Main Quiz Card */
+.quiz-main-card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    background: white;
+    overflow: hidden;
+}
+
+.quiz-main-card .card-header {
+    background: var(--primary-gradient);
+    border: none;
+    padding: 1.5rem 2rem;
+    color: white;
+}
+
+.quiz-main-card .card-header h3 {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quiz-main-card .card-body {
+    padding: 2rem;
+}
+
+/* Module Cards */
+.quiz-module-card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+    overflow: hidden;
+    height: 100%;
+    background: white;
+}
+
+.quiz-module-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--card-shadow-hover);
+}
+
+.quiz-module-card .card-header {
+    border: none;
+    padding: 1.5rem;
+    background: var(--primary-gradient);
+    color: white;
+    position: relative;
+}
+
+.quiz-module-card .card-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.quiz-module-card .card-title {
+    margin: 0;
+    font-weight: 600;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quiz-module-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    opacity: 0.9;
+}
+
+.quiz-progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    margin-top: 0.75rem;
+    overflow: hidden;
+}
+
+.quiz-progress-bar .progress-bar {
+    background: #28a745;
+    transition: width 0.6s ease;
+}
+
+/* Quiz Items */
+.quiz-item {
+    border: none;
+    padding: 1.25rem;
+    transition: var(--transition);
+    position: relative;
+}
+
+.quiz-item:not(:last-child) {
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.quiz-item:hover {
+    background: #f8f9fa;
+}
+
+.quiz-item.quiz-locked {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #f8f9fa;
+}
+
+.quiz-item.quiz-locked:hover {
+    background: #f8f9fa !important;
+}
+
+.quiz-item.quiz-clickable {
+    cursor: pointer;
+}
+
+.quiz-item.quiz-clickable:hover {
+    background: linear-gradient(90deg, #e3f2fd 0%, #f3e5f5 100%);
+}
+
+/* Quiz Title and Content */
+.quiz-title {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quiz-description {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.4;
+}
+
+/* Difficulty Badges */
+.difficulty-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: 0.5rem;
+}
+
+.difficulty-beginner {
+    background: linear-gradient(45deg, #28a745, #20c997);
+    color: white;
+}
+
+.difficulty-intermediate {
+    background: linear-gradient(45deg, #ffc107, #fd7e14);
+    color: #212529;
+}
+
+.difficulty-advanced {
+    background: linear-gradient(45deg, #dc3545, #e83e8c);
+    color: white;
+}
+
+/* Status Badges */
+.quiz-status-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    min-width: 120px;
+}
+
+.status-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.status-completed {
+    background: var(--success-gradient);
+    color: white;
+}
+
+.status-available {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.status-locked {
+    background: #6c757d;
+    color: white;
+}
+
+.status-failed {
+    background: var(--warning-gradient);
+    color: #212529;
+}
+
+/* Action Buttons */
+.quiz-action-btn {
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    transition: var(--transition);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.quiz-action-btn:hover {
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+.btn-start {
+    background: var(--success-gradient);
+    color: white;
+}
+
+.btn-start:hover {
+    color: white;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-retake {
+    background: var(--warning-gradient);
+    color: #212529;
+}
+
+.btn-retake:hover {
+    color: #212529;
+    box-shadow: 0 4px 8px rgba(255, 193, 7, 0.3);
+}
+
+/* Score Display */
+.quiz-score {
+    font-size: 0.8rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+/* Loading States */
+.quiz-loading {
+    text-align: center;
+    padding: 3rem;
+    color: #6c757d;
+}
+
+.quiz-loading i {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #007bff;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Pulse Animation */
+.pulse-warning {
+    animation: pulseWarning 0.6s ease-in-out;
+}
+
+@keyframes pulseWarning {
+    0% { background-color: #fff3cd; }
+    50% { background-color: #ffeaa7; }
+    100% { background-color: #fff3cd; }
+}
+
+/* Count Badge */
+.quiz-count-badge {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding: 1rem 0.5rem;
+    }
+    
+    .quiz-main-card .card-header,
+    .quiz-main-card .card-body {
+        padding: 1rem;
+    }
+    
+    .quiz-module-card .card-header {
+        padding: 1rem;
+    }
+    
+    .quiz-item {
+        padding: 1rem;
+    }
+    
+    .quiz-item .d-flex {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .quiz-status-section {
+        align-items: flex-start;
+        width: 100%;
+    }
+    
+    .quiz-module-stats {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .quiz-main-card .card-header h3 {
+        font-size: 1.25rem;
+    }
+    
+    .quiz-module-card .card-title {
+        font-size: 1rem;
+    }
+    
+    .quiz-action-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .quiz-item:hover {
+        background: #495057;
+    }
+    
+    .quiz-item.quiz-clickable:hover {
+        background: linear-gradient(90deg, #495057 0%, #6f42c1 100%);
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Quiz Disponibles</h3>
+          <div class="card-tools">
+            <span class="badge badge-info" id="quiz-count">Chargement...</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="quiz-loading" class="text-center">
+            <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+            <p class="mt-2">Chargement des quiz...</p>
+          </div>
+          <div id="quiz-content" style="display: none;">
+            <div class="row" id="quiz-categories">
+              <!-- Quiz categories will be loaded here -->
+            </div>
+          </div>
+          <div id="quiz-error" class="alert alert-warning" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            Aucun quiz disponible pour le moment.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Quiz Details Modal -->
+<div class="modal fade" id="quizDetailsModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="quizModalTitle">Détails du Quiz</h4>
+        <button type="button" class="close" data-dismiss="modal">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="quizModalBody">
+        <!-- Quiz details will be loaded here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary" id="startQuizBtn" style="display: none;">Démarrer le Quiz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    loadQuizzes();
+});
+
+function loadQuizzes() {
+    $.ajax({
+        url: '/quiz-sidebar/api/quiz-sidebar-data',
+        method: 'GET',
+        success: function(response) {
+            if (response.success && response.quiz_groups) {
+                displayQuizzes(response.quiz_groups);
+            } else {
+                showError();
+            }
+        },
+        error: function() {
+            showError();
+        }
+    });
+}
+
+function displayQuizzes(quizGroups) {
+    const categoriesContainer = $('#quiz-categories');
+    const totalQuizzes = Object.values(quizGroups).reduce((sum, modules) => {
+        return sum + modules.reduce((moduleSum, module) => moduleSum + module.quizzes.length, 0);
+    }, 0);
+    
+    $('#quiz-count').text(totalQuizzes + ' quiz disponibles');
+    
+    if (totalQuizzes === 0) {
+        showError();
+        return;
+    }
+    
+    categoriesContainer.empty();
+    
+    Object.entries(quizGroups).forEach(([category, modules]) => {
+        modules.forEach(module => {
+            const completionBar = module.completion_percentage > 0 ? 
+                `<div class="progress mt-2" style="height: 5px;">
+                    <div class="progress-bar bg-success" style="width: ${module.completion_percentage}%"></div>
+                </div>` : '';
+            
+            const categoryHtml = `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-graduation-cap mr-2"></i>${module.title}
+                            </h5>
+                            <small class="text-light">${module.quizzes.length} quiz</small>
+                            <small class="text-light float-right">${module.completion_percentage}% complété</small>
+                            ${completionBar}
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                ${module.quizzes.map(quiz => createQuizItem(quiz)).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            categoriesContainer.append(categoryHtml);
+        });
+    });
+    
+    $('#quiz-loading').hide();
+    $('#quiz-content').show();
+}
+
+function createQuizItem(quiz) {
+    const statusIcon = getStatusIcon(quiz.status);
+    const statusClass = getStatusClass(quiz.status);
+    const statusText = getStatusText(quiz.status);
+    const scoreDisplay = quiz.score !== null ? `${quiz.score}%` : 'N/A';
+    
+    // Get difficulty information
+    const difficultyInfo = quiz.difficulty_display || {
+        stars: '⭐',
+        text: 'Débutant',
+        color: 'success'
+    };
+    
+    const lockStatus = quiz.is_unlocked ? '' : 'quiz-locked';
+    const clickable = quiz.is_unlocked ? 'quiz-clickable' : '';
+    
+    return `
+        <div class="list-group-item list-group-item-action quiz-item ${lockStatus} ${clickable}" data-quiz-id="${quiz.id}">
+            <div class="d-flex w-100 justify-content-between align-items-center">
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">
+                        ${statusIcon}
+                        ${quiz.title}
+                        <span class="badge badge-${difficultyInfo.color} ml-2">${difficultyInfo.stars} ${difficultyInfo.text}</span>
+                    </h6>
+                    <p class="mb-1 text-muted small">${quiz.description || 'Pas de description disponible'}</p>
+                    ${!quiz.is_unlocked ? '<small class="text-warning"><i class="fas fa-lock mr-1"></i>Complétez d\'abord le quiz précédent</small>' : ''}
+                </div>
+                <div class="text-right">
+                    <span class="badge ${statusClass} mb-1">${statusText}</span>
+                    <br>
+                    <small class="text-muted">Score: ${scoreDisplay}</small>
+                    ${quiz.attempts > 0 ? `<br><small class="text-info">Tentatives: ${quiz.attempts}</small>` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function getStatusIcon(status) {
+    switch(status) {
+        case 'completed': return '<i class="fas fa-check-circle text-success mr-2"></i>';
+        case 'unlocked': return '<i class="fas fa-unlock text-warning mr-2"></i>';
+        case 'locked': return '<i class="fas fa-lock text-muted mr-2"></i>';
+        default: return '<i class="fas fa-question-circle text-info mr-2"></i>';
+    }
+}
+
+function getStatusClass(status) {
+    switch(status) {
+        case 'completed': return 'badge-success';
+        case 'unlocked': return 'badge-warning';
+        case 'locked': return 'badge-secondary';
+        default: return 'badge-info';
+    }
+}
+
+function getStatusText(status) {
+    switch(status) {
+        case 'completed': return 'Terminé';
+        case 'unlocked': return 'Disponible';
+        case 'locked': return 'Verrouillé';
+        default: return 'Inconnu';
+    }
+}
+
+function showError() {
+    $('#quiz-loading').hide();
+    $('#quiz-error').show();
+    $('#quiz-count').text('0 quiz disponibles');
+}
+
+// Handle quiz item clicks
+$(document).on('click', '.quiz-item.quiz-clickable', function() {
+    const quizId = $(this).data('quiz-id');
+    showQuizDetails(quizId);
+});
+
+// Prevent clicks on locked quizzes
+$(document).on('click', '.quiz-item.quiz-locked', function(e) {
+    e.preventDefault();
+    $(this).addClass('pulse-warning');
+    setTimeout(() => {
+        $(this).removeClass('pulse-warning');
+    }, 1000);
+});
+
+function showQuizDetails(quizId) {
+    // Find the quiz data
+    let quizData = null;
+    Object.values(window.quizGroups || {}).forEach(modules => {
+        modules.forEach(module => {
+            module.quizzes.forEach(quiz => {
+                if (quiz.id == quizId) {
+                    quizData = quiz;
+                }
+            });
+        });
+    });
+    
+    if (!quizData) {
+        $('#quizModalTitle').text('Quiz non trouvé');
+        $('#quizModalBody').html('<p class="text-danger">Impossible de charger les détails du quiz.</p>');
+        $('#startQuizBtn').hide();
+        $('#quizDetailsModal').modal('show');
+        return;
+    }
+    
+    const difficultyInfo = quizData.difficulty_display || { stars: '⭐', text: 'Débutant', color: 'success' };
+    const statusIcon = getStatusIcon(quizData.status);
+    const statusClass = getStatusClass(quizData.status);
+    const statusText = getStatusText(quizData.status);
+    
+    $('#quizModalTitle').html(`${difficultyInfo.stars} ${quizData.title}`);
+    
+    let prerequisiteInfo = '';
+    if (!quizData.is_unlocked) {
+        prerequisiteInfo = `
+            <div class="alert alert-warning">
+                <i class="fas fa-lock mr-2"></i>
+                <strong>Quiz verrouillé:</strong> Vous devez d'abord compléter le quiz précédent avec un score d'au moins ${quizData.passing_score}%.
+            </div>
+        `;
+    }
+    
+    let scoreInfo = '';
+    if (quizData.score !== null) {
+        const scoreClass = quizData.score >= quizData.passing_score ? 'success' : 'warning';
+        scoreInfo = `
+            <div class="alert alert-${scoreClass}">
+                <strong>Meilleur score:</strong> ${quizData.score}% 
+                ${quizData.score >= quizData.passing_score ? '(Réussi)' : '(Non réussi - minimum ' + quizData.passing_score + '%)'}
+            </div>
+        `;
+    }
+    
+    $('#quizModalBody').html(`
+        <div class="row">
+            <div class="col-md-8">
+                <h6>Informations du quiz</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Difficulté:</strong> <span class="badge badge-${difficultyInfo.color}">${difficultyInfo.text}</span></li>
+                    <li><strong>Statut:</strong> <span class="badge ${statusClass}">${statusIcon} ${statusText}</span></li>
+                    <li><strong>Score requis:</strong> ${quizData.passing_score}%</li>
+                    <li><strong>Tentatives:</strong> ${quizData.attempts}</li>
+                </ul>
+                ${prerequisiteInfo}
+                ${scoreInfo}
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="badge badge-primary badge-lg p-3 mb-2" style="font-size: 2em;">
+                        ${difficultyInfo.stars}
+                    </div>
+                    <p class="text-muted">Niveau ${difficultyInfo.text}</p>
+                </div>
+            </div>
+        </div>
+    `);
+    
+    // Show/hide start button based on quiz status
+    if (quizData.is_unlocked) {
+        $('#startQuizBtn').show().off('click').on('click', function() {
+            window.location.href = `/quiz/${quizId}`;
+        });
+        $('#startQuizBtn').text(quizData.status === 'completed' ? 'Reprendre le quiz' : 'Démarrer le quiz');
+    } else {
+        $('#startQuizBtn').hide();
+    }
+    
+    $('#quizDetailsModal').modal('show');
+}
+</script>
+{% endblock %}

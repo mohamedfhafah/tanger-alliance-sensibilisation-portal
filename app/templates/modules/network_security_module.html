@@ -1,0 +1,1092 @@
+{% extends "base.html" %}
+{% from 'macros/quiz_macros.html' import render_quiz_button %}
+
+{% block title %}{{ module.title }} - Tanger Alliance Security{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules-common.css') }}">
+<style>
+    /* Styles spécifiques au module de sécurité réseau */
+    .network-module .nav-tabs .nav-link {
+        color: var(--primary-blue);
+    }
+    
+    .network-module .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, #3498db 100%);
+        color: white;
+        border-color: var(--primary-blue) var(--primary-blue) #fff;
+    }
+    
+    .network-module .jumbotron.bg-primary {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, #3498db 100%) !important;
+    }
+    
+    .network-section::before {
+        background: linear-gradient(180deg, var(--primary-blue) 0%, rgba(0, 123, 255, 0.7) 100%);
+    }
+    
+    /* Animation d'entrée pour les sections */
+    .network-section {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    /* Icônes spécifiques */
+    .network-module .icon-wrapper {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, #3498db 100%);
+    }
+    
+    /* Styles pour les cartes de protocoles */
+    .protocol-card {
+        transition: all var(--transition-medium);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .protocol-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: var(--shadow-heavy);
+    }
+    
+    .protocol-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-blue) 0%, #3498db 100%);
+        transform: scaleX(0);
+        transition: transform var(--transition-medium);
+    }
+    
+    .protocol-card:hover::before {
+        transform: scaleX(1);
+    }
+    .network-section {
+        margin-bottom: 2rem;
+        border-left: 4px solid #28a745;
+        padding-left: 1rem;
+        margin-top: 1rem;
+    }
+    .completed-badge {
+        background-color: #198754;
+        color: white;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        margin-left: 10px;
+    }
+    .nav-tabs .nav-link.active {
+        background-color: #28a745;
+        color: white;
+        border-color: #28a745 #28a745 #fff;
+    }
+    .nav-tabs .nav-link {
+        color: #28a745;
+    }
+    .jumbotron.bg-success {
+        background-color: #28a745 !important;
+    }
+    .risk-card {
+        transition: transform 0.2s;
+    }
+    .risk-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    /* Amélioration des cartes */
+    .card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* Styles pour les listes d'outils */
+    .list-unstyled li {
+        padding: 3px 0;
+    }
+    
+    .list-group-item {
+        border: none;
+        padding: 8px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">{{ module.title if module else 'Module de Sécurité Réseau' }}</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}"><i class="fas fa-home"></i> Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.index') }}">Modules</a></li>
+                    <li class="breadcrumb-item active">{{ module.title if module else 'Sécurité Réseau' }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content network-module">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-success card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-network-wired mr-1"></i>
+                            {{ module.title if module else 'Module de Sécurité Réseau' }}
+                        </h3>
+                    </div>
+                    <div class="card-body">
+
+                        <!-- Onglets de navigation -->
+                        <ul class="nav nav-tabs" id="networkTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="intro-tab" data-toggle="tab" href="#introduction" role="tab" aria-controls="introduction" aria-selected="true">
+                                    <i class="fas fa-info-circle mr-1"></i>1. Introduction
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="fundamentals-tab" data-toggle="tab" href="#fundamentals" role="tab" aria-controls="fundamentals" aria-selected="false">
+                                    <i class="fas fa-foundation mr-1"></i>2. Fondamentaux
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="protocols-tab" data-toggle="tab" href="#protocols" role="tab" aria-controls="protocols" aria-selected="false">
+                                    <i class="fas fa-exchange-alt mr-1"></i>3. Protocoles
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="infrastructure-tab" data-toggle="tab" href="#infrastructure" role="tab" aria-controls="infrastructure" aria-selected="false">
+                                    <i class="fas fa-server mr-1"></i>4. Infrastructure
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="monitoring-tab" data-toggle="tab" href="#monitoring" role="tab" aria-controls="monitoring" aria-selected="false">
+                                    <i class="fas fa-eye mr-1"></i>5. Surveillance
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="implementation-tab" data-toggle="tab" href="#implementation" role="tab" aria-controls="implementation" aria-selected="false">
+                                    <i class="fas fa-cogs mr-1"></i>6. Mise en œuvre
+                                </a>
+                            </li>
+                        </ul>
+
+                        
+                        <!-- Contenu des onglets -->
+                        <div class="tab-content" id="networkTabContent">
+        <!-- Introduction -->
+        <div class="tab-pane fade show active" id="introduction" role="tabpanel">
+            <div class="network-section">
+                <div class="jumbotron bg-success text-white text-center mb-4">
+                    <h1 class="display-4"><i class="fas fa-network-wired mr-3"></i>Sécurité Réseau</h1>
+                    <p class="lead">Protégez l'infrastructure informatique de Tanger Alliance</p>
+                    <hr class="my-4" style="border-color: rgba(255,255,255,0.3);">
+                    <p>Apprenez à sécuriser les réseaux et protéger les opérations portuaires contre les cybermenaces.</p>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>Enjeux de la sécurité réseau pour Tanger Alliance</h4>
+                        <ul>
+                            <li><strong>Protection des données critiques :</strong> Informations sur les navires, cargaisons et opérations portuaires</li>
+                            <li><strong>Continuité des services :</strong> Maintien des systèmes de gestion portuaire 24h/24</li>
+                            <li><strong>Conformité réglementaire :</strong> Respect des normes internationales de sécurité portuaire</li>
+                            <li><strong>Protection contre l'espionnage industriel :</strong> Sécurisation des informations stratégiques</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card protocol-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                                <h5>Objectifs du module</h5>
+                                <ul class="list-unstyled text-left">
+                                    <li><i class="fas fa-check text-success"></i> Comprendre les fondamentaux</li>
+                                    <li><i class="fas fa-check text-success"></i> Maîtriser les protocoles</li>
+                                    <li><i class="fas fa-check text-success"></i> Sécuriser l'infrastructure</li>
+                                    <li><i class="fas fa-check text-success"></i> Surveiller le réseau</li>
+                                    <li><i class="fas fa-check text-success"></i> Implémenter les bonnes pratiques</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-body">
+                                <h6 class="text-center mb-3">Architecture réseau Tanger Alliance</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Internet</li>
+                                    <li class="list-group-item">Firewall</li>
+                                    <li class="list-group-item">DMZ</li>
+                                    <li class="list-group-item">LAN Interne</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mb-4">
+                <button class="btn btn-success btn-lg px-5 py-3" onclick="markSectionComplete('introduction','fundamentals')">Terminer et suivant</button>
+            </div>
+        </div>
+
+        <!-- Fondamentaux -->
+        <div class="tab-pane fade" id="fundamentals" role="tabpanel">
+            <div class="network-section">
+                <h3>Fondamentaux de la Sécurité Réseau</h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Modèle OSI et Sécurité</h4>
+                            </div>
+                            <div class="card-body">
+                                <h6>Couche 7 - Application</h6>
+                                <p>Sécurité des applications, chiffrement des données, authentification utilisateur</p>
+                                <small class="text-muted">Exemples: HTTPS, FTPS, SSH</small>
+                                <hr>
+                                
+                                <h6>Couche 6 - Présentation</h6>
+                                <p>Chiffrement/déchiffrement, compression, formatage des données</p>
+                                <small class="text-muted">Exemples: SSL/TLS, JPEG, MPEG</small>
+                                <hr>
+                                
+                                <h6>Couche 5 - Session</h6>
+                                <p>Gestion des sessions, contrôle des connexions, authentification</p>
+                                <small class="text-muted">Exemples: NetBIOS, RPC, SQL</small>
+                                <hr>
+                                
+                                <h6>Couche 4 - Transport</h6>
+                                <p>Contrôle de flux, détection d'erreurs, segmentation</p>
+                                <small class="text-muted">Exemples: TCP, UDP, SPX</small>
+                                <hr>
+                                
+                                <h6>Couche 3 - Réseau</h6>
+                                <p>Routage, adressage IP, contrôle d'accès par ACL</p>
+                                <small class="text-muted">Exemples: IP, ICMP, IPSec</small>
+                                <hr>
+                                
+                                <h6>Couche 2 - Liaison</h6>
+                                <p>Contrôle d'accès au média, détection d'erreurs de trame</p>
+                                <small class="text-muted">Exemples: Ethernet, WiFi, PPP</small>
+                                <hr>
+                                
+                                <h6>Couche 1 - Physique</h6>
+                                <p>Sécurité physique, chiffrement au niveau matériel</p>
+                                <small class="text-muted">Exemples: Câbles, fibres, ondes radio</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Principes de Sécurité</h4>
+                            </div>
+                            <div class="card-body">
+                                <h5><i class="fas fa-lock"></i> Confidentialité</h5>
+                                <p>Protection contre l'accès non autorisé aux informations</p>
+                                <ul>
+                                    <li>Chiffrement des données en transit et au repos</li>
+                                    <li>Contrôle d'accès basé sur les rôles (RBAC)</li>
+                                    <li>Segmentation réseau et VLANs</li>
+                                    <li>Authentification forte et multi-facteurs</li>
+                                </ul>
+                                <hr>
+                                
+                                <h5><i class="fas fa-check-circle"></i> Intégrité</h5>
+                                <p>Assurance que les données n'ont pas été modifiées</p>
+                                <ul>
+                                    <li>Signatures numériques et hachage</li>
+                                    <li>Contrôles de somme de contrôle</li>
+                                    <li>Journalisation et audit des modifications</li>
+                                    <li>Systèmes de détection d'intrusion (IDS)</li>
+                                </ul>
+                                <hr>
+                                
+                                <h5><i class="fas fa-clock"></i> Disponibilité</h5>
+                                <p>Garantie d'accès aux ressources quand nécessaire</p>
+                                <ul>
+                                    <li>Redondance et haute disponibilité</li>
+                                    <li>Protection contre les attaques DDoS</li>
+                                    <li>Plans de continuité d'activité</li>
+                                    <li>Surveillance et alertes en temps réel</li>
+                                </ul>
+                                <hr>
+                                
+                                <h5><i class="fas fa-user-check"></i> Authentification et Autorisation</h5>
+                                <p>Vérification de l'identité et des droits d'accès</p>
+                                <ul>
+                                    <li>Authentification multi-facteurs (MFA)</li>
+                                    <li>Single Sign-On (SSO)</li>
+                                    <li>Gestion des identités et accès (IAM)</li>
+                                    <li>Principe du moindre privilège</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mb-4">
+                <button class="btn btn-success btn-lg px-5 py-3" onclick="markSectionComplete('fundamentals','protocols')">Terminer et suivant</button>
+            </div>
+        </div>
+
+        <!-- Protocoles -->
+        <div class="tab-pane fade" id="protocols" role="tabpanel">
+            <div class="network-section">
+                <h3>Protocoles de Sécurité Réseau</h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card protocol-card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="fas fa-shield-alt"></i> IPSec (Internet Protocol Security)</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Fonction :</strong> Sécurisation des communications IP au niveau réseau</p>
+                                
+                                <h6>Modes de fonctionnement :</h6>
+                                <ul>
+                                    <li><strong>Mode Transport :</strong> Chiffrement des données uniquement</li>
+                                    <li><strong>Mode Tunnel :</strong> Chiffrement complet du paquet IP</li>
+                                </ul>
+                                
+                                <h6>Protocoles associés :</h6>
+                                <ul>
+                                    <li><strong>AH (Authentication Header) :</strong> Authentification et intégrité</li>
+                                    <li><strong>ESP (Encapsulating Security Payload) :</strong> Chiffrement et authentification</li>
+                                    <li><strong>IKE (Internet Key Exchange) :</strong> Négociation des clés</li>
+                                </ul>
+                                
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>Processus IPSec :</h6>
+                                        <ol>
+                                            <li>Négociation IKE</li>
+                                            <li>Établissement SA</li>
+                                            <li>Transmission sécurisée</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card protocol-card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="fas fa-certificate"></i> SSL/TLS (Secure Sockets Layer/Transport Layer Security)</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Fonction :</strong> Sécurisation des communications au niveau application</p>
+                                
+                                <h6>Processus de handshake TLS :</h6>
+                                <ol>
+                                    <li>Client Hello (versions, algorithmes supportés)</li>
+                                    <li>Server Hello (version, algorithme choisi, certificat)</li>
+                                    <li>Vérification du certificat par le client</li>
+                                    <li>Échange de clés et génération des clés de session</li>
+                                    <li>Activation du chiffrement</li>
+                                </ol>
+                                
+                                <h6>Versions recommandées :</h6>
+                                <ul>
+                                    <li><span class="badge badge-success">TLS 1.3</span> Recommandé</li>
+                                    <li><span class="badge badge-warning">TLS 1.2</span> Acceptable</li>
+                                    <li><span class="badge badge-danger">SSL 3.0/TLS 1.0/1.1</span> Obsolètes</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card protocol-card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="fas fa-network-wired"></i> VPN (Virtual Private Network)</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Fonction :</strong> Création de tunnels sécurisés sur des réseaux non fiables</p>
+                                
+                                <h6>Types de VPN :</h6>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>Site-to-Site VPN</h6>
+                                        <p>Connexion permanente entre sites distants</p>
+                                        <ul>
+                                            <li>Protocoles : IPSec, GRE, MPLS</li>
+                                            <li>Usage : Interconnexion des bureaux</li>
+                                        </ul>
+                                        <hr>
+                                        <h6>Remote Access VPN</h6>
+                                        <p>Accès distant pour utilisateurs mobiles</p>
+                                        <ul>
+                                            <li>Protocoles : OpenVPN, IKEv2, WireGuard</li>
+                                            <li>Usage : Télétravail, accès mobile</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <h6>Configuration Tanger Alliance :</h6>
+                                <ul>
+                                    <li>Chiffrement AES-256</li>
+                                    <li>Authentification par certificats</li>
+                                    <li>Perfect Forward Secrecy (PFS)</li>
+                                    <li>Split tunneling désactivé</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="card protocol-card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="fas fa-wifi"></i> WPA3 (Wi-Fi Protected Access 3)</h5>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Fonction :</strong> Sécurisation des réseaux sans fil</p>
+                                
+                                <h6>Améliorations par rapport à WPA2 :</h6>
+                                <ul>
+                                    <li><strong>SAE (Simultaneous Authentication of Equals) :</strong> Protection contre les attaques par dictionnaire</li>
+                                    <li><strong>Chiffrement individualisé :</strong> Clés uniques par appareil</li>
+                                    <li><strong>Forward Secrecy :</strong> Protection des sessions passées</li>
+                                    <li><strong>Protection des réseaux ouverts :</strong> Chiffrement opportuniste</li>
+                                </ul>
+                                
+                                <h6>Modes de déploiement :</h6>
+                                <ul>
+                                    <li><strong>WPA3-Personal :</strong> Pour les petits réseaux</li>
+                                    <li><strong>WPA3-Enterprise :</strong> Pour les environnements d'entreprise</li>
+                                    <li><strong>WPA3-Enhanced Open :</strong> Pour les hotspots publics</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mb-4">
+                <button class="btn btn-success btn-lg px-5 py-3" onclick="markSectionComplete('protocols','infrastructure')">Terminer et suivant</button>
+            </div>
+        </div>
+
+        <!-- Infrastructure -->
+        <div class="tab-pane fade" id="infrastructure" role="tabpanel">
+            <div class="network-section">
+                <h3>Sécurisation de l'Infrastructure Réseau</h3>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>Architecture de Sécurité en Couches</h4>
+                        
+                        <div class="card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="fas fa-layer-group"></i> Modèle de Défense en Profondeur</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6>Sécurité Périmétrique</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <ul>
+                                                    <li>Firewalls de nouvelle génération (NGFW)</li>
+                                                    <li>Systèmes de prévention d'intrusion (IPS)</li>
+                                                    <li>Passerelles de sécurité web (WAF)</li>
+                                                    <li>Filtrage DNS et anti-malware</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Configuration Tanger Alliance :</strong>
+                                                <ul>
+                                                    <li>Firewall Fortinet FortiGate</li>
+                                                    <li>IPS Cisco FirePOWER</li>
+                                                     <li>WAF F5 BIG-IP ASM</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                 
+                                 <div class="card mb-3">
+                                     <div class="card-body">
+                                         <h6>Sécurité Réseau Interne</h6>
+                                         <div class="row">
+                                             <div class="col-md-6">
+                                                 <ul>
+                                                     <li>Segmentation par VLANs</li>
+                                                     <li>Contrôle d'accès réseau (NAC)</li>
+                                                     <li>Micro-segmentation</li>
+                                                     <li>Surveillance du trafic interne</li>
+                                                 </ul>
+                                             </div>
+                                             <div class="col-md-6">
+                                                 <strong>VLANs :</strong>
+                                                 <ul>
+                                                     <li>VLAN Admin</li>
+                                                     <li>VLAN Serveurs</li>
+                                                     <li>VLAN Utilisateurs</li>
+                                                 </ul>
+                                             </div>
+                                         </div>
+                                     </div>
+                                 </div>
+                                
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6>Sécurité des Équipements</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <ul>
+                                                    <li>Durcissement des systèmes</li>
+                                                    <li>Gestion des correctifs</li>
+                                                    <li>Antimalware et EDR</li>
+                                                    <li>Contrôle des applications</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <ul>
+                                                    <li>Chiffrement des disques</li>
+                                                    <li>Authentification multi-facteurs</li>
+                                                    <li>Journalisation centralisée</li>
+                                                    <li>Sauvegarde et récupération</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6>Sécurité Applicative</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <ul>
+                                                    <li>Développement sécurisé (SSDLC)</li>
+                                                    <li>Tests de sécurité (SAST/DAST)</li>
+                                                    <li>Gestion des vulnérabilités</li>
+                                                    <li>Contrôle d'accès applicatif</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <ul>
+                                                    <li>Chiffrement des données</li>
+                                                    <li>Validation des entrées</li>
+                                                    <li>Gestion sécurisée des sessions</li>
+                                                    <li>Audit et conformité</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <h6>Protection des Données</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <ul>
+                                                    <li>Classification des données</li>
+                                                    <li>Chiffrement bout en bout</li>
+                                                    <li>Prévention de perte de données (DLP)</li>
+                                                    <li>Gestion des droits numériques</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <ul>
+                                                    <li>Anonymisation et pseudonymisation</li>
+                                                    <li>Rétention et archivage</li>
+                                                    <li>Destruction sécurisée</li>
+                                                    <li>Conformité RGPD</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card protocol-card mb-4">
+                            <div class="card-header bg-warning text-dark">
+                                <h5><i class="fas fa-exclamation-triangle"></i> Zones de Sécurité</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Zone Internet</h6>
+                                <p>Niveau de confiance : <strong>Aucun</strong></p>
+                                <small>Accès bloqué par défaut</small>
+                                <hr>
+                                
+                                <h6>Zone DMZ</h6>
+                                <p>Niveau de confiance : <strong>Faible</strong></p>
+                                <small>Serveurs publics, accès contrôlé</small>
+                                <hr>
+                                
+                                <h6>Zone LAN</h6>
+                                <p>Niveau de confiance : <strong>Élevé</strong></p>
+                                <small>Réseau interne, accès authentifié</small>
+                                <hr>
+                                
+                                <h6>Zone Critique</h6>
+                                <p>Niveau de confiance : <strong>Maximum</strong></p>
+                                <small>Systèmes critiques, accès restreint</small>
+                            </div>
+                        </div>
+                        
+                        <div class="card protocol-card">
+                            <div class="card-header bg-info text-white">
+                                <h5><i class="fas fa-tools"></i> Outils de Sécurité</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Solutions déployées :</h6>
+                                <ul class="list-unstyled">
+                                    <li><i class="fas fa-check text-success"></i> SIEM Splunk Enterprise</li>
+                                    <li><i class="fas fa-check text-success"></i> SOAR Phantom</li>
+                                    <li><i class="fas fa-check text-success"></i> Vulnerability Scanner Nessus</li>
+                                    <li><i class="fas fa-check text-success"></i> Network Monitor SolarWinds</li>
+                                    <li><i class="fas fa-check text-success"></i> Backup Veeam</li>
+                                </ul>
+                                
+                                <h6>Métriques de performance :</h6>
+                                <p><strong>Disponibilité réseau : 99.9%</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mb-4">
+                <button class="btn btn-success btn-lg px-5 py-3" onclick="markSectionComplete('infrastructure','monitoring')">Terminer et suivant</button>
+            </div>
+        </div>
+
+        <!-- Surveillance -->
+        <div class="tab-pane fade" id="monitoring" role="tabpanel">
+            <div class="network-section">
+                <h3>Surveillance et Détection</h3>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card protocol-card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="fas fa-search"></i> Systèmes de Détection d'Intrusion (IDS/IPS)</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Types de détection :</h6>
+                                
+                                <h6>Détection par signatures</h6>
+                                <ul>
+                                    <li>Base de données de signatures d'attaques connues</li>
+                                    <li>Détection rapide et précise</li>
+                                    <li>Faible taux de faux positifs</li>
+                                    <li>Limitation : attaques zero-day non détectées</li>
+                                </ul>
+                                <hr>
+                                
+                                <h6>Détection comportementale</h6>
+                                <ul>
+                                    <li>Analyse des anomalies de trafic</li>
+                                    <li>Machine learning et IA</li>
+                                    <li>Détection d'attaques inconnues</li>
+                                    <li>Adaptation aux nouveaux patterns</li>
+                                </ul>
+                                <hr>
+                                
+                                <h6>Déploiement recommandé :</h6>
+                                <p><strong>IDS Réseau + IDS Hôte + IPS Périmètre</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="card protocol-card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="fas fa-chart-line"></i> SIEM (Security Information and Event Management)</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Fonctionnalités clés :</h6>
+                                <ul>
+                                    <li><strong>Collecte centralisée :</strong> Logs de tous les équipements</li>
+                                    <li><strong>Corrélation d'événements :</strong> Détection de patterns complexes</li>
+                                    <li><strong>Alertes en temps réel :</strong> Notification immédiate des incidents</li>
+                                    <li><strong>Tableaux de bord :</strong> Visualisation de l'état de sécurité</li>
+                                    <li><strong>Rapports de conformité :</strong> Audit et réglementation</li>
+                                </ul>
+                                
+                                <h6>Sources de données :</h6>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-server"></i> Serveurs</li>
+                                            <li><i class="fas fa-network-wired"></i> Équipements réseau</li>
+                                            <li><i class="fas fa-shield-alt"></i> Firewalls</li>
+                                            <li><i class="fas fa-desktop"></i> Postes de travail</li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-6">
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-database"></i> Bases de données</li>
+                                            <li><i class="fas fa-globe"></i> Applications web</li>
+                                            <li><i class="fas fa-cloud"></i> Services cloud</li>
+                                            <li><i class="fas fa-mobile-alt"></i> Appareils mobiles</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <h6>Configuration Tanger Alliance</h6>
+                                <ul>
+                                    <li>Rétention des logs : 2 ans</li>
+                                    <li>Corrélation en temps réel</li>
+                                    <li>Alertes par email/SMS</li>
+                                    <li>Intégration avec le SOC</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card protocol-card">
+                            <div class="card-header bg-warning text-dark">
+                                <h5><i class="fas fa-exclamation-circle"></i> Gestion des Incidents de Sécurité</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Processus de réponse aux incidents :</h6>
+                                
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h6>1. Détection</h6>
+                                                <ul>
+                                                    <li>Surveillance continue</li>
+                                                    <li>Alertes automatiques</li>
+                                                    <li>Signalements utilisateurs</li>
+                                                    <li>Audits de sécurité</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h6>2. Analyse</h6>
+                                                <ul>
+                                                    <li>Classification de l'incident</li>
+                                                    <li>Évaluation de l'impact</li>
+                                                    <li>Identification de la source</li>
+                                                    <li>Collecte de preuves</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h6>3. Containment</h6>
+                                                <ul>
+                                                    <li>Isolation des systèmes</li>
+                                                    <li>Blocage des attaques</li>
+                                                    <li>Préservation des preuves</li>
+                                                    <li>Communication d'urgence</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <div class="card mb-3">
+                                            <div class="card-body">
+                                                <h6>4. Récupération</h6>
+                                                <ul>
+                                                    <li>Éradication des menaces</li>
+                                                    <li>Restauration des systèmes</li>
+                                                    <li>Surveillance renforcée</li>
+                                                    <li>Retour d'expérience</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h6>Niveaux de criticité :</h6>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <span class="badge badge-danger p-2 mb-2 d-block">Critique - Réponse < 15 min</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge badge-warning p-2 mb-2 d-block">Élevé - Réponse < 1h</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge badge-info p-2 mb-2 d-block">Moyen - Réponse < 4h</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge badge-success p-2 mb-2 d-block">Faible - Réponse < 24h</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mb-4">
+                <button class="btn btn-success btn-lg px-5 py-3" onclick="markSectionComplete('monitoring','implementation')">Terminer et suivant</button>
+            </div>
+        </div>
+
+        <!-- Mise en œuvre -->
+        <div class="tab-pane fade" id="implementation" role="tabpanel">
+            <div class="network-section">
+                <h3>Mise en Œuvre et Bonnes Pratiques</h3>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card protocol-card mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="fas fa-tasks"></i> Plan de Déploiement Sécurisé</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Phase 1 : Évaluation et Planification (2 semaines)</h6>
+                                <ul>
+                                    <li>Audit de sécurité complet de l'infrastructure existante</li>
+                                    <li>Identification des vulnérabilités et des risques</li>
+                                    <li>Définition des objectifs de sécurité et des KPI</li>
+                                    <li>Élaboration du plan de déploiement détaillé</li>
+                                    <li>Validation par la direction et les parties prenantes</li>
+                                </ul>
+                                
+                                <h6>Phase 2 : Sécurisation du Périmètre (3 semaines)</h6>
+                                <ul>
+                                    <li>Déploiement et configuration des firewalls NGFW</li>
+                                    <li>Installation des systèmes IPS/IDS</li>
+                                    <li>Configuration des passerelles de sécurité web (WAF)</li>
+                                    <li>Mise en place du filtrage DNS et anti-malware</li>
+                                    <li>Tests de pénétration du périmètre</li>
+                                </ul>
+                                
+                                <h6>Phase 3 : Sécurisation Interne (4 semaines)</h6>
+                                <ul>
+                                    <li>Segmentation réseau par VLANs et micro-segmentation</li>
+                                    <li>Déploiement du contrôle d'accès réseau (NAC)</li>
+                                    <li>Configuration des solutions de surveillance interne</li>
+                                    <li>Durcissement des équipements et serveurs</li>
+                                    <li>Mise en place de la gestion centralisée des correctifs</li>
+                                </ul>
+                                
+                                <h6>Phase 4 : Surveillance et Détection (2 semaines)</h6>
+                                <ul>
+                                    <li>Déploiement et configuration du SIEM</li>
+                                    <li>Intégration de toutes les sources de logs</li>
+                                    <li>Configuration des règles de corrélation</li>
+                                    <li>Formation de l'équipe SOC</li>
+                                    <li>Tests des procédures de réponse aux incidents</li>
+                                </ul>
+                                
+                                <h6>Phase 5 : Formation et Documentation (1 semaine)</h6>
+                                <ul>
+                                    <li>Formation des administrateurs système et réseau</li>
+                                    <li>Sensibilisation des utilisateurs finaux</li>
+                                    <li>Rédaction de la documentation technique</li>
+                                    <li>Création des procédures opérationnelles</li>
+                                    <li>Validation finale et mise en production</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card protocol-card mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5><i class="fas fa-clipboard-check"></i> Check-list de Validation</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>Sécurité Périmétrique :</h6>
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="perim1">
+                                    <label class="custom-control-label" for="perim1">Firewall configuré et testé</label>
+                                </div>
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="perim2">
+                                    <label class="custom-control-label" for="perim2">IPS/IDS opérationnels</label>
+                                </div>
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="perim3">
+                                    <label class="custom-control-label" for="perim3">WAF déployé</label>
+                                </div>
+                                
+                                <h6>Sécurité Interne :</h6>
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="intern1">
+                                    <label class="custom-control-label" for="intern1">Segmentation réseau active</label>
+                                </div>
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="intern2">
+                                    <label class="custom-control-label" for="intern2">NAC configuré</label>
+                                </div>
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="intern3">
+                                    <label class="custom-control-label" for="intern3">Systèmes durcis</label>
+                                </div>
+                                
+                                <h6>Surveillance :</h6>
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="surv1">
+                                    <label class="custom-control-label" for="surv1">SIEM opérationnel</label>
+                                </div>
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="surv2">
+                                    <label class="custom-control-label" for="surv2">Corrélation configurée</label>
+                                </div>
+                                <div class="custom-control custom-checkbox mb-2">
+                                    <input type="checkbox" class="custom-control-input" id="surv3">
+                                    <label class="custom-control-label" for="surv3">SOC formé</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card protocol-card">
+                            <div class="card-header bg-warning text-dark">
+                                <h5><i class="fas fa-chart-bar"></i> KPI de Sécurité</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-unstyled">
+                                    <li><strong>Temps de détection :</strong> < 15 min</li>
+                                    <li><strong>Temps de réponse :</strong> < 30 min</li>
+                                    <li><strong>Disponibilité réseau :</strong> 99.9%</li>
+                                    <li><strong>Taux de faux positifs :</strong> < 5%</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card protocol-card mt-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5><i class="fas fa-graduation-cap"></i> Formation Continue et Sensibilisation</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h6>Équipe Technique</h6>
+                                <ul>
+                                    <li>Formation sur les nouvelles technologies</li>
+                                    <li>Certifications de sécurité (CISSP, CISM)</li>
+                                    <li>Exercices de simulation d'incidents</li>
+                                    <li>Veille technologique et threat intelligence</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Utilisateurs Finaux</h6>
+                                <ul>
+                                    <li>Sensibilisation aux bonnes pratiques</li>
+                                    <li>Formation anti-phishing</li>
+                                    <li>Gestion sécurisée des mots de passe</li>
+                                    <li>Signalement des incidents de sécurité</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-4">
+                                <h6>Management</h6>
+                                <ul>
+                                    <li>Gouvernance de la sécurité</li>
+                                    <li>Gestion des risques cyber</li>
+                                    <li>Conformité réglementaire</li>
+                                    <li>Business continuity planning</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mb-4">
+                <button class="btn btn-success btn-lg px-5 py-3" onclick="markSectionComplete('implementation')">Terminer</button>
+            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Barre de progression -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Progression du module</h5>
+                    <div class="progress mb-2">
+                        <div id="progress-bar" class="progress-bar bg-success" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <p class="text-center mb-0">
+                        <span id="progress-text">0 section(s) terminée(s) sur 6</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton Quiz -->
+<div class="container mt-4" id="quiz-section" style="display:none">
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="lead">Vous avez terminé toutes les sections du module. Passez maintenant au quiz final pour valider vos connaissances.</p>
+                        {{ render_quiz_button(module, progress) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+// Attendre que ModuleManager soit disponible
+function initializeModule() {
+    if (typeof ModuleManager !== 'undefined') {
+        // Initialisation du gestionnaire de module
+        window.moduleManager = new ModuleManager(
+            {{ module.id if module else 6 }},
+            6,
+            'network-security'
+        );
+        console.log('ModuleManager initialisé avec succès');
+    } else {
+        console.log('ModuleManager non encore disponible, nouvelle tentative dans 100ms');
+        setTimeout(initializeModule, 100);
+    }
+}
+
+// Démarrer l'initialisation quand le DOM est prêt
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeModule);
+} else {
+    initializeModule();
+}
+
+// Fonction globale pour la compatibilité
+function markSectionComplete(sectionId, nextSectionId) {
+    if (window.moduleManager) {
+        window.moduleManager.markSectionComplete(sectionId, nextSectionId);
+    } else {
+        console.error('ModuleManager non initialisé');
+    }
+}
+</script>
+                 
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module.title }} - {{ super() }}{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">{{ module.title }}</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.index') }}">Modules</a></li>
+                    <li class="breadcrumb-item active">{{ module.title }}</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-book mr-2"></i>{{ module.title }}</h3>
+                                {% if progress and progress.completed %}
+                                <div class="card-tools">
+                                    <span class="badge badge-success">
+                                        <i class="fas fa-check mr-1"></i>Complété
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-body">
+                                {% if module.description %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    {{ module.description }}
+                                </div>
+                                {% endif %}
+
+                                {% if module.content %}
+                                <div class="module-content">
+                                    {{ module.content|safe }}
+                                </div>
+                                {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    Le contenu de ce module n'est pas encore disponible.
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-footer">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <a href="{{ url_for('modules.index') }}" class="btn btn-secondary">
+                                            <i class="fas fa-arrow-left mr-2"></i>Retour aux modules
+                                        </a>
+                                    </div>
+                                    <div class="col-sm-6 text-right">
+                                        {% if not progress or not progress.completed %}
+                                        <form method="POST" action="{{ url_for('modules.complete_module', module_id=module.id) }}" style="display: inline;">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-check mr-2"></i>Marquer comme complété
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        {% if quiz_available %}
+                                        <a href="{{ url_for('quiz.view_quiz', quiz_id=module.quiz.id if module.quiz else 1) }}" class="btn btn-primary ml-2">
+                                            <i class="fas fa-question-circle mr-2"></i>Passer le quiz
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

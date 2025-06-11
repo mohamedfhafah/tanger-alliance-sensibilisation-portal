@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Douanes - Déclaration Incomplète</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .email-container {
+            max-width: 650px;
+            margin: 0 auto;
+            background-color: white;
+            border: 2px solid #28a745;
+            border-radius: 8px;
+        }
+        .header {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            border-radius: 6px 6px 0 0;
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 30px;
+        }
+        .urgent-banner {
+            background-color: #dc3545;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            margin: -30px -30px 30px -30px;
+            font-size: 16px;
+        }
+        .notification-box {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 5px 5px 0;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background-color: #f8f9fa;
+        }
+        .info-table th,
+        .info-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+        .info-table th {
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .action-required {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 25px 0;
+        }
+        .main-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            transition: transform 0.2s;
+        }
+        .main-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+        .secondary-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+        .footer {
+            background-color: #e9ecef;
+            padding: 25px;
+            font-size: 13px;
+            color: #6c757d;
+            text-align: center;
+            border-radius: 0 0 6px 6px;
+        }
+        .official-seal {
+            float: right;
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .deadline {
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="official-seal">
+                🛃<br>ADM
+            </div>
+            <div class="logo">🇲🇦 ADMINISTRATION DES DOUANES ET IMPÔTS INDIRECTS</div>
+            <div class="subtitle">Direction Régionale de Tanger - Port Tanger Med</div>
+        </div>
+        
+        <div class="urgent-banner">
+            🚨 NOTIFICATION URGENTE - ACTION REQUISE SOUS 24H
+        </div>
+        
+        <div class="content">
+            <p><strong>Référence:</strong> {{ reference_number | default('ADM-TM-2025-067891') }}</p>
+            <p><strong>Date:</strong> {{ notification_date | default('07 juin 2025') }}</p>
+            
+            <div class="notification-box">
+                <h3 style="margin-top: 0; color: #856404;">
+                    ⚠️ DÉCLARATION EN DOUANE INCOMPLÈTE
+                </h3>
+                <p>Votre déclaration d'importation présente des irrégularités qui doivent être corrigées immédiatement.</p>
+            </div>
+            
+            <p>Madame, Monsieur,</p>
+            
+            <p>Suite au contrôle documentaire de votre déclaration d'importation, nous avons identifié plusieurs <strong>non-conformités</strong> 
+            qui empêchent la mainlevée de votre marchandise.</p>
+            
+            <table class="info-table">
+                <tr>
+                    <th>Déclaration N°:</th>
+                    <td>{{ declaration_number | default('IM/2025/TM/067891') }}</td>
+                </tr>
+                <tr>
+                    <th>Importateur:</th>
+                    <td>{{ importer_name | default('TANGER ALLIANCE LOGISTIQUE') }}</td>
+                </tr>
+                <tr>
+                    <th>Conteneur(s):</th>
+                    <td>{{ container_ref | default('TCLU7845129, MSCU9876543') }}</td>
+                </tr>
+                <tr>
+                    <th>Provenance:</th>
+                    <td>{{ origin_port | default('Port de Rotterdam, Pays-Bas') }}</td>
+                </tr>
+                <tr>
+                    <th>Valeur Déclarée:</th>
+                    <td>{{ declared_value | default('125.450,00 MAD') }}</td>
+                </tr>
+                <tr>
+                    <th>Statut:</th>
+                    <td><span class="status-pending">⏳ EN ATTENTE DE RÉGULARISATION</span></td>
+                </tr>
+            </table>
+            
+            <div class="action-required">
+                <h4 style="color: #721c24; margin-top: 0;">📋 Éléments à Régulariser:</h4>
+                <ul>
+                    <li><strong>Facture commerciale manquante:</strong> La facture originale n'a pas été jointe</li>
+                    <li><strong>Certificat d'origine incomplet:</strong> Signatures et cachets manquants</li>
+                    <li><strong>Code SH incorrect:</strong> Le code tarifaire 8708.99.99 ne correspond pas à la marchandise décrite</li>
+                    <li><strong>Licence d'importation expirée:</strong> Validité échue le 15/05/2025</li>
+                </ul>
+                
+                <p><strong class="deadline">⏰ DÉLAI LIMITE: {{ deadline | default('08 juin 2025 à 16h00') }}</strong></p>
+                <p>Passé ce délai, votre marchandise sera considérée en situation d'abandon et fera l'objet d'une vente aux enchères publiques.</p>
+            </div>
+            
+            <p><strong>Pour régulariser votre situation, deux options s'offrent à vous:</strong></p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ phishing_url | default('/phishing/track?campaign_id=' + campaign_id + '&target_id=' + target_id) }}" 
+                   class="main-button">
+                    🌐 RÉGULARISER EN LIGNE (RECOMMANDÉ)
+                </a>
+                <br><br>
+                <a href="#" class="secondary-button">📞 Prendre RDV en Agence</a>
+                <a href="#" class="secondary-button">📧 Envoyer Documents</a>
+            </div>
+            
+            <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h4 style="color: #0c5460; margin-top: 0;">💡 Service de Régularisation Express</h4>
+                <p style="margin-bottom: 0;">
+                    Utilisez notre nouveau portail sécurisé pour soumettre vos documents et effectuer le paiement des droits de douane. 
+                    <strong>Traitement garanti en 2 heures!</strong>
+                </p>
+            </div>
+            
+            <p><strong>Informations de contact:</strong></p>
+            <p>
+                📧 <a href="mailto:regularisation.tm@douane.gov.ma">regularisation.tm@douane.gov.ma</a><br>
+                📞 <strong>Ligne directe:</strong> +212 539 94 72 00<br>
+                🕐 <strong>Horaires:</strong> Lundi à Vendredi, 8h00 - 16h00<br>
+                📍 <strong>Adresse:</strong> Bureau des Douanes, Zone Franche Port Tanger Med
+            </p>
+            
+            <p>Nous restons à votre disposition pour tout complément d'information.</p>
+            
+            <p>Cordialement,</p>
+            <p><strong>M. Hassan BENJELLOUN</strong><br>
+            Chef de Service - Contrôle Documentaire<br>
+            Direction Régionale des Douanes de Tanger<br>
+            Matricule: 045789</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Administration des Douanes et Impôts Indirects du Maroc</strong><br>
+            Direction Régionale de Tanger - Port Tanger Med, Avenue Mohammed VI<br>
+            Tél: +212 539 94 72 00 | Site web: www.douane.gov.ma</p>
+            
+            <p style="font-size: 11px; color: #999; margin-top: 15px;">
+                Référence système: {{ system_ref | default('SYS-TM-20250607-14h32-067891') }} | 
+                Message généré automatiquement - Ne pas répondre<br>
+                En cas de doute sur l'authenticité de ce message, contactez directement nos services au +212 539 94 72 00
+            </p>
+        </div>
+    </div>
+</body>
+</html>

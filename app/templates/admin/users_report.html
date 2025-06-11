@@ -1,0 +1,167 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="h3 mb-4">
+                <i class="fas fa-users"></i>
+                Rapport Utilisateurs
+            </h1>
+        </div>
+    </div>
+    
+    <!-- Users by Department -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Répartition par Département</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="departmentChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Répartition par Rôle</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="roleChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Tables -->
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Statistiques par Département</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Département</th>
+                                    <th>Nombre d'utilisateurs</th>
+                                    <th>Pourcentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set total_users = users_by_dept|sum(attribute='count') %}
+                                {% for dept, count in users_by_dept %}
+                                <tr>
+                                    <td>{{ dept or 'Non défini' }}</td>
+                                    <td>{{ count }}</td>
+                                    <td>{{ "%.1f"|format((count / total_users * 100) if total_users > 0 else 0) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Statistiques par Rôle</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Rôle</th>
+                                    <th>Nombre d'utilisateurs</th>
+                                    <th>Pourcentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set total_users_role = users_by_role|sum(attribute='count') %}
+                                {% for role, count in users_by_role %}
+                                <tr>
+                                    <td>
+                                        {% if role == 'admin' %}
+                                            <span class="badge badge-danger">Administrateur</span>
+                                        {% else %}
+                                            <span class="badge badge-primary">Utilisateur</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ count }}</td>
+                                    <td>{{ "%.1f"|format((count / total_users_role * 100) if total_users_role > 0 else 0) }}%</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Department Chart
+const deptCtx = document.getElementById('departmentChart').getContext('2d');
+const departmentChart = new Chart(deptCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for dept, count in users_by_dept %}'{{ dept or "Non défini" }}'{{ "," if not loop.last }}{% endfor %}],
+        datasets: [{
+            data: [{% for dept, count in users_by_dept %}{{ count }}{{ "," if not loop.last }}{% endfor %}],
+            backgroundColor: [
+                '#4e73df',
+                '#1cc88a',
+                '#36b9cc',
+                '#f6c23e',
+                '#e74a3b',
+                '#858796'
+            ]
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Role Chart
+const roleCtx = document.getElementById('roleChart').getContext('2d');
+const roleChart = new Chart(roleCtx, {
+    type: 'pie',
+    data: {
+        labels: [{% for role, count in users_by_role %}'{{ "Administrateur" if role == "admin" else "Utilisateur" }}'{{ "," if not loop.last }}{% endfor %}],
+        datasets: [{
+            data: [{% for role, count in users_by_role %}{{ count }}{{ "," if not loop.last }}{% endfor %}],
+            backgroundColor: [
+                '#e74a3b',
+                '#4e73df'
+            ]
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

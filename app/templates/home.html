@@ -2,55 +2,473 @@
 
 {% block title %}Accueil - Tanger Alliance Security{% endblock %}
 
+{% block page_title %}Bienvenue{% endblock %}
+
+{% block breadcrumb_active %}Page d'Accueil{% endblock %}
+
 {% block content %}
-<div class="jumbotron bg-light p-5 rounded">
-    <h1 class="display-4">Bienvenue sur le Portail de Sensibilisation à la Sécurité</h1>
-    <p class="lead">Renforcer la sécurité de Tanger Alliance par la sensibilisation et la formation</p>
-    <hr class="my-4">
-    <p>Ce portail vous permet d'accéder à des formations sur les bonnes pratiques de sécurité, de tester vos connaissances, et de devenir un acteur clé dans la protection des données de l'entreprise.</p>
-    {% if not current_user.is_authenticated %}
-    <div class="mt-4">
-        <a class="btn btn-primary btn-lg me-2" href="{{ url_for('auth.register') }}" role="button">S'inscrire</a>
-        <a class="btn btn-outline-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Se connecter</a>
-    </div>
-    {% else %}
-    <div class="mt-4">
-        <a class="btn btn-primary btn-lg" href="{{ url_for('main.dashboard') }}" role="button">Accéder à mon tableau de bord</a>
-    </div>
-    {% endif %}
-</div>
+<style>
+  :root {
+    --primary-gradient: linear-gradient(135deg, #017BFE 0%, #037bb8 100%);
+    --secondary-gradient: linear-gradient(135deg, #037bb8 0%, #2f457f 100%);
+    --success-gradient: linear-gradient(135deg, #04a7ca 0%, #037bb8 100%);
+    --info-gradient: linear-gradient(135deg, #04a7ca 0%, #2f457f 100%);
+  }
+  
+  .hero-section {
+    background: linear-gradient(135deg, #004a99 0%, #037bb8 100%);    color: white;
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+  }
 
-<div class="row mt-5">
-    <div class="col-md-4">
-        <div class="card mb-4 shadow-sm">
-            <div class="card-body text-center">
-                <i class="fas fa-key fa-3x text-primary mb-3"></i>
-                <h3 class="card-title">Gestion des mots de passe</h3>
-                <p class="card-text">Apprenez à créer et gérer des mots de passe forts pour protéger vos comptes professionnels et personnels.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card mb-4 shadow-sm">
-            <div class="card-body text-center">
-                <i class="fas fa-fish fa-3x text-primary mb-3"></i>
-                <h3 class="card-title">Sensibilisation au phishing</h3>
-                <p class="card-text">Développez votre capacité à identifier et à signaler les tentatives de phishing avant qu'elles ne causent des dommages.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card mb-4 shadow-sm">
-            <div class="card-body text-center">
-                <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
-                <h3 class="card-title">Gestion des vulnérabilités</h3>
-                <p class="card-text">Comprenez comment identifier, signaler et gérer les vulnérabilités pour maintenir la sécurité de l'infrastructure.</p>
-            </div>
-        </div>
-    </div>
-</div>
+  .fa-star:before {
+    content: "\f005";
+    color: #017BFE;
+}
+  
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+    opacity: 0.3;
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .feature-card {
+    border: none;
+    border-radius: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    height: 95%;
+    margin-bottom: 40px;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  }
+  
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    background: var(--primary-gradient);
+    color: white;
+    font-size: 2rem;
+  }
+  
+  .stats-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+  }
+  
+  .stats-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .stats-number {
+    font-size: 3rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+  
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: var(--primary-gradient);
+    border-radius: 2px;
+  }
+  
+  .step-card {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+    height: 100%;
+  }
+  
+  .step-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .step-number {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #017BFE;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 auto 1.5rem;
+  }
+  
+  .cta-section {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 4rem 0;
+    text-align: center;
+  }
+  
+  .btn-gradient {
+    background: linear-gradient(135deg, #017bfe 0%, #037bb8 100%);
+    border: none;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    color: white;
+  }
+  
+  .testimonial-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    text-align: center;
+    height: 100%;
+  }
+  
+  .testimonial-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    background: var(--primary-gradient);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+  }
+  
+  .security-tip {
+    background: linear-gradient(135deg, #04a7ca 0%, #037bb8 100%);
+    color: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin: 1rem 0;
+  }
+  
+  .progress-modern {
+    height: 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+    overflow: hidden;
+  }
+  
+  .progress-bar-modern {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  
+  @media (max-width: 768px) {
+    .hero-section {
+      padding: 2rem 0;
+    }
+    
+    .section-title {
+      font-size: 2rem;
+    }
+    
+    .stats-number {
+      font-size: 2rem;
+    }
+  }
 
-<div class="row mt-4">
+  .security-tip-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-left: 5px solid #04a7ca;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .tip-icon {
+    background: linear-gradient(135deg, #017BFE, #037bb8);
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .tip-content h5 {
+    color: #017BFE;
+    margin-bottom: 10px;
+  }
+
+  .tip-actions {
+    margin-top: 15px;
+  }
+
+  /* Styles pour la section contact */
+  .contact-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+
+  .contact-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    height: 100%;
+  }
+
+  .contact-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    border-color: #04a7ca;
+  }
+
+  .contact-icon {
+    background: linear-gradient(135deg, #017bfe11, #017BFE);
+    color: white;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+  }
+
+  .contact-card h5 {
+    color: #017BFE;
+    font-weight: 600;
+    margin-bottom: 15px;
+  }
+
+  .contact-info p {
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  .contact-info-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, white 100%);
+    border: 1px solid #e9ecef;
+  }
+
+  .contact-info-box h5 {
+    color: #017BFE;
+    font-weight: 600;
+  }
+</style>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content text-center">
+            <h1 class="display-3 fw-bold mb-4">Portail de Cybersécurité</h1>
+            <h2 class="h3 mb-4 opacity-90">Tanger Alliance - Excellence en Sécurité</h2>
+            <p class="lead mb-5 opacity-85">Renforcez vos compétences en cybersécurité et protégez notre infrastructure portuaire grâce à nos formations interactives et simulations réalistes.</p>
+            
+            {% if current_user.is_authenticated %}
+            <div class="d-flex align-items-center justify-content-center mb-4">
+                <img src="{{ url_for('static', filename='profile_pics/' + (current_user.profile_picture or 'default_profile.jpg')) }}" alt="Avatar utilisateur" class="rounded-circle me-3" width="64" height="64" style="border: 3px solid rgba(255,255,255,0.3);">
+                <div class="text-start">
+                    <h4 class="mb-0">Bienvenue, {{ (current_user.firstname + ' ' + current_user.lastname) if current_user.firstname and current_user.lastname else (current_user.firstname or current_user.lastname or current_user.email.split('@')[0]) }}</h4>
+                    <p class="mb-0 opacity-75">Continuez votre parcours de formation</p>
+                </div>
+            </div>
+            <a class="btn btn-gradient btn-lg px-5" href="{{ url_for('main.dashboard') }}">Accéder à mon tableau de bord</a>
+            {% else %}
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a class="btn btn-gradient btn-lg px-5" href="{{ url_for('auth.register') }}">Commencer maintenant</a>
+                <a class="btn btn-outline-light btn-lg px-5" href="{{ url_for('auth.login') }}">Se connecter</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Modules de Formation -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title">Nos Modules de Formation</h2>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Gestion des Mots de Passe</h3>
+                    <p class="text-muted mb-4">Maîtrisez les techniques de création et de gestion de mots de passe robustes pour sécuriser vos accès professionnels.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary">Essentiel</span>
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>30 min</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-fish"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Sensibilisation au Phishing</h3>
+                    <p class="text-muted mb-4">Développez votre expertise pour détecter et contrer les attaques de phishing sophistiquées ciblant notre secteur.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-danger">Critique</span>
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>45 min</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Gestion des Vulnérabilités</h3>
+                    <p class="text-muted mb-4">Apprenez à identifier, évaluer et traiter les vulnérabilités pour maintenir l'intégrité de notre infrastructure.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-warning">Avancé</span>
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>60 min</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Protection des Données</h3>
+                    <p class="text-muted mb-4">Comprenez les enjeux RGPD et les meilleures pratiques pour protéger les données sensibles de nos clients.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-info">Réglementaire</span>
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>40 min</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Sécurité Mobile</h3>
+                    <p class="text-muted mb-4">Sécurisez vos appareils mobiles et applications professionnelles contre les menaces émergentes.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-success">Pratique</span>
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>35 min</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="feature-card p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3 class="h4 mb-3">Sécurité Réseau</h3>
+                    <p class="text-muted mb-4">Maîtrisez les fondamentaux de la sécurité réseau et les protocoles de protection de notre infrastructure.</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-secondary">Technique</span>
+                        <small class="text-muted"><i class="fas fa-clock me-1"></i>50 min</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Statistiques -->
+<section class="stats-section py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="6">0</div>
+                    <div class="stat-label">Modules de Formation</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Support Technique</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="100">0</div>
+                    <div class="stat-suffix">%</div>
+                    <div class="stat-label">Sécurisé</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="1">0</div>
+                    <div class="stat-label">Plateforme Dédiée</div>
+                    <div class="stat-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="row mt-5 mb-5">
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
@@ -77,23 +495,466 @@
                 <div class="text-center mb-3">
                     <p><strong>85%</strong> des incidents de sécurité impliquent un facteur humain</p>
                     <div class="progress">
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-danger rounded" role="progressbar" style="width: 85%" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
                 <div class="text-center mb-3">
                     <p><strong>70%</strong> des attaques réussies commencent par du phishing</p>
                     <div class="progress">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-warning rounded" role="progressbar" style="width: 70%" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
                 <div class="text-center">
                     <p>Une formation adéquate peut réduire le risque d'incidents de <strong>60%</strong></p>
                     <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-success rounded" role="progressbar" style="width: 60%" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .feature-card { border: none; transition: transform .3s; }
+    .feature-card:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .step-number { width: 50px; height: 50px; line-height: 50px; font-size: 1.25rem; }
+</style>
+
+<!-- Fonctionnalités -->
+<div class="container my-5">
+    <h2 class="text-center mb-4">Nos fonctionnalités</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card feature-card text-center p-3 h-100">
+                <i class="fas fa-chalkboard-teacher fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Formations interactives</h5>
+                <p class="card-text">Modules engageants et interactifs pour faciliter l’apprentissage.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card text-center p-3 h-100">
+                <i class="fas fa-flask fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Simulations réelles</h5>
+                <p class="card-text">Exercez-vous sur des cas pratiques simulant votre environnement de travail.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card feature-card text-center p-3 h-100">
+                <i class="fas fa-chart-line fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Suivi des progrès</h5>
+                <p class="card-text">Visualisez vos performances et améliorez vos compétences efficacement.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section Comment ça marche -->
+<section class="how-it-works py-5 bg-white">
+    <div class="container">
+        <h2 class="section-title">Comment ça marche ?</h2>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h4 class="step-title">Inscription</h4>
+                    <p class="step-description">Créez votre compte en quelques minutes avec votre adresse email professionnelle et accédez immédiatement à la plateforme.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <h4 class="step-title">Formation</h4>
+                    <p class="step-description">Suivez nos modules interactifs adaptés à votre niveau, avec des contenus pratiques et des cas d'usage réels.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h4 class="step-title">Évaluation</h4>
+                    <p class="step-description">Testez vos connaissances avec nos quiz interactifs et simulations d'attaques réalistes pour valider vos acquis.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="step-card text-center">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h4 class="step-title">Certification</h4>
+                    <p class="step-description">Obtenez votre certification reconnue et suivez vos progrès en temps réel dans votre tableau de bord personnalisé.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Témoignages -->
+<section class="testimonials py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title">Ce que disent nos collaborateurs</h2>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Grâce à cette formation, j'ai appris à identifier les tentatives de phishing qui ciblent notre secteur portuaire. C'est devenu un réflexe maintenant !"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5 class="author-name">Youssef El Amrani</h5>
+                            <p class="author-role">Responsable Logistique</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Les modules sont adaptés à notre environnement de travail au port. J'ai pu sensibiliser toute mon équipe aux bonnes pratiques de sécurité."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5 class="author-name">Fatima Benali</h5>
+                            <p class="author-role">Chef d'Équipe Operations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <div class="stars mb-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Formation très pratique et accessible. Les simulations m'ont aidé à mieux comprendre les risques dans notre secteur d'activité portuaire."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5 class="author-name">Ahmed Tazi</h5>
+                            <p class="author-role">Superviseur Terminal</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Avantages -->
+<section class="benefits py-5 bg-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="section-title text-start">Pourquoi choisir notre plateforme ?</h2>
+                <div class="benefits-list">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="benefit-content">
+                            <h5>Formation Interactive</h5>
+                            <p>Modules engageants avec simulations réalistes et cas pratiques</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <div class="benefit-content">
+                            <h5>Contenu Actualisé</h5>
+                            <p>Mise à jour régulière selon les dernières menaces et réglementations</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="benefit-content">
+                            <h5>Suivi Personnalisé</h5>
+                            <p>Tableaux de bord détaillés et rapports de progression individuels</p>
+                        </div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="benefit-content">
+                            <h5>Simulations Réalistes</h5>
+                            <p>Environnement sécurisé pour tester vos réflexes face aux cyberattaques</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="benefits-visual">
+                    <div class="security-badge">
+                        <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                        <h4>Plateforme Dédiée</h4>
+                        <p class="text-muted">Solution de formation spécialement conçue pour les besoins de sécurité de Tanger Alliance et du secteur portuaire</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section CTA Final -->
+<section class="final-cta py-5">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <div class="cta-content">
+                    <h2 class="cta-title">Prêt à renforcer votre sécurité ?</h2>
+                    <p class="cta-subtitle">Rejoignez l'équipe Tanger Alliance dans cette démarche de renforcement de notre sécurité collective.</p>
+                    <div class="cta-buttons">
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-tachometer-alt me-2"></i>Accéder au Dashboard
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-3">
+                                <i class="fas fa-rocket me-2"></i>Commencer Maintenant
+                            </a>
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Se Connecter
+                            </a>
+                        {% endif %}
+                    </div>
+                    <div class="cta-features mt-4">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="cta-feature">
+                                    <i class="fas fa-clock text-light mb-2"></i>
+                                    <small class="text-light">Formation en 30 minutes</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="cta-feature">
+                                    <i class="fas fa-certificate text-light mb-2"></i>
+                                    <small class="text-light">Certification incluse</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="cta-feature">
+                                    <i class="fas fa-headset text-light mb-2"></i>
+                                    <small class="text-light">Support 24/7</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Conseils de Sécurité -->
+<section class="security-tips py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h3 class="text-center mb-4">💡 Conseil de Sécurité du Jour</h3>
+                <div class="security-tip-card">
+                    <div class="tip-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="tip-content">
+                        <h5>Activez l'authentification à deux facteurs (2FA)</h5>
+                        <p>L'activation du 2FA sur vos comptes professionnels réduit de 99,9% les risques de compromission, même si votre mot de passe est découvert. C'est votre meilleure défense contre les cyberattaques.</p>
+                        <div class="tip-actions">
+                            <a href="#" class="btn btn-sm btn-outline-primary">En savoir plus</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Contact -->
+<section class="contact-section py-5 bg-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-title">Besoin d'aide ou d'informations ?</h2>
+                <p class="lead mb-5">Notre équipe support est là pour vous accompagner dans votre parcours de formation en cybersécurité.</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="contact-card text-center p-4">
+                    <div class="contact-icon mb-3">
+                        <i class="fas fa-headset fa-2x text-primary"></i>
+                    </div>
+                    <h5>Support Technique</h5>
+                    <p class="text-muted mb-3">Assistance pour les problèmes techniques et questions sur la plateforme</p>
+                    <div class="contact-info">
+                        <p><strong>Disponible 24/7</strong></p>
+                        <p>support.securite@tangeralliance.ma</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="contact-card text-center p-4">
+                    <div class="contact-icon mb-3">
+                        <i class="fas fa-user-tie fa-2x text-primary"></i>
+                    </div>
+                    <h5>Responsable Formation</h5>
+                    <p class="text-muted mb-3">Questions sur le contenu des formations et l'organisation des sessions</p>
+                    <div class="contact-info">
+                        <p><strong>Lun-Ven 8h-17h</strong></p>
+                        <p>formation.securite@tangeralliance.ma</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="contact-card text-center p-4">
+                    <div class="contact-icon mb-3">
+                        <i class="fas fa-building fa-2x text-primary"></i>
+                    </div>
+                    <h5>Direction IT</h5>
+                    <p class="text-muted mb-3">Questions stratégiques et suggestions d'amélioration de la plateforme</p>
+                    <div class="contact-info">
+                        <p><strong>Sur rendez-vous</strong></p>
+                        <p>it.direction@tangeralliance.ma</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-lg-8 mx-auto">
+                <div class="contact-info-box p-4 bg-light rounded">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5 class="mb-2">À propos de Tanger Alliance</h5>
+                            <p class="mb-0 text-muted">Leader dans la gestion portuaire et la logistique au Maroc, Tanger Alliance s'engage dans une démarche de sécurisation de ses systèmes d'information pour protéger ses opérations et les données de ses partenaires.</p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <i class="fas fa-anchor fa-3x text-primary mb-2"></i>
+                            <p class="small text-muted">Excellence Portuaire</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+// Animation des compteurs dans la section statistiques
+document.addEventListener('DOMContentLoaded', function() {
+    const observerOptions = {
+        threshold: 0.5,
+        rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) {
+        observer.observe(statsSection);
+    }
+
+    function animateCounters() {
+        const counters = document.querySelectorAll('.stat-number[data-target]');
+        
+        counters.forEach(counter => {
+            const target = parseInt(counter.getAttribute('data-target'));
+            const duration = 2000; // 2 secondes
+            const increment = target / (duration / 16); // 60 FPS
+            let current = 0;
+
+            const updateCounter = () => {
+                if (current < target) {
+                    current += increment;
+                    counter.textContent = Math.floor(current);
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+
+            updateCounter();
+        });
+    }
+
+    // Animation smooth scroll pour les liens d'ancrage
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Animation d'apparition des cartes au scroll
+    const cards = document.querySelectorAll('.feature-card, .step-card, .testimonial-card');
+    const cardObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        cardObserver.observe(card);
+    });
+});
+</script>
 {% endblock %}

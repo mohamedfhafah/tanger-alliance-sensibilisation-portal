@@ -1,0 +1,144 @@
+{% macro render_stat_cards(stats) %}
+<div class="row">
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-info">
+      <div class="inner">
+        <h3>{{ stats.modules_completed }}</h3>
+        <p>Modules Complétés</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+      <a href="{{ url_for('modules.index') }}" class="small-box-footer">
+        Voir les modules <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-success">
+      <div class="inner">
+        <h3>{{ stats.avg_score|round(1) }}<sup style="font-size: 20px">%</sup></h3>
+        <p>Score Moyen</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-chart-line"></i>
+      </div>
+      <a href="{{ url_for('main.profile') }}" class="small-box-footer">
+        Voir profil <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-warning">
+      <div class="inner">
+        <h3>{{ stats.phishing_awareness|round(1) }}</h3>
+        <p>Score Phishing</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-fish"></i>
+      </div>
+      <a href="#" class="small-box-footer">
+        En savoir plus <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+  <!-- ./col -->
+  <div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-danger">
+      <div class="inner">
+        <h3>{{ stats.security_rank }}</h3>
+        <p>Rang Sécurité</p>
+      </div>
+      <div class="icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <a href="{{ url_for('main.leaderboard') }}" class="small-box-footer">
+        Détails <i class="fas fa-arrow-circle-right"></i>
+      </a>
+    </div>
+  </div>
+  <!-- ./col -->
+</div>
+{% endmacro %}
+
+{% macro render_activity_cards(activities) %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="fas fa-history mr-1"></i>
+      Activités récentes
+    </h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" data-card-widget="collapse">
+        <i class="fas fa-minus"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <ul class="products-list product-list-in-card pl-2 pr-2">
+      {% for activity in activities %}
+      <li class="item">
+        <div class="product-img">
+          <i class="fas {{ activity.icon }} fa-2x text-{{ activity.color }}"></i>
+        </div>
+        <div class="product-info">
+          <a href="{{ activity.link }}" class="product-title">{{ activity.title }}
+            <span class="badge badge-{{ activity.color }} float-right">{{ activity.time }}</span>
+          </a>
+          <span class="product-description">
+            {{ activity.description }}
+          </span>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <!-- Footer supprimé -->
+</div>
+{% endmacro %}
+
+{% macro render_department_stats(department_stats) %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i class="fas fa-building mr-1"></i>
+      Progression par département
+    </h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" data-card-widget="collapse">
+        <i class="fas fa-minus"></i>
+      </button>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Département</th>
+          <th>Progression</th>
+          <th style="width: 40%">Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for dept in department_stats %}
+        <tr>
+          <td>{{ dept.name }}</td>
+          <td>{{ dept.completion|round(1) }}%</td>
+          <td>
+            <div class="progress progress-xs">
+              <div class="progress-bar" style="width: {{ dept.completion|int }}%; background-color: {{ dept.color|default('#6c757d') }};" role="progressbar" aria-valuenow="{{ dept.completion|int }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endmacro %}

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Review - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>{{ quiz.title }} - Révision</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.view', module_id=module.id) }}">{{ module.title }}</a></li>
+                    <li class="breadcrumb-item active">Révision du Quiz</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-clipboard-list mr-2"></i>
+                    Révision des questions et réponses
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="reviewAccordion">
+                    {% for question in quiz.questions %}
+                    <div class="card">
+                        <div class="card-header" id="heading{{ loop.index }}">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link btn-block text-left" type="button" 
+                                        data-toggle="collapse" data-target="#collapse{{ loop.index }}" 
+                                        aria-expanded="true" aria-controls="collapse{{ loop.index }}">
+                                    Question {{ loop.index }}: {{ question.content }}
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapse{{ loop.index }}" class="collapse {% if loop.first %}show{% endif %}" 
+                             aria-labelledby="heading{{ loop.index }}" data-parent="#reviewAccordion">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <strong>Question:</strong> {{ question.content }}
+                                </div>
+                                
+                                {% if question.question_type == 'multiple_choice' %}
+                                <div class="mb-3">
+                                    <strong>Choix de réponses:</strong>
+                                    {% for choice in question.choices %}
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="radio" disabled
+                                               name="question_{{ question.id }}" id="choice_{{ choice.id }}">
+                                        <label class="form-check-label" for="choice_{{ choice.id }}">
+                                            {{ choice.content }}
+                                            {% if choice.is_correct %}
+                                            <i class="fas fa-check-circle text-success ml-2"></i>
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                {% if question.explanation %}
+                                <div class="alert alert-light mt-3">
+                                    <strong><i class="fas fa-lightbulb mr-2"></i>Explication:</strong>
+                                    {{ question.explanation }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <a href="{{ url_for('modules.view', module_id=module.id) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left mr-2"></i>Retour au module
+                        </a>
+                    </div>
+                    <div class="col-sm-6 text-right">
+                        {% if progress and progress.score is not none and progress.score < quiz.passing_score %}
+                        <form method="POST" action="{{ url_for('quiz.retake_quiz', quiz_id=quiz.id) }}" style="display: inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="fas fa-redo mr-2"></i>Reprendre le quiz
+                            </button>
+                        </form>
+                        {% endif %}
+                        <a href="{{ url_for('quiz.quiz_results', quiz_id=quiz.id) }}" class="btn btn-primary ml-2">
+                            <i class="fas fa-chart-bar mr-2"></i>Voir les résultats
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% macro render_simulation_stats(stats) %}
+<div class="card card-primary card-outline shadow-sm mb-4">
+  <div class="card-header text-primary d-flex align-items-center justify-content-between">
+    <h5 class="mb-0"><i class="fas fa-flask me-2"></i>Statistiques des simulations</h5>
+  </div>
+  <div class="card-body">
+    <div class="row text-center">
+      <div class="col">
+        <h6>Total d'essais</h6>
+        <p class="h3 mb-0">{{ stats.total }}</p>
+      </div>
+      <div class="col">
+        <h6>Succès</h6>
+        <p class="h3 mb-0">{{ stats.success }}</p>
+      </div>
+      <div class="col">
+        <h6>Taux de réussite</h6>
+        <p class="h3 mb-0">{{ stats.rate }}%</p>
+      </div>
+      <div class="col">
+        <h6>Dernier essai</h6>
+        <p class="h3 mb-0">{{ stats.last.strftime('%d/%m/%Y') if stats.last else 'N/A' }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}

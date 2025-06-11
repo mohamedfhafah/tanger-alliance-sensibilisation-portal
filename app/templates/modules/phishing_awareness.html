@@ -1,0 +1,892 @@
+{% extends 'base.html' %}
+{% from 'macros/quiz_macros.html' import render_quiz_button %}
+
+{% block title %}{{ module.title }} - Tanger Alliance Security{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modules-common.css') }}">
+<style>
+    /* Styles spécifiques au module de sensibilisation au phishing */
+    .phishing-module .nav-tabs .nav-link {
+        color: var(--primary-red);
+    }
+    
+    .phishing-module .nav-tabs .nav-link.active {
+        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+        color: white;
+        border-color: #dc3545 #dc3545 #fff;
+    }
+    
+    .phishing-module .jumbotron.bg-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%) !important;
+    }
+    
+    .phishing-section::before {
+        background: linear-gradient(180deg, #dc3545 0%, rgba(220, 53, 69, 0.7) 100%);
+    }
+    
+    /* Animation d'entrée pour les sections */
+    .phishing-section {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    /* Icônes spécifiques */
+    .phishing-module .icon-wrapper {
+        background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+    }
+    .phishing-section {
+        margin-bottom: 2rem;
+        border-left: 4px solid #dc3545;
+        padding-left: 1rem;
+        margin-top: 1rem;
+    }
+    .completed-badge {
+        background-color: #198754;
+        color: white;
+        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        margin-left: 10px;
+    }
+    
+    /* Styles pour les exemples de phishing */
+    .phishing-example {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .danger-indicator {
+        height: 10px;
+        background-color: #e9ecef;
+        border-radius: 5px;
+        overflow: hidden;
+        margin: 0.5rem 0;
+    }
+    
+    .danger-bar {
+        height: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .danger-low { background-color: #28a745; }
+    .danger-medium { background-color: #ffc107; }
+    .danger-high { background-color: #dc3545; }
+    
+    .phishing-tips {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .risk-card {
+        transition: transform 0.2s;
+    }
+    
+    .risk-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .email-example {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+        background: white;
+        margin: 1rem 0;
+    }
+    
+    .email-header {
+        background: #f8f9fa;
+        padding: 0.75rem;
+        border-bottom: 1px solid #dee2e6;
+        font-family: monospace;
+        font-size: 0.9rem;
+    }
+    
+    .email-body {
+        padding: 1rem;
+    }
+    
+    .suspicious-element {
+        background: #ffebee;
+        border: 1px dashed #f44336;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+    
+    .suspicious-element:hover {
+        background: #ffcdd2;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="phishing-module">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-danger card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-fish mr-1"></i>
+                            {{ module.title if module else 'Sensibilisation au Phishing' }}
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- Onglets de navigation -->
+                        <ul class="nav nav-tabs" id="phishingTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="intro-tab" data-toggle="tab" href="#intro" role="tab" aria-controls="intro" aria-selected="true">
+                                    <i class="fas fa-info-circle mr-1"></i>1. Introduction
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="types-tab" data-toggle="tab" href="#types" role="tab" aria-controls="types" aria-selected="false">
+                                    <i class="fas fa-list mr-1"></i>2. Types d'Attaques
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="detection-tab" data-toggle="tab" href="#detection" role="tab" aria-controls="detection" aria-selected="false">
+                                    <i class="fas fa-search mr-1"></i>3. Détection
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="prevention-tab" data-toggle="tab" href="#prevention" role="tab" aria-controls="prevention" aria-selected="false">
+                                    <i class="fas fa-shield-alt mr-1"></i>4. Prévention
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="response-tab" data-toggle="tab" href="#response" role="tab" aria-controls="response" aria-selected="false">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>5. Réaction
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="simulator-tab" data-toggle="tab" href="#simulator" role="tab" aria-controls="simulator" aria-selected="false">
+                                    <i class="fas fa-gamepad mr-1"></i>6. Simulateur
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- Contenu des onglets -->
+                        <div class="tab-content" id="phishingTabsContent">
+                            <!-- Onglet Introduction -->
+                            <div class="tab-pane fade show active" id="intro" role="tabpanel" aria-labelledby="intro-tab">
+                                <div class="phishing-section">
+                                    <div class="jumbotron bg-danger text-white text-center mb-4">
+                                        <h1 class="display-4"><i class="fas fa-fish mr-3"></i>Sensibilisation au Phishing</h1>
+                                        <p class="lead">Protégez-vous des attaques par hameçonnage</p>
+                                        <hr class="my-4" style="border-color: rgba(255,255,255,0.3);">
+                                        <p>Apprenez à identifier, éviter et signaler les tentatives de phishing pour protéger vos données et celles de l'entreprise.</p>
+                                    </div>
+
+                                    <h3 class="text-danger mb-4"><i class="fas fa-exclamation-triangle mr-2"></i>Pourquoi c'est CRITIQUE ?</h3>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card risk-card border-danger h-100">
+                                                <div class="card-header bg-danger text-white text-center">
+                                                    <i class="fas fa-chart-line fa-2x"></i>
+                                                    <h5 class="mt-2 mb-0">Statistiques Alarmantes</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-arrow-right text-danger mr-2"></i><strong>96%</strong> des cyberattaques commencent par un email</li>
+                                                        <li><i class="fas fa-arrow-right text-danger mr-2"></i><strong>1 email sur 99</strong> est une tentative de phishing</li>
+                                                        <li><i class="fas fa-arrow-right text-danger mr-2"></i><strong>30%</strong> des emails de phishing sont ouverts</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card risk-card border-warning h-100">
+                                                <div class="card-header bg-warning text-dark text-center">
+                                                    <i class="fas fa-euro-sign fa-2x"></i>
+                                                    <h5 class="mt-2 mb-0">Impact Financier</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-arrow-right text-warning mr-2"></i>Coût moyen : <strong>4,65M€</strong> par incident</li>
+                                                        <li><i class="fas fa-arrow-right text-warning mr-2"></i>Temps de récupération : <strong>280 jours</strong></li>
+                                                        <li><i class="fas fa-arrow-right text-warning mr-2"></i>Perte de productivité immédiate</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card risk-card border-info h-100">
+                                                <div class="card-header bg-info text-white text-center">
+                                                    <i class="fas fa-users fa-2x"></i>
+                                                    <h5 class="mt-2 mb-0">Impact Humain</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-arrow-right text-info mr-2"></i>Stress et anxiété des employés</li>
+                                                        <li><i class="fas fa-arrow-right text-info mr-2"></i>Perte de confiance des clients</li>
+                                                        <li><i class="fas fa-arrow-right text-info mr-2"></i>Dommage à la réputation</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-success" role="alert">
+                                        <h4 class="alert-heading"><i class="fas fa-lightbulb mr-2"></i>Bonne nouvelle !</h4>
+                                        <p>Une formation appropriée peut réduire de <strong>70%</strong> le risque de succès des attaques de phishing.</p>
+                                        <hr>
+                                        <p class="mb-0">Ce module vous donnera tous les outils nécessaires pour identifier et éviter les pièges du phishing.</p>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('intro','types', {{ module.id }})">
+                                            <i class="fas fa-arrow-right mr-2"></i>Découvrir les types d'attaques
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Types d'Attaques -->
+                            <div class="tab-pane fade" id="types" role="tabpanel" aria-labelledby="types-tab">
+                                <div class="phishing-section">
+                                    <h2 class="text-danger mb-4"><i class="fas fa-list mr-2"></i>Types d'Attaques de Phishing</h2>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card border-danger">
+                                                <div class="card-header bg-danger text-white">
+                                                    <h5><i class="fas fa-envelope mr-2"></i>Phishing par Email</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Le plus courant</strong> - Emails frauduleux imitant des organisations légitimes</p>
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-check text-danger mr-2"></i>Fausses banques</li>
+                                                        <li><i class="fas fa-check text-danger mr-2"></i>Faux réseaux sociaux</li>
+                                                        <li><i class="fas fa-check text-danger mr-2"></i>Fausses administrations</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card border-warning">
+                                                <div class="card-header bg-warning text-dark">
+                                                    <h5><i class="fas fa-phone mr-2"></i>Vishing (Voice Phishing)</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Par téléphone</strong> - Appels frauduleux pour obtenir des informations</p>
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-check text-warning mr-2"></i>Faux support technique</li>
+                                                        <li><i class="fas fa-check text-warning mr-2"></i>Fausses enquêtes</li>
+                                                        <li><i class="fas fa-check text-warning mr-2"></i>Urgences fictives</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card border-info">
+                                                <div class="card-header bg-info text-white">
+                                                    <h5><i class="fas fa-sms mr-2"></i>Smishing (SMS Phishing)</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Par SMS</strong> - Messages frauduleux avec liens malveillants</p>
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-check text-info mr-2"></i>Fausses livraisons</li>
+                                                        <li><i class="fas fa-check text-info mr-2"></i>Fausses amendes</li>
+                                                        <li><i class="fas fa-check text-info mr-2"></i>Faux gains</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card border-dark">
+                                                <div class="card-header bg-dark text-white">
+                                                    <h5><i class="fas fa-crosshairs mr-2"></i>Spear Phishing</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p><strong>Ciblé</strong> - Attaques personnalisées contre des individus spécifiques</p>
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-check text-dark mr-2"></i>Recherche préalable</li>
+                                                        <li><i class="fas fa-check text-dark mr-2"></i>Très convaincant</li>
+                                                        <li><i class="fas fa-check text-dark mr-2"></i>Taux de succès élevé</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert alert-warning" role="alert">
+                                        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle mr-2"></i>Attention aux nouvelles tendances</h4>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>Deepfake :</strong> Vidéos et audios falsifiés</p>
+                                                <p><strong>QR Code :</strong> Codes malveillants</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p><strong>IA générative :</strong> Textes très convaincants</p>
+                                                <p><strong>Réseaux sociaux :</strong> Profils et messages falsifiés</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('types','detection', {{ module.id }})">
+                                            <i class="fas fa-arrow-right mr-2"></i>Apprendre à détecter les attaques
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Détection -->
+                            <div class="tab-pane fade" id="detection" role="tabpanel" aria-labelledby="detection-tab">
+                                <div class="phishing-section">
+                                    <h2 class="text-danger mb-4"><i class="fas fa-search mr-2"></i>Comment Détecter le Phishing</h2>
+                                    
+                                    <div class="phishing-example">
+                                        <h4><i class="fas fa-envelope mr-2"></i>Exemple d'Email Suspect</h4>
+                                        <div class="email-example">
+                                            <div class="email-header">
+                                                <strong>De :</strong> <span class="suspicious-element" title="Adresse suspecte">securite@banque-populaire-maroc.com</span><br>
+                                                <strong>À :</strong> vous@votre-entreprise.com<br>
+                                                <strong>Objet :</strong> <span class="suspicious-element" title="Urgence artificielle">URGENT - Votre compte sera suspendu dans 24h</span>
+                                            </div>
+                                            <div class="email-body">
+                                                <p>Cher client,</p>
+                                                <p>Nous avons détecté une <span class="suspicious-element" title="Création de peur">activité suspecte</span> sur votre compte. Pour éviter la <span class="suspicious-element" title="Menace">suspension définitive</span>, veuillez <span class="suspicious-element" title="Appel à l'action urgent">cliquer immédiatement</span> sur le lien ci-dessous :</p>
+                                                <p><a href="#" class="suspicious-element" title="Lien suspect">https://banque-verification-securite.tk/login</a></p>
+                                                <p>Vous avez <span class="suspicious-element" title="Pression temporelle">24 heures</span> pour confirmer vos informations.</p>
+                                                <p>Cordialement,<br>L'équipe sécurité</p>
+                                            </div>
+                                        </div>
+                                        <div class="alert alert-info mt-3">
+                                            <strong>Cliquez sur les éléments surlignés</strong> pour voir pourquoi ils sont suspects !
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card border-danger">
+                                                <div class="card-header bg-danger text-white">
+                                                    <h5><i class="fas fa-exclamation-triangle mr-2"></i>Signaux d'Alarme</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-group list-group-flush">
+                                                        <li class="list-group-item"><i class="fas fa-times text-danger mr-2"></i>Urgence artificielle</li>
+                                                        <li class="list-group-item"><i class="fas fa-times text-danger mr-2"></i>Menaces de suspension</li>
+                                                        <li class="list-group-item"><i class="fas fa-times text-danger mr-2"></i>Demande d'informations sensibles</li>
+                                                        <li class="list-group-item"><i class="fas fa-times text-danger mr-2"></i>Liens suspects</li>
+                                                        <li class="list-group-item"><i class="fas fa-times text-danger mr-2"></i>Fautes d'orthographe</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="card border-success">
+                                                <div class="card-header bg-success text-white">
+                                                    <h5><i class="fas fa-shield-alt mr-2"></i>Réflexes de Vérification</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-group list-group-flush">
+                                                        <li class="list-group-item"><i class="fas fa-check text-success mr-2"></i>Vérifier l'adresse expéditeur</li>
+                                                        <li class="list-group-item"><i class="fas fa-check text-success mr-2"></i>Examiner les liens (survol)</li>
+                                                        <li class="list-group-item"><i class="fas fa-check text-success mr-2"></i>Contacter directement l'organisation</li>
+                                                        <li class="list-group-item"><i class="fas fa-check text-success mr-2"></i>Vérifier les certificats SSL</li>
+                                                        <li class="list-group-item"><i class="fas fa-check text-success mr-2"></i>Se méfier des urgences</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="phishing-tips">
+                                        <h5><i class="fas fa-lightbulb mr-2"></i>Technique de Vérification des URLs</h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>URL Légitime :</strong></p>
+                                                <code>https://www.banquepopulaire.ma/login</code>
+                                                <p class="text-success mt-2"><i class="fas fa-check mr-1"></i>Domaine officiel, HTTPS</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p><strong>URL Suspecte :</strong></p>
+                                                <code>http://banque-populaire-maroc.tk/login</code>
+                                                <p class="text-danger mt-2"><i class="fas fa-times mr-1"></i>Domaine suspect, pas de HTTPS</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('detection','prevention', {{ module.id }})">
+                                            <i class="fas fa-arrow-right mr-2"></i>Apprendre les mesures de prévention
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Prévention -->
+                            <div class="tab-pane fade" id="prevention" role="tabpanel" aria-labelledby="prevention-tab">
+                                <div class="phishing-section">
+                                    <h2 class="text-danger mb-4"><i class="fas fa-shield-alt mr-2"></i>Mesures de Prévention</h2>
+                                    
+                                    <div class="alert alert-info" role="alert">
+                                        <h4 class="alert-heading"><i class="fas fa-info-circle mr-2"></i>Principe de Base</h4>
+                                        <p>La prévention repose sur la vigilance, la formation continue et l'utilisation d'outils de sécurité appropriés.</p>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card border-primary h-100">
+                                                <div class="card-header bg-primary text-white text-center">
+                                                    <i class="fas fa-user-shield fa-2x"></i>
+                                                    <h5 class="mt-2 mb-0">Comportement</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-check text-primary mr-2"></i>Toujours vérifier l'expéditeur</li>
+                                                        <li><i class="fas fa-check text-primary mr-2"></i>Ne jamais cliquer sur des liens suspects</li>
+                                                        <li><i class="fas fa-check text-primary mr-2"></i>Vérifier les URLs avant de saisir des données</li>
+                                                        <li><i class="fas fa-check text-primary mr-2"></i>Se méfier des urgences</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card border-success h-100">
+                                                <div class="card-header bg-success text-white text-center">
+                                                    <i class="fas fa-cogs fa-2x"></i>
+                                                    <h5 class="mt-2 mb-0">Outils Techniques</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-check text-success mr-2"></i>Filtres anti-spam</li>
+                                                        <li><i class="fas fa-check text-success mr-2"></i>Antivirus à jour</li>
+                                                        <li><i class="fas fa-check text-success mr-2"></i>Navigateur sécurisé</li>
+                                                        <li><i class="fas fa-check text-success mr-2"></i>Authentification à deux facteurs</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card border-warning h-100">
+                                                <div class="card-header bg-warning text-dark text-center">
+                                                    <i class="fas fa-graduation-cap fa-2x"></i>
+                                                    <h5 class="mt-2 mb-0">Formation</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled">
+                                                        <li><i class="fas fa-check text-warning mr-2"></i>Formations régulières</li>
+                                                        <li><i class="fas fa-check text-warning mr-2"></i>Tests de phishing</li>
+                                                        <li><i class="fas fa-check text-warning mr-2"></i>Veille sécuritaire</li>
+                                                        <li><i class="fas fa-check text-warning mr-2"></i>Partage d'expériences</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="phishing-tips">
+                                        <h5><i class="fas fa-lightbulb mr-2"></i>Checklist de Sécurité Email</h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="check1">
+                                                    <label class="form-check-label" for="check1">Vérifier l'adresse de l'expéditeur</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="check2">
+                                                    <label class="form-check-label" for="check2">Examiner l'objet du message</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="check3">
+                                                    <label class="form-check-label" for="check3">Analyser le contenu</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="check4">
+                                                    <label class="form-check-label" for="check4">Vérifier les liens (survol)</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="check5">
+                                                    <label class="form-check-label" for="check5">Contrôler les pièces jointes</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="check6">
+                                                    <label class="form-check-label" for="check6">En cas de doute, ne pas agir</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('prevention','response', {{ module.id }})">
+                                            <i class="fas fa-arrow-right mr-2"></i>Apprendre à réagir en cas d'incident
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Réaction -->
+                            <div class="tab-pane fade" id="response" role="tabpanel" aria-labelledby="response-tab">
+                                <div class="phishing-section">
+                                    <h2 class="text-danger mb-4"><i class="fas fa-exclamation-triangle mr-2"></i>Que Faire en Cas d'Incident ?</h2>
+                                    
+                                    <div class="alert alert-danger" role="alert">
+                                        <h4 class="alert-heading"><i class="fas fa-exclamation-triangle mr-2"></i>Vous pensez avoir été victime ?</h4>
+                                        <p>Pas de panique ! Une réaction rapide et appropriée peut limiter considérablement les dégâts.</p>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="card border-danger">
+                                                <div class="card-header bg-danger text-white">
+                                                    <h5><i class="fas fa-clock mr-2"></i>Actions Immédiates (0-15 min)</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ol>
+                                                        <li><strong>Déconnectez-vous</strong> immédiatement</li>
+                                                        <li><strong>Changez vos mots de passe</strong> depuis un autre appareil</li>
+                                                        <li><strong>Alertez votre équipe IT</strong></li>
+                                                        <li><strong>Documentez</strong> l'incident (captures d'écran)</li>
+                                                        <li><strong>Isolez</strong> votre poste de travail</li>
+                                                    </ol>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <div class="card border-warning">
+                                                <div class="card-header bg-warning text-dark">
+                                                    <h5><i class="fas fa-search mr-2"></i>Actions de Suivi (15 min - 1h)</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ol>
+                                                        <li><strong>Analysez</strong> l'étendue des dégâts</li>
+                                                        <li><strong>Vérifiez</strong> vos comptes bancaires</li>
+                                                        <li><strong>Surveillez</strong> vos autres comptes</li>
+                                                        <li><strong>Signalez</strong> aux autorités si nécessaire</li>
+                                                        <li><strong>Informez</strong> vos contacts si compromis</li>
+                                                    </ol>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card border-info mb-4">
+                                        <div class="card-header bg-info text-white">
+                                            <h5><i class="fas fa-phone mr-2"></i>Contacts d'Urgence</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <h6><i class="fas fa-building mr-2"></i>Équipe IT Interne</h6>
+                                                    <p><strong>Email :</strong> security@tanger-alliance.com<br>
+                                                    <strong>Tél :</strong> +212 539 XXX XXX<br>
+                                                    <strong>Urgence :</strong> +212 6XX XXX XXX</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6><i class="fas fa-shield-alt mr-2"></i>CERT Maroc</h6>
+                                                    <p><strong>Email :</strong> incident@cert.ma<br>
+                                                    <strong>Tél :</strong> +212 537 XXX XXX<br>
+                                                    <strong>Site :</strong> www.cert.ma</p>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <h6><i class="fas fa-gavel mr-2"></i>Autorités</h6>
+                                                    <p><strong>Police :</strong> 19<br>
+                                                    <strong>Gendarmerie :</strong> 177<br>
+                                                    <strong>Cybercriminalité :</strong> DGSN</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="phishing-tips">
+                                        <h5><i class="fas fa-clipboard-list mr-2"></i>Rapport d'Incident - Informations à Collecter</h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <ul>
+                                                    <li>Date et heure de l'incident</li>
+                                                    <li>Adresse email de l'expéditeur</li>
+                                                    <li>Objet du message</li>
+                                                    <li>Contenu du message (capture d'écran)</li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <ul>
+                                                    <li>URLs cliquées</li>
+                                                    <li>Informations saisies</li>
+                                                    <li>Actions entreprises</li>
+                                                    <li>Systèmes potentiellement affectés</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-4">
+                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('response','simulator', {{ module.id }})">
+                                            <i class="fas fa-arrow-right mr-2"></i>Tester vos connaissances
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Onglet Simulateur -->
+                            <div class="tab-pane fade" id="simulator" role="tabpanel" aria-labelledby="simulator-tab">
+                                <div class="phishing-section">
+                                    <h2 class="text-danger mb-4"><i class="fas fa-gamepad mr-2"></i>Simulateur de Phishing</h2>
+                                    
+                                    <div class="alert alert-info" role="alert">
+                                        <h4 class="alert-heading"><i class="fas fa-info-circle mr-2"></i>Test de Connaissances</h4>
+                                        <p>Évaluez votre capacité à identifier les tentatives de phishing avec ces exemples réels.</p>
+                                    </div>
+
+                                    <div class="card mb-4">
+                                        <div class="card-header bg-primary text-white">
+                                            <h5><i class="fas fa-question-circle mr-2"></i>Scénario 1 : Email Bancaire</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="email-example">
+                                                <div class="email-header">
+                                                    <strong>De :</strong> noreply@banque-populaire.ma<br>
+                                                    <strong>À :</strong> vous@votre-entreprise.com<br>
+                                                    <strong>Objet :</strong> Mise à jour de sécurité requise
+                                                </div>
+                                                <div class="email-body">
+                                                    <p>Cher(e) client(e),</p>
+                                                    <p>Dans le cadre de l'amélioration de nos services de sécurité, nous vous demandons de mettre à jour vos informations de connexion.</p>
+                                                    <p>Veuillez cliquer sur le lien suivant pour procéder à la mise à jour :</p>
+                                                    <p><a href="#">https://www.banquepopulaire.ma/securite/mise-a-jour</a></p>
+                                                    <p>Cette mise à jour est obligatoire avant le 31 décembre.</p>
+                                                    <p>Cordialement,<br>Service Client Banque Populaire</p>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mt-3">
+                                                <h6>Cet email est-il légitime ?</h6>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="q1" id="q1a" value="a">
+                                                    <label class="form-check-label" for="q1a">Oui, il semble légitime</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="q1" id="q1b" value="b">
+                                                    <label class="form-check-label" for="q1b">Non, c'est probablement du phishing</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="q1" id="q1c" value="c">
+                                                    <label class="form-check-label" for="q1c">Je ne sais pas, j'ai besoin de plus d'informations</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mb-4">
+                                        <button class="btn btn-primary" onclick="checkQuizAnswers()">Vérifier ma réponse</button>
+                                    </div>
+
+                                    <div id="quiz-results" style="display: none;"></div>
+
+                                    <!-- Quiz intégré dans le simulateur - pas besoin de bouton ici -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Barre de progression -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Progression du module</h5>
+                    <div class="progress mb-2">
+                        <div id="progress-bar" class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <p class="text-center mb-0">
+                        <span id="progress-text">0 section(s) terminée(s) sur 6</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bouton Quiz -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 text-center">
+            <div id="quiz-button-container" class="d-none">
+                {{ render_quiz_button(module, progress) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fonction pour initialiser le module en s'assurant que tout est chargé
+function initializePhishingModule() {
+    // Vérifier que jQuery est disponible
+    if (typeof $ === 'undefined') {
+        console.warn('jQuery not available, retrying in 100ms...');
+        setTimeout(initializePhishingModule, 100);
+        return;
+    }
+    
+    // Vérifier que ModuleManager est disponible
+    if (typeof ModuleManager === 'undefined') {
+        console.warn('ModuleManager not available, retrying in 100ms...');
+        setTimeout(initializePhishingModule, 100);
+        return;
+    }
+    
+    // Utiliser jQuery ready pour s'assurer que le DOM est prêt
+    $(document).ready(function() {
+        try {
+            window.moduleManager = new ModuleManager({{ module.id if module else 2 }}, 6, 'phishing');
+            console.log('ModuleManager initialized for phishing awareness');
+        } catch (error) {
+            console.error('Error initializing ModuleManager:', error);
+        }
+    });
+    
+    console.log('Module de sensibilisation au phishing initialisé');
+    
+    // Gestion des éléments suspects cliquables
+    document.querySelectorAll('.suspicious-element').forEach(element => {
+        element.addEventListener('click', function(e) {
+            e.preventDefault();
+            const title = this.getAttribute('title');
+            showSuspiciousElementInfo(title, this);
+        });
+    });
+    
+    // Initialiser les onglets
+    initializeTabs();
+}
+
+// Fonction pour afficher les informations sur les éléments suspects
+function showSuspiciousElementInfo(info, element) {
+    // Créer une tooltip temporaire
+    const tooltip = document.createElement('div');
+    tooltip.className = 'alert alert-warning position-absolute';
+    tooltip.style.zIndex = '9999';
+    tooltip.style.maxWidth = '300px';
+    tooltip.innerHTML = `
+        <strong>Élément suspect :</strong> ${info}
+        <button type="button" class="close" onclick="this.parentElement.remove()">
+            <span>&times;</span>
+        </button>
+    `;
+    
+    // Positionner la tooltip
+    const rect = element.getBoundingClientRect();
+    tooltip.style.left = rect.left + 'px';
+    tooltip.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+    
+    document.body.appendChild(tooltip);
+    
+    // Supprimer automatiquement après 5 secondes
+    setTimeout(() => {
+        if (tooltip.parentNode) {
+            tooltip.parentNode.removeChild(tooltip);
+        }
+    }, 5000);
+}
+
+// Fonction pour initialiser les onglets
+function initializeTabs() {
+    // Gestion des onglets Bootstrap
+    $('#phishingTabs a').on('click', function (e) {
+        e.preventDefault();
+        $(this).tab('show');
+    });
+}
+
+// Fonction pour vérifier les réponses du quiz
+function checkQuizAnswers() {
+    const q1 = document.querySelector('input[name="q1"]:checked');
+    const resultsDiv = document.getElementById('quiz-results');
+    
+    if (!q1) {
+        alert('Veuillez répondre à la question.');
+        return;
+    }
+    
+    let score = 0;
+    let feedback = '';
+    
+    if (q1.value === 'c') {
+        score++;
+        feedback += '<div class="alert alert-success"><i class="fas fa-check mr-2"></i>Excellente réponse ! En cas de doute, il faut toujours vérifier avant d\'agir.</div>';
+        
+        // Marquer la section comme terminée si la réponse est correcte
+        if (window.moduleManager) {
+            window.moduleManager.markSectionComplete('phishing-quiz');
+        }
+    } else if (q1.value === 'b') {
+        feedback += '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle mr-2"></i>Bonne intuition ! Cet email pourrait effectivement être suspect, mais il faut vérifier.</div>';
+    } else {
+        feedback += '<div class="alert alert-danger"><i class="fas fa-times mr-2"></i>Attention ! Il faut toujours être prudent avec les emails demandant des actions urgentes.</div>';
+    }
+    
+    resultsDiv.innerHTML = `
+        <h6>Résultats : ${score}/1</h6>
+        ${feedback}
+        <div class="alert alert-info">
+            <strong>Conseil :</strong> Même si cet email semble provenir d'une source légitime, la demande de "mise à jour obligatoire" avec un lien devrait vous alerter. La meilleure pratique est de contacter directement votre banque par téléphone ou de vous connecter à votre espace client en tapant l'URL directement dans votre navigateur.
+        </div>
+    `;
+    
+    resultsDiv.style.display = 'block';
+}
+
+// Fonction pour afficher un message de succès
+function showSuccessMessage(message) {
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+    notification.style.top = '20px';
+    notification.style.right = '20px';
+    notification.style.zIndex = '9999';
+    notification.innerHTML = `
+        <i class="fas fa-check-circle mr-2"></i>${message}
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+
+// Fonction globale pour marquer une section comme terminée
+function markSectionComplete(sectionId, nextSectionId, moduleId) {
+    if (window.moduleManager) {
+        window.moduleManager.markSectionComplete(sectionId, nextSectionId);
+    } else {
+        console.error('ModuleManager non initialisé');
+    }
+}
+
+// Démarrer l'initialisation
+initializePhishingModule();
+</script>
+{% endblock %}

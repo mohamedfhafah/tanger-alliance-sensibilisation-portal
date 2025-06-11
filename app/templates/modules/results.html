@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Résultats du Quiz</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Tableau de bord</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.view', module_id=module.id) }}">{{ module.title }}</a></li>
+                    <li class="breadcrumb-item active">Résultats</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="content">
+    <div class="container-fluid">
+        <!-- Carte de score -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card {% if score >= 80 %}card-success{% elif score >= 60 %}card-warning{% else %}card-danger{% endif %}">
+                    <div class="card-header">
+                        <h3 class="card-title">Votre score</h3>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-box bg-gradient-info">
+                                    <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Score</span>
+                                        <span class="info-box-number">{{ score }} / 100</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box bg-gradient-primary">
+                                    <span class="info-box-icon"><i class="fas fa-percent"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Pourcentage</span>
+                                        <span class="info-box-number">{{ score|round|int }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box {% if score >= 80 %}bg-gradient-success{% elif score >= 60 %}bg-gradient-warning{% else %}bg-gradient-danger{% endif %}">
+                                    <span class="info-box-icon"><i class="fas fa-trophy"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Résultat</span>
+                                        <span class="info-box-number">
+                                            {% if score >= 80 %}
+                                                Excellent!
+                                            {% elif score >= 60 %}
+                                                Bon travail
+                                            {% else %}
+                                                À améliorer
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            {% if score >= 80 %}
+                                <div class="alert alert-success">
+                                    <h5><i class="icon fas fa-check"></i> Félicitations!</h5>
+                                    <p>Vous avez démontré une excellente compréhension du module {{ module.title }}. Continuez à appliquer ces connaissances dans votre travail quotidien.</p>
+                                </div>
+                            {% elif score >= 60 %}
+                                <div class="alert alert-warning">
+                                    <h5><i class="icon fas fa-exclamation-triangle"></i> Bon travail!</h5>
+                                    <p>Vous avez de bonnes bases sur le sujet, mais il y a encore place à l'amélioration. Revoyez les points ci-dessous pour renforcer vos connaissances.</p>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-danger">
+                                    <h5><i class="icon fas fa-ban"></i> Attention!</h5>
+                                    <p>Vous avez eu des difficultés sur plusieurs points. Nous vous recommandons vivement de revoir le module et de vous entraîner davantage.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Explications et corrections -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Détails des réponses</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            {% if feedback %}
+                                {% for item in feedback %}
+                                <div>
+                                    <i class="fas fa-question-circle bg-blue"></i>
+                                    <div class="timeline-item">
+                                        <h3 class="timeline-header">Question {{ loop.index }}</h3>
+                                        <div class="timeline-body">
+                                            <p><strong>Votre réponse :</strong> {{ item.user_answer }}</p>
+                                            <p><strong>Réponse correcte :</strong> {{ item.correct_answer }}</p>
+                                            <p><strong>Commentaire :</strong> {{ item.feedback }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle mr-2"></i> Aucun détail de réponse disponible pour ce quiz.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boutons d'action -->
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <form action="{{ url_for('modules.retake_quiz', module_id=module.id) }}" method="POST" style="display: inline-block; margin-right: 10px;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-redo mr-1"></i>Refaire le quiz
+                    </button>
+                </form>
+                <a href="{{ url_for('modules.view', module_id=module.id) }}" class="btn btn-primary">
+                    <i class="fas fa-book mr-1"></i>Revoir le module
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

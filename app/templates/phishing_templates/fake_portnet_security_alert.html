@@ -1,0 +1,339 @@
+ <!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 ALERTE SÉCURITÉ - Système PortNet</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .email-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .critical-header {
+            background: linear-gradient(135deg, #dc3545, #8B0000);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .critical-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff0000, #ff6b6b, #ff0000);
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .portnet-logo {
+            background-color: #003d7a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+        .security-badge {
+            background-color: #ffc107;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .alert-level {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .threat-level {
+            background: linear-gradient(135deg, #ff4757, #c44569);
+            color: white;
+            padding: 20px;
+            margin: -30px -30px 30px -30px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .incident-box {
+            background-color: #fff5f5;
+            border: 2px solid #fed7d7;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+        }
+        .incident-box::before {
+            content: '🚨';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background-color: white;
+            padding: 5px 10px;
+            font-size: 20px;
+        }
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .detail-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        .detail-card h4 {
+            margin: 0 0 10px 0;
+            color: #003d7a;
+            font-size: 14px;
+        }
+        .detail-card p {
+            margin: 0;
+            font-weight: bold;
+            color: #333;
+        }
+        .security-actions {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .action-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #dc3545, #b52d3c);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 16px;
+            margin: 15px 10px;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+            transition: all 0.3s ease;
+        }
+        .action-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+        .secondary-action {
+            background: linear-gradient(135deg, #ffc107, #e0a800);
+            color: #000;
+        }
+        .ip-address {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .timestamp {
+            color: #dc3545;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+        .footer {
+            background-color: #003d7a;
+            color: white;
+            padding: 25px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .footer-logo {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .contact-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .urgency-meter {
+            background: linear-gradient(90deg, #28a745 0%, #ffc107 50%, #dc3545 100%);
+            height: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            position: relative;
+        }
+        .urgency-indicator {
+            position: absolute;
+            right: 10px;
+            top: -5px;
+            width: 20px;
+            height: 20px;
+            background-color: #dc3545;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="critical-header">
+            <div class="logo-section">
+                <div class="portnet-logo">🌐 PortNet</div>
+                <div class="security-badge">🔒 SÉCURITÉ</div>
+            </div>
+            <div class="alert-level">🔴 ALERTE SÉCURITÉ CRITIQUE</div>
+            <p style="margin: 0; font-size: 16px;">Détection d'activité suspecte sur votre compte</p>
+        </div>
+        
+        <div class="threat-level">
+            ⚠️ NIVEAU DE MENACE: ÉLEVÉ | ACTION IMMÉDIATE REQUISE
+        </div>
+        
+        <div class="content">
+            <div class="incident-box">
+                <h3 style="color: #dc3545; margin-top: 0;">🛡️ RAPPORT D'INCIDENT DE SÉCURITÉ</h3>
+                <p><strong>Date de détection:</strong> <span class="timestamp">{{ detection_date | default('07/06/2025 14:47:23 GMT+1') }}</span></p>
+                <p><strong>Type d'incident:</strong> Tentative d'accès non autorisée</p>
+                <p><strong>Statut:</strong> <span style="color: #dc3545; font-weight: bold;">🚨 EN COURS</span></p>
+                
+                <div class="urgency-meter">
+                    <div class="urgency-indicator"></div>
+                </div>
+                <p style="text-align: center; margin: 5px 0 0 0; font-size: 12px; color: #666;">
+                    Niveau d'urgence: Maximum
+                </p>
+            </div>
+            
+            <p>Cher utilisateur du système PortNet,</p>
+            
+            <p>Notre système de sécurité avancé a détecté des <strong style="color: #dc3545;">tentatives d'accès frauduleuses</strong> 
+            sur votre compte PortNet associé à <strong>{{ company_name | default('TANGER ALLIANCE') }}</strong>.</p>
+            
+            <div class="details-grid">
+                <div class="detail-card">
+                    <h4>🌍 LOCALISATION SUSPECTE</h4>
+                    <p>{{ suspicious_location | default('Lagos, Nigeria') }}</p>
+                </div>
+                <div class="detail-card">
+                    <h4>🖥️ ADRESSE IP DÉTECTÉE</h4>
+                    <p class="ip-address">{{ suspicious_ip | default('197.149.89.142') }}</p>
+                </div>
+                <div class="detail-card">
+                    <h4>🕐 HEURE DE TENTATIVE</h4>
+                    <p class="timestamp">{{ attempt_time | default('14:47:23') }}</p>
+                </div>
+                <div class="detail-card">
+                    <h4>🔒 MÉTHODE D'ATTAQUE</h4>
+                    <p>{{ attack_method | default('Force brute sur mots de passe') }}</p>
+                </div>
+            </div>
+            
+            <div class="security-actions">
+                <h3 style="color: #003d7a; margin-top: 0;">🛡️ MESURES DE SÉCURITÉ REQUISES</h3>
+                
+                <p><strong>Actions détectées par l'attaquant:</strong></p>
+                <ul style="color: #dc3545; font-weight: bold;">
+                    <li>{{ action_1 | default('7 tentatives de connexion avec des mots de passe différents') }}</li>
+                    <li>{{ action_2 | default('Consultation non autorisée des manifestes d\'expédition') }}</li>
+                    <li>{{ action_3 | default('Tentative de modification des données de conteneur TCLU7845129') }}</li>
+                    <li>{{ action_4 | default('Accès aux informations financières et facturations') }}</li>
+                </ul>
+                
+                <p style="background-color: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107;">
+                    <strong>⚡ DÉLAI CRITIQUE:</strong> Vous avez <span style="color: #dc3545; font-size: 18px; font-weight: bold;">2 HEURES</span> 
+                    pour sécuriser votre compte avant suspension automatique.
+                </p>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{{ phishing_url | default('/phishing/track?campaign_id=' + campaign_id + '&target_id=' + target_id) }}" 
+                       class="action-button">
+                        🔐 SÉCURISER MON COMPTE MAINTENANT
+                    </a>
+                    <br>
+                    <a href="#" class="action-button secondary-action">
+                        📊 VOIR RAPPORT DÉTAILLÉ
+                    </a>
+                </div>
+            </div>
+            
+            <div style="background-color: #d1ecf1; border: 1px solid #bee5eb; padding: 20px; border-radius: 8px; margin: 25px 0;">
+                <h4 style="color: #0c5460; margin-top: 0;">💡 CONSEILS DE SÉCURITÉ PORTNET</h4>
+                <ul style="margin-bottom: 0;">
+                    <li>Changez immédiatement votre mot de passe</li>
+                    <li>Activez l'authentification à deux facteurs (2FA)</li>
+                    <li>Vérifiez vos dernières connexions</li>
+                    <li>Mettez à jour vos informations de sécurité</li>
+                </ul>
+            </div>
+            
+            <p><strong>Si vous n'agissez pas dans les 2 heures:</strong></p>
+            <ul style="color: #dc3545;">
+                <li>Votre compte sera temporairement suspendu</li>
+                <li>Tous vos accès aux systèmes portuaires seront bloqués</li>
+                <li>Une enquête de sécurité sera ouverte</li>
+                <li>Des frais de réactivation de 500 MAD s'appliqueront</li>
+            </ul>
+            
+            <p>Pour toute question urgente, contactez immédiatement notre Centre de Sécurité PortNet.</p>
+            
+            <p>Cordialement,<br>
+            <strong>Équipe Sécurité PortNet</strong><br>
+            Centre de Supervision de la Sécurité<br>
+            Incident ID: <span style="font-family: monospace; background: #f8f9fa; padding: 2px 6px; border-radius: 3px;">{{ incident_id | default('SEC-2025-0607-789456') }}</span></p>
+        </div>
+        
+        <div class="footer">
+            <div class="footer-logo">🌐 PortNet - Système National Portuaire</div>
+            
+            <div class="contact-info">
+                <div>
+                    <strong>🔒 Centre de Sécurité:</strong><br>
+                    📞 Urgence: +212 522 43 40 00<br>
+                    📧 security@portnet.ma<br>
+                    🕐 24h/24, 7j/7
+                </div>
+                <div>
+                    <strong>🏢 Siège Social:</strong><br>
+                    Twin Center, Tour A, 21ème étage<br>
+                    Boulevard Zerktouni, Casablanca<br>
+                    🌐 www.portnet.ma
+                </div>
+            </div>
+            
+            <p style="font-size: 11px; color: #ccc; margin-top: 20px; text-align: center;">
+                Message généré automatiquement par le système de sécurité PortNet<br>
+                Référence: {{ message_ref | default('PORTNET-SEC-20250607-144723-AUTO') }} | 
+                Ne pas répondre à cet email - Utiliser les canaux officiels ci-dessus
+            </p>
+        </div>
+    </div>
+</body>
+</html>

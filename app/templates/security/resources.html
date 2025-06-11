@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">{{ title }}</h1>
+    
+    <div class="row">
+        {% for resource in resources %}
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        {% if resource.type == 'pdf' %}
+                            <i class="fas fa-file-pdf text-danger mr-2"></i>
+                        {% elif resource.type == 'video' %}
+                            <i class="fas fa-video text-info mr-2"></i>
+                        {% elif resource.type == 'article' %}
+                            <i class="fas fa-newspaper text-success mr-2"></i>
+                        {% else %}
+                            <i class="fas fa-link text-primary mr-2"></i>
+                        {% endif %}
+                        {{ resource.title }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ resource.description }}</p>
+                    <a href="{{ resource.url }}" class="btn btn-primary btn-sm" target="_blank">
+                        <i class="fas fa-external-link-alt mr-1"></i> Consulter
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Ressources supplémentaires</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Ressources internes</h5>
+                            <ul class="list-group mb-4">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Politique de sécurité
+                                    <a href="{{ url_for('security.policy') }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Contact équipe sécurité
+                                    <a href="{{ url_for('security.contact') }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    Signaler un incident
+                                    <a href="{{ url_for('security.report_incident') }}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Ressources externes</h5>
+                            <ul class="list-group">
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    ANSSI - Bonnes pratiques
+                                    <a href="https://www.ssi.gouv.fr/entreprise/bonnes-pratiques/" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    CNIL - Guide de la sécurité des données
+                                    <a href="https://www.cnil.fr/fr/principes-cles/guide-de-la-securite-des-donnees-personnelles" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    OWASP - Sécurité des applications web
+                                    <a href="https://owasp.org/www-project-top-ten/" target="_blank" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-external-link-alt"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Erreur CSRF - Portail de Sécurité Tanger Alliance{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Erreur de Sécurité
+                        </h4>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="error-icon mb-3">
+                            <i class="fas fa-shield-alt fa-4x text-warning"></i>
+                        </div>
+                        <h2 class="error-code text-warning">400</h2>
+                        <h3 class="error-title">Erreur CSRF</h3>
+                        <p class="error-description">
+                            {{ reason or "Une erreur de validation de sécurité s'est produite. Votre session a peut-être expiré." }}
+                        </p>
+                        <div class="error-actions mt-4">
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Retourner à la connexion
+                            </a>
+                            <a href="{{ url_for('main.home') }}" class="btn btn-secondary ml-2">
+                                <i class="fas fa-home"></i>
+                                Accueil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.error-page {
+    padding: 60px 0;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+}
+
+.error-code {
+    font-size: 4rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.error-title {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.error-description {
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.error-icon {
+    opacity: 0.8;
+}
+
+.error-actions .btn {
+    min-width: 140px;
+}
+
+@media (max-width: 768px) {
+    .error-actions .btn {
+        display: block;
+        width: 100%;
+        margin: 5px 0 !important;
+    }
+}
+</style>
+{% endblock %}

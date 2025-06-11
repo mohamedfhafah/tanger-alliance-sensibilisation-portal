@@ -1,15 +1,16 @@
 from app import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Campaign(db.Model):
     """Modèle pour les campagnes de sensibilisation"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    type = db.Column(db.String(50), nullable=False) # Ex: 'Phishing Email', 'Formation Quiz'
     description = db.Column(db.Text, nullable=False)
-    start_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    start_date = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     end_date = db.Column(db.DateTime, nullable=True)
     status = db.Column(db.String(20), default='active')  # active, completed, cancelled
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     
     # Relationships
     phishing_simulations = db.relationship('PhishingSimulation', backref='campaign', lazy=True)
@@ -25,7 +26,7 @@ class PhishingSimulation(db.Model):
     title = db.Column(db.String(100), nullable=False)
     template = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     sent_at = db.Column(db.DateTime, nullable=True)
     
     # Relationships
@@ -56,9 +57,10 @@ class Certificate(db.Model):
     """Modèle pour les certificats de réussite"""
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    module_id = db.Column(db.Integer, db.ForeignKey('module.id'), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=True)
-    issued_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    issued_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     expiry_date = db.Column(db.DateTime, nullable=True)
     certificate_id = db.Column(db.String(50), nullable=False, unique=True)
     

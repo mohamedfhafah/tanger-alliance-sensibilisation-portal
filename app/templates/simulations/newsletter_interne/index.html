@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4 simulation-page">
+    <h1 class="mb-4 text-primary"><i class="fas fa-newspaper"></i> Newsletter interne suspecte</h1>
+    <p class="lead">Reconnaissez une newsletter interne contrefaite. Sélectionnez tous les éléments suspects dans la newsletter ci-dessous.</p>
+    <div class="card shadow mb-3 border-warning">
+        <div class="card-header bg-warning text-dark">
+            <i class="fas fa-envelope"></i> <strong>De :</strong> newsletter@tanger-alliance.com<br>
+            <strong>Objet :</strong> Newsletter interne - Juin
+        </div>
+        <div class="card-body">
+            <p>Bonjour,</p>
+            <p>Découvrez les dernières actualités de l'entreprise en cliquant sur ce <a href="#" class="text-danger font-weight-bold">lien</a>. Attention, certains liens peuvent être piégés !</p>
+            <p>Cordialement,<br>Communication Interne</p>
+        </div>
+    </div>
+    <style>
+      .flag-card { border:1px solid #dee2e6; border-radius:0.5rem; background:#fff; transition:transform .2s, box-shadow .2s; cursor:pointer; position:relative; }
+      .flag-card:hover { transform:translateY(-3px); box-shadow:0 4px 15px rgba(0,0,0,0.08); }
+      .flag-card.selected { border-color:#ffc107; background-color:#fff8e1; }
+      .flag-card .flag-text { font-weight:500; color:#333; }
+      .flag-card .checkmark { position:absolute; top:.5rem; right:.5rem; font-size:1.2rem; color:#ffc107; display:none; }
+      .flag-card.selected .checkmark { display:block; }
+    </style>
+    <form method="post" class="mt-3">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-3">
+            <p class="font-weight-bold text-danger"><i class="fas fa-newspaper"></i> Quels éléments de cette newsletter sont suspects ?</p>
+            <div class="row">
+            {% for flag in sim.flags %}
+                <div class="col-12 col-md-6 mb-3">
+                    <div class="flag-card p-3 text-center" data-flag-index="{{ loop.index }}">
+                        <i class="fas fa-newspaper fa-2x mb-2 text-warning"></i>
+                        <div class="flag-text">{{ flag }}</div>
+                        <i class="checkmark fas fa-check-circle"></i>
+                        <input type="checkbox" name="flags" value="{{ flag }}" id="flag{{ loop.index }}" class="d-none">
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <button type="submit" class="btn btn-lg btn-success w-100 mt-2"><i class="fas fa-check-circle"></i> Valider ma sélection</button>
+    </form>
+    <script>
+    document.querySelectorAll('.flag-card').forEach(card => {
+      const idx = card.dataset.flagIndex;
+      const input = document.getElementById('flag' + idx);
+      card.addEventListener('click', () => {
+        card.classList.toggle('selected');
+        input.checked = !input.checked;
+      });
+    });
+    </script>
+    <a class="btn btn-outline-secondary mt-3 w-100" href="{{ url_for('main.simulations') }}"><i class="fas fa-arrow-left"></i> Retour aux simulations</a>
+    {% if stats %}
+    <div class="alert alert-info mt-3 rounded shadow-sm">
+        <i class="fas fa-chart-bar"></i> <strong>Vos statistiques :</strong><br>
+        Tentatives : <span class="badge badge-secondary">{{ stats.total }}</span><br>
+        Taux de réussite : <span class="badge badge-success">{{ stats.rate }}%</span><br>
+        Dernière réussite : <span class="badge badge-light">{% if stats.last_success %}{{ stats.last_success.strftime('%d/%m/%Y %H:%M') }}{% else %}-{% endif %}</span>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

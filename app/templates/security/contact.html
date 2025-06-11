@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">{{ title }}</h1>
+    
+    <div class="row">
+        {% for contact in contacts %}
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">{{ contact.name }}</h6>
+                    <div class="dropdown no-arrow">
+                        <span class="badge badge-info">{{ contact.for }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h5><i class="fas fa-envelope text-primary mr-2"></i>Email</h5>
+                        <p class="mb-0">
+                            <a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+                        </p>
+                    </div>
+                    <div class="mb-3">
+                        <h5><i class="fas fa-phone text-success mr-2"></i>Téléphone</h5>
+                        <p class="mb-0">
+                            <a href="tel:{{ contact.phone }}">{{ contact.phone }}</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="text-center">
+                        <a href="mailto:{{ contact.email }}" class="btn btn-sm btn-primary mr-2">
+                            <i class="fas fa-envelope mr-1"></i> Envoyer un email
+                        </a>
+                        <a href="tel:{{ contact.phone }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-phone-alt mr-1"></i> Appeler
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations importantes</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                                Heures d'ouverture</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">Lun-Ven, 8h-18h</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                                Urgence 24/7</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">+212 5XX XX XX XX</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Temps de réponse moyen</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">< 4 heures</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-stopwatch fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle mr-2"></i> Pour les incidents critiques en dehors des heures de bureau, veuillez utiliser le numéro d'urgence.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

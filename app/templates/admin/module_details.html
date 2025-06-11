@@ -1,0 +1,252 @@
+{% extends 'admin/master.html' %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="fas fa-book"></i>
+                    Détails Module: {{ model.title }}
+                </h1>
+                <div>
+                    <span class="badge badge-{{ 'success' if model.is_active else 'secondary' }} mr-2">
+                        {{ 'Actif' if model.is_active else 'Inactif' }}
+                    </span>
+                    <a href="{{ return_url }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Module Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Utilisateurs Total
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Complétions
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ completions }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Taux de Complétion
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ completion_rate|round(1) }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="progress progress-sm mr-2">
+                            <div class="progress-bar bg-info" role="progressbar"
+                                 style="width: {{ completion_rate|int }}%;" 
+                                 aria-valuenow="{{ completion_rate|int }}"
+                                 aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Score Moyen
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_score|round(1) }}%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Module Information -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Informations du Module</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Titre:</strong></td>
+                                    <td>{{ model.title }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Ordre:</strong></td>
+                                    <td>{{ model.order }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Statut:</strong></td>
+                                    <td>
+                                        <span class="badge badge-{{ 'success' if model.is_active else 'secondary' }}">
+                                            {{ 'Actif' if model.is_active else 'Inactif' }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Date de création:</strong></td>
+                                    <td>{{ model.created_at.strftime('%d/%m/%Y à %H:%M') if model.created_at else 'Non disponible' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            {% if model.image %}
+                            <div class="text-center">
+                                <img src="{{ model.image }}" alt="{{ model.title }}" class="img-thumbnail" style="max-width: 200px;">
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if model.description %}
+                    <div class="mt-3">
+                        <h6><strong>Description:</strong></h6>
+                        <p class="text-muted">{{ model.description }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">Activité Récente (30j)</h6>
+                </div>
+                <div class="card-body text-center">
+                    <div class="h2 font-weight-bold text-success">{{ recent_completions }}</div>
+                    <p class="text-muted">Nouvelles complétions</p>
+                    
+                    {% if quiz_stats %}
+                    <hr>
+                    <h6 class="font-weight-bold text-primary">Statistiques Quiz</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="h5 text-primary">{{ quiz_stats.attempts }}</div>
+                            <small class="text-muted">Tentatives</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h5 text-success">{{ quiz_stats.success_rate|round(1) }}%</div>
+                            <small class="text-muted">Réussite</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Content Preview -->
+    {% if model.content %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Aperçu du Contenu</h6>
+                </div>
+                <div class="card-body">
+                    <div class="content-preview" style="max-height: 400px; overflow-y: auto;">
+                        {{ model.content|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.progress-sm {
+    height: 0.5rem;
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}
+
+.text-gray-800 {
+    color: #5a5c69 !important;
+}
+
+.text-gray-300 {
+    color: #dddfeb !important;
+}
+
+.content-preview {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    padding: 1rem;
+    background-color: #f8f9fc;
+}
+
+.content-preview h1, .content-preview h2, .content-preview h3 {
+    color: #5a5c69;
+    margin-top: 0;
+}
+
+.content-preview p {
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}

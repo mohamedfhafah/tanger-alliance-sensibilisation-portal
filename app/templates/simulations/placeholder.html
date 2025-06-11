@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4 simulation-page">
+    <style>
+      .simulation-page .card, .simulation-page .alert { border-radius: 10px; }
+      .simulation-page .btn { border-radius: 5px; }
+    </style>
+    <div class="card shadow-sm p-4 mb-4 bg-light text-center">
+        <h1 class="mb-4">{{ sim.title }}</h1>
+        <p class="lead">Cette simulation n'est pas encore disponible. Revenez bientôt !</p>
+        <a class="btn btn-primary" href="{{ url_for('main.simulations') }}">← Retour à la liste</a>
+    </div>
+</div>
+{% endblock %}

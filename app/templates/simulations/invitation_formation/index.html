@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4 simulation-page">
+    <h1 class="mb-4">Invitation formation</h1>
+    <p class="lead">Vérifiez la validité d'une invitation à une formation interne. Sélectionnez tous les éléments suspects dans l'invitation ci-dessous.</p>
+    <div class="card mb-3">
+        <div class="card-header bg-light">
+            <strong>De :</strong> formation@tanger-alliance.com<br>
+            <strong>Objet :</strong> Invitation à une formation obligatoire
+        </div>
+        <div class="card-body">
+            <p>Bonjour,</p>
+            <p>Vous êtes convié(e) à une formation sur la cybersécurité. Merci de cliquer sur le lien raccourci pour confirmer votre présence. La session aura lieu dimanche à 22h.</p>
+            <p>Cordialement,<br>Service Formation</p>
+        </div>
+    </div>
+    <!-- Styles Flag Cards -->
+    <style>
+      .flag-card { border:1px solid #dee2e6; border-radius:0.5rem; background:#fff; transition:transform .2s, box-shadow .2s; cursor:pointer; position:relative; }
+      .flag-card:hover { transform:translateY(-3px); box-shadow:0 4px 15px rgba(0,0,0,0.08); }
+      .flag-card.selected { border-color:#0d6efd; background-color:#e7f1ff; }
+      .flag-card .flag-text { font-weight:500; color:#333; }
+      .flag-card .checkmark { position:absolute; top:.5rem; right:.5rem; font-size:1.2rem; color:#0d6efd; display:none; }
+      .flag-card.selected .checkmark { display:block; }
+    </style>
+    <form method="post" class="mt-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="mb-3">
+        <p class="font-weight-bold text-danger"><i class="fas fa-user-graduate"></i> Quels éléments de cette invitation sont suspects ?</p>
+        <div class="row">
+        {% for flag in sim.flags %}
+            <div class="col-12 col-md-6 mb-3">
+                <div class="flag-card p-3 text-center" data-flag-index="{{ loop.index }}">
+                    <i class="fas fa-user-graduate fa-2x mb-2 text-primary"></i>
+                    <div class="flag-text">{{ flag }}</div>
+                    <i class="checkmark fas fa-check-circle"></i>
+                    <input type="checkbox" name="flags" value="{{ flag }}" id="flag{{ loop.index }}" class="d-none">
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success btn-lg w-100 mt-2"><i class="fas fa-check-circle"></i> Valider ma sélection</button>
+    </form>
+    <!-- JS Flag Card Toggle -->
+    <script>
+    document.querySelectorAll('.flag-card').forEach(card => {
+      const idx = card.dataset.flagIndex;
+      const input = document.getElementById('flag' + idx);
+      card.addEventListener('click', () => {
+        card.classList.toggle('selected');
+        input.checked = !input.checked;
+      });
+    });
+    </script>
+    <a class="btn btn-secondary mt-3" href="{{ url_for('main.simulations') }}">Retour</a>
+    {% if stats %}
+    <div class="alert alert-info mt-3">
+        <strong>Vos statistiques :</strong><br>
+        Tentatives : {{ stats.total }}<br>
+        Taux de réussite : {{ stats.rate }}%<br>
+        Dernière réussite : {% if stats.last_success %}{{ stats.last_success.strftime('%d/%m/%Y %H:%M') }}{% else %}-{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

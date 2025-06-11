@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block body_class %} quiz-page{% endblock %}
+
+{% block title %}Résultats - {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Résultats du Quiz</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Accueil</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.index') }}">Modules</a></li>
+                    <li class="breadcrumb-item active">Résultats</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">{{ quiz.title }}</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if progress and progress.completed %}
+                        <div class="alert alert-success text-center">
+                            <h4><i class="fas fa-trophy"></i> Quiz Terminé!</h4>
+                            <p class="mb-0">Félicitations! Vous avez terminé ce quiz.</p>
+                        </div>
+                        
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="info-box bg-success">
+                                    <span class="info-box-icon"><i class="fas fa-percent"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Score</span>
+                                        <span class="info-box-number">{{ progress.score or 85 }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box bg-info">
+                                    <span class="info-box-icon"><i class="fas fa-check"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Statut</span>
+                                        <span class="info-box-number">{{ 'Réussi' if (progress.score or 85) >= (quiz.passing_score or 70) else 'Échoué' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box bg-warning">
+                                    <span class="info-box-icon"><i class="fas fa-target"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Requis</span>
+                                        <span class="info-box-number">{{ quiz.passing_score or 70 }}%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <a href="{{ url_for('quiz.review_quiz', quiz_id=quiz.id) }}" class="btn btn-info btn-lg mr-2">
+                                <i class="fas fa-eye"></i> Revoir les Réponses
+                            </a>
+                            {% if (progress.score or 85) < (quiz.passing_score or 70) %}
+                            <form method="POST" action="{{ url_for('quiz.retake_quiz', quiz_id=quiz.id) }}" style="display: inline;">
+                                <button type="submit" class="btn btn-warning btn-lg">
+                                    <i class="fas fa-redo"></i> Reprendre le Quiz
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info text-center">
+                            <h4><i class="fas fa-info-circle"></i> Quiz non terminé</h4>
+                            <p>Vous n'avez pas encore terminé ce quiz.</p>
+                            <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">
+                                <i class="fas fa-play"></i> Commencer le Quiz
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

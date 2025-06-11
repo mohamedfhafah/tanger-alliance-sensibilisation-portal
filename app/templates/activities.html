@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('main.home') }}"><i class="fas fa-home"></i> Accueil</a></li>
+<li class="breadcrumb-item active">Historique des activités</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0"><i class="fas fa-history me-2"></i> Historique des activités</h3>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Activité</th>
+              <th>Détails</th>
+              <th>Résultat</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for act in activities %}
+            <tr>
+              <td>{{ act.timestamp.strftime('%d/%m/%Y %H:%M') }}</td>
+              <td>{{ act.module_name }}</td>
+              <td>{{ act.action }}</td>
+              <td>
+                {% if act.score is string %}
+                  {{ act.score }}
+                {% elif act.score is not none %}
+                  {{ act.score|round(1) }}%
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if pages > 1 %}
+      <div class="card-footer bg-white">
+        <nav aria-label="Pagination">
+          <ul class="pagination justify-content-center mb-0">
+            <li class="page-item {% if page <= 1 %}disabled{% endif %}"><a class="page-link" href="{{ url_for('main.activity_history', page=page-1) }}">« Précédent</a></li>
+            {% for p in range(1, pages+1) %}
+            <li class="page-item {% if p == page %}active{% endif %}"><a class="page-link" href="{{ url_for('main.activity_history', page=p) }}">{{ p }}</a></li>
+            {% endfor %}
+            <li class="page-item {% if page >= pages %}disabled{% endif %}"><a class="page-link" href="{{ url_for('main.activity_history', page=page+1) }}">Suivant »</a></li>
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

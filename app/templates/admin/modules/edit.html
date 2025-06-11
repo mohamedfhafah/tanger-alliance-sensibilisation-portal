@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Modifier le module</h1>
+                <a href="{{ url_for('admin_portal.modules') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+
+            <!-- Module Edit Form -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-edit"></i> Informations du module
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    {{ form.title.label(class="form-label") }}
+                                    {{ form.title(class="form-control") }}
+                                    {% if form.title.errors %}
+                                        {% for error in form.title.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form.description.label(class="form-label") }}
+                                    {{ form.description(class="form-control", rows="3") }}
+                                    {% if form.description.errors %}
+                                        {% for error in form.description.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form.content.label(class="form-label") }}
+                                    {{ form.content(class="form-control", rows="10") }}
+                                    {% if form.content.errors %}
+                                        {% for error in form.content.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <small class="form-text text-muted">Vous pouvez utiliser du HTML dans le contenu.</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    {{ form.order.label(class="form-label") }}
+                                    {{ form.order(class="form-control") }}
+                                    {% if form.order.errors %}
+                                        {% for error in form.order.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <small class="form-text text-muted">Ordre d'affichage du module.</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="form-check">
+                                        {{ form.is_active(class="form-check-input") }}
+                                        {{ form.is_active.label(class="form-check-label") }}
+                                    </div>
+                                    {% if form.is_active.errors %}
+                                        {% for error in form.is_active.errors %}
+                                            <div class="text-danger">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    <small class="form-text text-muted">Décochez pour masquer le module aux utilisateurs.</small>
+                                </div>
+
+                                {% if module %}
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Informations du module</h6>
+                                        <p class="card-text small">
+                                            <strong>ID:</strong> {{ module.id }}<br>
+                                            <strong>Créé le:</strong> {{ module.created_at.strftime('%d/%m/%Y') if module.created_at else 'N/A' }}<br>
+                                            <strong>Statut:</strong> 
+                                            <span class="badge badge-{% if module.is_active %}success{% else %}danger{% endif %}">
+                                                {% if module.is_active %}Actif{% else %}Inactif{% endif %}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Sauvegarder les modifications
+                                </button>
+                                <a href="{{ url_for('admin_portal.modules') }}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Annuler
+                                </a>
+                            </div>
+                            
+                            {% if module %}
+                            <div>
+                                <a href="{{ url_for('main.view_module', module_id=module.id) }}" 
+                                   class="btn btn-outline-info" target="_blank">
+                                    <i class="fas fa-eye"></i> Aperçu
+                                </a>
+                                <button type="button" class="btn btn-outline-danger" onclick="confirmDelete()">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if module %}
+            <!-- Quiz Management -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-question-circle"></i> Quiz associé
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if module.quiz %}
+                        <div class="alert alert-info">
+                            <strong>Quiz:</strong> {{ module.quiz.title }}<br>
+                            <strong>Score requis:</strong> {{ module.quiz.passing_score }}%<br>
+                            <strong>Questions:</strong> {{ module.quiz.questions|length }}
+                        </div>
+                        <a href="{{ url_for('admin_portal.edit_quiz', module_id=module.id) }}" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Modifier le quiz
+                        </a>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            Aucun quiz associé à ce module.
+                        </div>
+                        <a href="{{ url_for('admin_portal.create_quiz', module_id=module.id) }}" class="btn btn-success">
+                            <i class="fas fa-plus"></i> Créer un quiz
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete() {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce module ? Cette action est irréversible.')) {
+        // Create a form to submit delete request
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ url_for("admin_portal.delete_module", module_id=module.id) if module else "#" }}';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %}

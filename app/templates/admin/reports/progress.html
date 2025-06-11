@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Rapport de Progression</h1>
+                <a href="{{ url_for('admin_portal.dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour au tableau de bord
+                </a>
+            </div>
+
+            <!-- Progress Statistics -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-bar"></i> Statistiques de progression par module
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if progress_stats %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Module</th>
+                                        <th>Utilisateurs ayant commencé</th>
+                                        <th>Utilisateurs ayant terminé</th>
+                                        <th>Taux de completion</th>
+                                        <th>Progression</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stat in progress_stats %}
+                                    {% set completion_rate = (stat.total_completed / stat.total_started * 100) if stat.total_started > 0 else 0 %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ stat.title }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-info">{{ stat.total_started }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-success">{{ stat.total_completed }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-{% if completion_rate >= 80 %}success{% elif completion_rate >= 50 %}warning{% else %}danger{% endif %}">
+                                                {{ "%.1f"|format(completion_rate) }}%
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-{% if completion_rate >= 80 %}success{% elif completion_rate >= 50 %}warning{% else %}danger{% endif %}" 
+                                                     role="progressbar" 
+                                                     style="width: {{ completion_rate }}%"
+                                                     aria-valuenow="{{ completion_rate }}" 
+                                                     aria-valuemin="0" 
+                                                     aria-valuemax="100">
+                                                    {{ "%.1f"|format(completion_rate) }}%
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Summary Cards -->
+                        <div class="row mt-4">
+                            <div class="col-md-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body">
+                                        <h3>{{ progress_stats|length }}</h3>
+                                        <p>Modules actifs</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body">
+                                        <h3>{{ progress_stats|sum(attribute='total_started') }}</h3>
+                                        <p>Total inscriptions</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <h3>{{ progress_stats|sum(attribute='total_completed') }}</h3>
+                                        <p>Modules terminés</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body">
+                                        {% set total_started = progress_stats|sum(attribute='total_started') %}
+                                        {% set total_completed = progress_stats|sum(attribute='total_completed') %}
+                                        {% set overall_rate = (total_completed / total_started * 100) if total_started > 0 else 0 %}
+                                        <h3>{{ "%.1f"|format(overall_rate) }}%</h3>
+                                        <p>Taux global</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Aucune donnée de progression disponible.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Individual User Progress Details -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-users"></i> Détails de progression par utilisateur
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if user_progress_details %}
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Utilisateur</th>
+                                        <th>Email</th>
+                                        <th>Département</th>
+                                        <th>Module</th>
+                                        <th>Statut</th>
+                                        <th>Score</th>
+                                        <th>Date de début</th>
+                                        <th>Date de fin</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for detail in user_progress_details %}
+                                    <tr>
+                                        <td>
+                                            {% if detail.firstname and detail.lastname %}
+                                                {{ detail.firstname }} {{ detail.lastname }}
+                                            {% else %}
+                                                Utilisateur #{{ detail.id }}
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ detail.email }}</td>
+                                        <td>{{ detail.department or 'Non défini' }}</td>
+                                        <td>{{ detail.module_title }}</td>
+                                        <td>
+                                            {% if detail.completed %}
+                                                <span class="badge badge-success">Terminé</span>
+                                            {% else %}
+                                                <span class="badge badge-warning">En cours</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if detail.score is not none %}
+                                                {{ detail.score|round(1) }}%
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if detail.started_at %}
+                                                {{ detail.started_at.strftime('%d/%m/%Y %H:%M') }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if detail.completed_at %}
+                                                {{ detail.completed_at.strftime('%d/%m/%Y %H:%M') }}
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Aucun détail de progression utilisateur disponible.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-download"></i> Options d'export
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p>Exportez les données de progression dans différents formats :</p>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-primary" onclick="exportToCSV()">
+                            <i class="fas fa-file-csv"></i> CSV
+                        </button>
+                        <button class="btn btn-outline-success" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="exportToPDF()">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportToCSV() {
+    alert('Export CSV en cours de développement');
+}
+
+function exportToExcel() {
+    alert('Export Excel en cours de développement');
+}
+
+function exportToPDF() {
+    alert('Export PDF en cours de développement');
+}
+</script>
+{% endblock %}

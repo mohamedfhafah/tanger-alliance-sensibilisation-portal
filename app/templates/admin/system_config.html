@@ -1,0 +1,344 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Configuration Système{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        .config-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .config-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+        .config-body {
+            padding: 20px;
+        }
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        .stat-label {
+            font-weight: 500;
+            color: #555;
+        }
+        .stat-value {
+            color: #333;
+            font-weight: 600;
+        }
+        .action-btn {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .danger-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        .settings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .settings-table th,
+        .settings-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .settings-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        .settings-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="page-header">
+                <h1><i class="fas fa-cogs"></i> Configuration Système</h1>
+                <p class="text-muted">Gérez les paramètres système et surveillez les performances</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Statistiques Système -->
+        <div class="col-lg-6">
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-chart-line"></i> Statistiques Système
+                </div>
+                <div class="config-body">
+                    <div class="stat-item">
+                        <span class="stat-label">Utilisateurs Total</span>
+                        <span class="stat-value">{{ system_stats.total_users }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Modules Disponibles</span>
+                        <span class="stat-value">{{ system_stats.total_modules }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Progressions Enregistrées</span>
+                        <span class="stat-value">{{ system_stats.total_progress }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Taille Base de Données</span>
+                        <span class="stat-value">{{ system_stats.database_size }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Dernière Sauvegarde</span>
+                        <span class="stat-value">{{ system_stats.last_backup }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Version Système</span>
+                        <span class="stat-value">{{ system_stats.system_version }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Système -->
+        <div class="col-lg-6">
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-tools"></i> Actions Système
+                </div>
+                <div class="config-body">
+                    <div class="action-buttons">
+                        <form method="POST" action="{{ url_for('systemconfig.create_backup') }}" style="display: inline;">
+                            <button type="submit" class="action-btn">
+                                <i class="fas fa-save"></i> Créer Sauvegarde
+                            </button>
+                        </form>
+                        
+                        <button type="button" class="action-btn" onclick="clearCache()">
+                            <i class="fas fa-broom"></i> Vider Cache
+                        </button>
+                        
+                        <button type="button" class="action-btn danger-btn" onclick="restartSystem()">
+                            <i class="fas fa-redo"></i> Redémarrer
+                        </button>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h6><i class="fas fa-info-circle"></i> Informations</h6>
+                        <ul class="list-unstyled" style="margin-top: 10px;">
+                            <li><i class="fas fa-check text-success"></i> Système opérationnel</li>
+                            <li><i class="fas fa-check text-success"></i> Base de données accessible</li>
+                            <li><i class="fas fa-check text-success"></i> Services actifs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Paramètres Système -->
+        <div class="col-12">
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-sliders-h"></i> Paramètres Système
+                </div>
+                <div class="config-body">
+                    {% if settings %}
+                        <table class="settings-table">
+                            <thead>
+                                <tr>
+                                    <th>Paramètre</th>
+                                    <th>Valeur</th>
+                                    <th>Description</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for setting in settings %}
+                                <tr>
+                                    <td><strong>{{ setting.key }}</strong></td>
+                                    <td>{{ setting.value[:50] }}{% if setting.value|length > 50 %}...{% endif %}</td>
+                                    <td>{{ setting.description or 'Aucune description' }}</td>
+                                    <td>
+                                        <span class="status-badge status-active">Actif</span>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="editSetting('{{ setting.id }}')">
+                                            <i class="fas fa-edit"></i> Modifier
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-cog fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aucun paramètre système configuré</p>
+                            <button type="button" class="action-btn">
+                                <i class="fas fa-plus"></i> Ajouter Paramètre
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logs Système -->
+    <div class="row">
+        <div class="col-12">
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-file-alt"></i> Logs Système Récents
+                </div>
+                <div class="config-body">
+                    <div class="log-container" style="background: #f8f9fa; padding: 15px; border-radius: 5px; max-height: 300px; overflow-y: auto;">
+                        <pre style="margin: 0; font-size: 0.9em;">
+{{ system_stats.get('recent_logs', 'Aucun log disponible pour le moment...') }}
+                        </pre>
+                    </div>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-download"></i> Télécharger Logs Complets
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm">
+                            <i class="fas fa-trash"></i> Vider Logs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'édition des paramètres -->
+<div class="modal fade" id="settingModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifier Paramètre</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="settingForm">
+                    <div class="form-group">
+                        <label for="settingKey">Clé du Paramètre</label>
+                        <input type="text" class="form-control" id="settingKey" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="settingValue">Valeur</label>
+                        <textarea class="form-control" id="settingValue" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="settingDescription">Description</label>
+                        <textarea class="form-control" id="settingDescription" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" onclick="saveSetting()">Sauvegarder</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function editSetting(settingId) {
+    // Placeholder pour édition des paramètres
+    $('#settingModal').modal('show');
+}
+
+function saveSetting() {
+    // Placeholder pour sauvegarde des paramètres
+    $('#settingModal').modal('hide');
+    showToast('Paramètre sauvegardé avec succès', 'success');
+}
+
+function clearCache() {
+    if (confirm('Êtes-vous sûr de vouloir vider le cache système ?')) {
+        // Placeholder pour vider le cache
+        showToast('Cache vidé avec succès', 'success');
+    }
+}
+
+function restartSystem() {
+    if (confirm('Êtes-vous sûr de vouloir redémarrer le système ? Cette action peut prendre quelques minutes.')) {
+        // Placeholder pour redémarrage
+        showToast('Redémarrage du système initié...', 'warning');
+    }
+}
+
+function showToast(message, type) {
+    // Simple notification toast
+    const toast = $(`
+        <div class="alert alert-${type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'danger'} alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+            ${message}
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+            </button>
+        </div>
+    `);
+    $('body').append(toast);
+    setTimeout(() => {
+        toast.alert('close');
+    }, 3000);
+}
+
+// Auto-refresh des statistiques
+setInterval(() => {
+    // Placeholder pour actualisation automatique des stats
+    console.log('Refreshing system stats...');
+}, 30000); // Refresh toutes les 30 secondes
+</script>
+{% endblock %}

@@ -1,0 +1,925 @@
+{% extends "base.html" %}
+
+{% block body_class %} quiz-page{% endblock %}
+
+{% block title %}Quiz - {{ module.title }}{% endblock %}
+
+{% block styles %}
+<style>
+/* Modern Quiz Interface Design System */
+:root {
+    --primary-color: #0d6efd;
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    
+    --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
+    --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    --warning-gradient: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+    --danger-gradient: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
+    
+    --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --card-shadow-hover: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+    --border-radius: 0.75rem;
+    --border-radius-lg: 1rem;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+}
+
+/* Global Quiz Layout */
+.container {
+    max-width: 1200px;
+}
+
+.py-4 {
+    padding-top: var(--spacing-xxl) !important;
+    padding-bottom: var(--spacing-xxl) !important;
+}
+
+/* Main Quiz Container */
+.quiz-container {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--card-shadow);
+    padding: var(--spacing-xxl);
+    margin-bottom: var(--spacing-xl);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.quiz-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+}
+
+/* Quiz Header */
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 2px solid #e9ecef;
+}
+
+.quiz-header h2 {
+    color: var(--dark-color);
+    font-weight: 700;
+    font-size: 1.75rem;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.quiz-header h2 i {
+    color: var(--primary-color);
+}
+
+/* Quiz Timer */
+.quiz-timer {
+    background: var(--primary-gradient);
+    color: white;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border-radius: var(--border-radius);
+    font-size: 1.25rem;
+    font-weight: 600;
+    box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.3);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: var(--transition);
+}
+
+.quiz-timer:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.4);
+}
+
+/* Progress Bar Enhanced */
+.progress {
+    height: 0.75rem;
+    border-radius: var(--border-radius);
+    background-color: #e9ecef;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    margin-bottom: var(--spacing-xl);
+}
+
+.progress-bar {
+    background: var(--primary-gradient);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 1rem 1rem;
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    0% { background-position: 1rem 0; }
+    100% { background-position: 0 0; }
+}
+
+/* Question Cards */
+.question-card {
+    background: white;
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    margin-bottom: var(--spacing-xl);
+    overflow: hidden;
+    transition: var(--transition);
+    border-left: 4px solid var(--primary-color);
+}
+
+.question-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+}
+
+.question-card.answered {
+    border-left-color: var(--success-color);
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.02) 0%, rgba(40, 167, 69, 0.01) 100%);
+}
+
+.question-card.answered .card-title {
+    color: var(--success-color);
+}
+
+.question-card.answered .card-title::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-left: auto;
+    color: var(--success-color);
+    font-size: 1rem;
+}
+
+.question-card .card-body {
+    padding: var(--spacing-xl);
+}
+
+.question-card .card-title {
+    color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.question-card .card-text {
+    color: var(--dark-color);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: var(--spacing-lg);
+}
+
+/* Form Controls */
+.form-check {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-check-input {
+    display: none;
+}
+
+.option-label {
+    display: block;
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+    border: 2px solid #e9ecef;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    position: relative;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.option-label::before {
+    content: '';
+    position: absolute;
+    left: var(--spacing-md);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 50%;
+    background: white;
+    transition: var(--transition);
+}
+
+.option-label:hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+input[type="radio"]:checked + .option-label {
+    background: linear-gradient(135deg, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0.05) 100%);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+input[type="radio"]:checked + .option-label::before {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: inset 0 0 0 3px white;
+}
+
+/* Alert Styles */
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.1) 0%, rgba(23, 162, 184, 0.05) 100%);
+    color: #0c5460;
+    border-left: 4px solid var(--info-color);
+}
+
+/* Submit Button */
+.btn-primary {
+    background: var(--primary-gradient);
+    border: none;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.4);
+    background: linear-gradient(135deg, #0b5ed7 0%, #0a58ca 100%);
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Enhanced Phishing Visual Styles */
+.phishing-example {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xl);
+    margin: var(--spacing-lg) 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+}
+
+.phishing-example h5 {
+    color: var(--warning-color);
+    font-weight: 600;
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.email-mockup {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin: var(--spacing-md) 0;
+    transition: var(--transition);
+}
+
+.email-mockup:hover {
+    box-shadow: var(--card-shadow-hover);
+}
+
+.email-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 20px;
+    font-weight: 600;
+}
+
+.email-meta {
+    background: #f7f7f7;
+    padding: 10px 20px;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.email-meta strong {
+    color: var(--dark-color);
+    font-weight: 600;
+}
+
+.email-body {
+    padding: 20px;
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.phishing-indicators {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.phishing-indicators h6 {
+    color: var(--warning-color);
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.phishing-indicators ul {
+    margin-bottom: 0;
+    padding-left: var(--spacing-lg);
+}
+
+.phishing-indicators li {
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.5;
+}
+
+.warning-sign {
+    color: #e17055;
+    font-weight: bold;
+    background: #ffeaa7;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin: 0 2px;
+}
+
+.fake-button {
+    background: #e74c3c;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    margin: 10px 0;
+    transition: var(--transition);
+    box-shadow: 0 0.25rem 0.5rem rgba(220, 53, 69, 0.3);
+}
+
+.fake-button:hover {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 0.5rem 1rem rgba(220, 53, 69, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.suspicious-link {
+    color: #e74c3c;
+    text-decoration: underline;
+    font-weight: bold;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .quiz-container {
+        padding: var(--spacing-lg);
+    }
+    
+    .quiz-header {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-md);
+    }
+    
+    .quiz-header h2 {
+        font-size: 1.5rem;
+    }
+    
+    .quiz-timer {
+        font-size: 1.1rem;
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
+    .question-card .card-body {
+        padding: var(--spacing-lg);
+    }
+    
+    .option-label {
+        padding: var(--spacing-md);
+    }
+    
+    .email-mockup {
+        margin: var(--spacing-lg) 0;
+    }
+    
+    .email-header,
+    .email-meta,
+    .email-body {
+        padding: var(--spacing-md);
+    }
+    
+    .phishing-example {
+        padding: var(--spacing-lg);
+    }
+    
+    .btn-primary {
+        width: 100%;
+        padding: var(--spacing-lg);
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-left: var(--spacing-sm);
+        padding-right: var(--spacing-sm);
+    }
+    
+    .quiz-container {
+        padding: var(--spacing-md);
+    }
+    
+    .quiz-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .question-card .card-title {
+        font-size: 1.1rem;
+    }
+    
+    .question-card .card-text {
+        font-size: 1rem;
+    }
+}
+
+/* Animation for attention */
+@keyframes pulse-warning {
+    0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 193, 7, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+}
+
+.pulse-warning {
+    animation: pulse-warning 1s ease-out;
+}
+
+/* Focus styles for accessibility */
+.option-label:focus-within {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.btn:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Print styles */
+@media print {
+    .quiz-timer,
+    .btn,
+    .fake-button {
+        display: none !important;
+    }
+    
+    .quiz-container {
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .question-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+    
+    /* Enhanced Phishing Visual Styles */
+    .phishing-example {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 15px 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .email-mockup {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin: 10px 0;
+    }
+    
+    .email-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 20px;
+        font-weight: 600;
+    }
+    
+    .email-meta {
+        background: #f7f7f7;
+        padding: 10px 20px;
+        border-bottom: 1px solid #eee;
+        font-size: 0.9em;
+    }
+    
+    .email-body {
+        padding: 20px;
+        line-height: 1.6;
+    }
+    
+    .phishing-indicators {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 6px;
+        padding: 15px;
+        margin: 15px 0;
+    }
+    
+    .warning-sign {
+        color: #e17055;
+        font-weight: bold;
+        background: #ffeaa7;
+        padding: 2px 6px;
+        border-radius: 3px;
+        margin: 0 2px;
+    }
+    
+    .fake-button {
+        background: #e74c3c;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        text-decoration: none;
+        display: inline-block;
+        margin: 10px 0;
+    }
+    
+    .suspicious-link {
+        color: #e74c3c;
+        text-decoration: underline;
+        font-weight: bold;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .quiz-container {
+            padding: 1rem;
+        }
+        .email-mockup {
+            margin: 15px 0;
+        }
+        .phishing-example {
+            padding: 15px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="quiz-container">
+                <div class="quiz-header">
+                    <h2><i class="fas fa-question-circle"></i>{{ quiz.title }}</h2>
+                    <div class="quiz-timer" id="quiz-timer" data-time-limit="1800">
+                        <i class="fas fa-clock"></i><span>30:00</span>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>{{ quiz.description }}
+                    <br><strong>Score minimum requis:</strong> {{ quiz.passing_score }}%
+                </div>
+
+                <div class="progress mb-4">
+                    <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                        0%
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ url_for('modules.submit_quiz', module_id=quiz.module_id) }}" id="quiz-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    {% for question in quiz.questions %}
+                    <div class="card question-card">
+                        <div class="card-body">
+                            <h4 class="card-title">
+                                <i class="fas fa-question-circle"></i>
+                                Question {{ loop.index }}
+                            </h4>
+                            <p class="card-text">{{ question.content }}</p>
+                            
+                            <!-- Enhanced Visual Examples for Phishing Module -->
+                            {% if 'phishing' in module.title.lower() or 'hameçonnage' in module.title.lower() %}
+                                {% set question_lower = question.content.lower() %}
+                                {% if 'email' in question_lower or 'message' in question_lower or 'lien' in question_lower or 'urgent' in question_lower or 'compte' in question_lower or 'dhl' in question_lower or 'microsoft' in question_lower or 'banque' in question_lower or 'tanger' in question_lower %}
+                                    <div class="phishing-example">
+                                        <h5><i class="fas fa-envelope text-warning"></i> Exemple d'Email Suspect</h5>
+                                        
+                                        <div class="email-mockup">
+                                            {% if 'dhl' in question_lower %}
+                                                <div class="email-header">
+                                                    <strong>DHL Express - Colis en attente</strong>
+                                                </div>
+                                                <div class="email-meta">
+                                                    <strong>De:</strong> <span class="warning-sign">noreply@dhl-express.secure-delivery.com</span><br>
+                                                    <strong>À:</strong> {{ current_user.email if current_user.is_authenticated else 'votre.email@tangier-alliance.com' }}<br>
+                                                    <strong>Objet:</strong> <span class="warning-sign">URGENT: Votre colis nécessite une action immédiate</span>
+                                                </div>
+                                                <div class="email-body">
+                                                    <p>Cher client,</p>
+                                                    <p>Votre colis DHL (N° <span class="warning-sign">DHL892847392</span>) est en attente de livraison. <span class="warning-sign">Des frais supplémentaires de 2,50€ sont requis</span> pour la livraison.</p>
+                                                    <p><strong style="color: red;">Action requise dans les 24h</strong> ou le colis sera retourné.</p>
+                                                    <a href="#" class="fake-button">Payer les frais de livraison</a>
+                                                    <p><small>Si le lien ne fonctionne pas, copiez: <span class="suspicious-link">https://dhl-secure-payment.verification-required.com/pay</span></small></p>
+                                                </div>
+                                            {% elif 'microsoft' in question_lower %}
+                                                <div class="email-header">
+                                                    <strong>Microsoft Security Alert</strong>
+                                                </div>
+                                                <div class="email-meta">
+                                                    <strong>De:</strong> <span class="warning-sign">security@microsft-alerts.com</span><br>
+                                                    <strong>À:</strong> {{ current_user.email if current_user.is_authenticated else 'votre.email@tangier-alliance.com' }}<br>
+                                                    <strong>Objet:</strong> <span class="warning-sign">Tentative de connexion suspecte détectée</span>
+                                                </div>
+                                                <div class="email-body">
+                                                    <p>Nous avons détecté une <span class="warning-sign">tentative de connexion inhabituelle</span> sur votre compte Microsoft.</p>
+                                                    <p><strong>Localisation:</strong> Maroc, Tanger<br>
+                                                    <strong>Appareil:</strong> Inconnu<br>
+                                                    <strong>Heure:</strong> {{ moment().format('DD/MM/YYYY HH:mm') if moment else 'Maintenant' }}</p>
+                                                    <p style="color: red;"><strong>Si ce n'était pas vous, sécurisez immédiatement votre compte.</strong></p>
+                                                    <a href="#" class="fake-button">Vérifier le compte</a>
+                                                </div>
+                                            {% elif 'banque' in question_lower %}
+                                                <div class="email-header">
+                                                    <strong>Banque Populaire - Sécurité</strong>
+                                                </div>
+                                                <div class="email-meta">
+                                                    <strong>De:</strong> <span class="warning-sign">security@banquepopulaire-securite.com</span><br>
+                                                    <strong>À:</strong> {{ current_user.email if current_user.is_authenticated else 'votre.email@tangier-alliance.com' }}<br>
+                                                    <strong>Objet:</strong> <span class="warning-sign">Suspension temporaire de votre compte</span>
+                                                </div>
+                                                <div class="email-body">
+                                                    <p>Cher(e) client(e),</p>
+                                                    <p>Suite à <span class="warning-sign">plusieurs tentatives de connexion échouées</span>, votre compte a été temporairement suspendu pour votre sécurité.</p>
+                                                    <p><strong style="color: red;">Vous devez réactiver votre compte dans les 48h</strong> pour éviter sa fermeture définitive.</p>
+                                                    <a href="#" class="fake-button">Réactiver mon compte</a>
+                                                    <p><small>Lien direct: <span class="suspicious-link">https://bp-reactivation.secure-banking.ma/login</span></small></p>
+                                                </div>
+                                            {% elif 'tanger' in question_lower %}
+                                                <div class="email-header">
+                                                    <strong>Tanger Alliance - IT Support</strong>
+                                                </div>
+                                                <div class="email-meta">
+                                                    <strong>De:</strong> <span class="warning-sign">support@tangeralliance-it.com</span><br>
+                                                    <strong>À:</strong> {{ current_user.email if current_user.is_authenticated else 'votre.email@tangier-alliance.com' }}<br>
+                                                    <strong>Objet:</strong> <span class="warning-sign">Mise à jour de sécurité requise - Action immédiate</span>
+                                                </div>
+                                                <div class="email-body">
+                                                    <p>Cher collaborateur,</p>
+                                                    <p>Une <span class="warning-sign">nouvelle mise à jour de sécurité critique</span> doit être installée sur votre poste de travail.</p>
+                                                    <p><strong style="color: red;">Installation requise avant 17h aujourd'hui</strong> pour maintenir l'accès aux systèmes portuaires.</p>
+                                                    <a href="#" class="fake-button">Installer la mise à jour</a>
+                                                    <p><small>Support technique: <span class="suspicious-link">https://tanger-alliance-updates.security-patch.com</span></small></p>
+                                                </div>
+                                            {% else %}
+                                                <div class="email-header">
+                                                    <strong>Notification Urgente</strong>
+                                                </div>
+                                                <div class="email-meta">
+                                                    <strong>De:</strong> <span class="warning-sign">notification@service-urgent.com</span><br>
+                                                    <strong>À:</strong> {{ current_user.email if current_user.is_authenticated else 'votre.email@tangier-alliance.com' }}<br>
+                                                    <strong>Objet:</strong> <span class="warning-sign">Action urgente requise sur votre compte</span>
+                                                </div>
+                                                <div class="email-body">
+                                                    <p>Votre compte nécessite une <span class="warning-sign">vérification immédiate</span>.</p>
+                                                    <p><strong style="color: red;">Cliquez ici dans les 2 heures</strong> pour éviter la suspension.</p>
+                                                    <a href="#" class="fake-button">Vérifier maintenant</a>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="phishing-indicators">
+                                            <h6><i class="fas fa-exclamation-triangle text-warning"></i> Signaux d'alerte à identifier:</h6>
+                                            <ul class="mb-0">
+                                                <li><strong>Expéditeur suspect:</strong> Domaine non officiel ou fautes d'orthographe</li>
+                                                <li><strong>Urgence artificielle:</strong> Menaces de suspension ou délais très courts</li>
+                                                <li><strong>Liens suspects:</strong> URLs qui ne correspondent pas à l'organisation officielle</li>
+                                                <li><strong>Demandes inhabituelles:</strong> Demandes de paiement ou de données sensibles</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                            
+                            <div class="mt-4">
+                                {% for choice in question.choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" id="q{{ question.id }}_choice{{ choice.id }}" value="{{ choice.id }}" required>
+                                    <label class="option-label" for="q{{ question.id }}_choice{{ choice.id }}">
+                                        <span style="margin-left: 2.5rem;">{{ choice.content }}</span>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <div class="text-center mt-5 p-4" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: var(--border-radius); border: 2px dashed #dee2e6;">
+                        <div class="mb-3">
+                            <i class="fas fa-check-circle text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <h5 class="mb-3 text-dark">Prêt à soumettre vos réponses ?</h5>
+                        <p class="text-muted mb-4">Vérifiez que toutes les questions ont été répondues avant de soumettre.</p>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>Soumettre mes réponses
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Timer management
+        var timerElement = document.getElementById('quiz-timer');
+        var timeLeft = parseInt(timerElement.getAttribute('data-time-limit'));
+        
+        var updateTimer = function() {
+            var minutes = Math.floor(timeLeft / 60);
+            var seconds = timeLeft % 60;
+            var timerSpan = timerElement.querySelector('span');
+            
+            timerSpan.textContent = String(minutes).padStart(2, '0') + ':' + 
+                                   String(seconds).padStart(2, '0');
+            
+            if (timeLeft <= 0) {
+                timerElement.style.background = 'var(--danger-gradient)';
+                timerElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Temps écoulé!</span>';
+                alert('Temps écoulé ! Le quiz va être soumis automatiquement.');
+                document.getElementById('quiz-form').submit();
+                return;
+            }
+            
+            // Change color when time is running out
+            if (timeLeft <= 300) { // 5 minutes
+                timerElement.style.background = 'var(--danger-gradient)';
+                timerElement.classList.add('pulse-warning');
+            } else if (timeLeft <= 600) { // 10 minutes
+                timerElement.style.background = 'var(--warning-gradient)';
+            }
+            
+            timeLeft--;
+        };
+        
+        updateTimer();
+        var timerInterval = setInterval(updateTimer, 1000);
+        
+        // Progress tracking
+        var questions = document.querySelectorAll('.question-card');
+        var progressBar = document.querySelector('.progress-bar');
+        var totalQuestions = questions.length;
+        
+        function updateProgress() {
+            var answeredQuestions = 0;
+            questions.forEach(function(questionCard) {
+                var inputs = questionCard.querySelectorAll('input[type="radio"]');
+                var isAnswered = Array.from(inputs).some(input => input.checked);
+                if (isAnswered) {
+                    answeredQuestions++;
+                    questionCard.classList.add('answered');
+                } else {
+                    questionCard.classList.remove('answered');
+                }
+            });
+            
+            var progressPercentage = Math.round((answeredQuestions / totalQuestions) * 100);
+            progressBar.style.width = progressPercentage + '%';
+            progressBar.setAttribute('aria-valuenow', progressPercentage);
+            progressBar.textContent = progressPercentage + '%';
+            
+            // Update progress bar color based on completion
+            progressBar.classList.remove('bg-primary', 'bg-warning', 'bg-success');
+            if (progressPercentage === 100) {
+                progressBar.classList.add('bg-success');
+                progressBar.style.background = 'var(--success-gradient)';
+            } else if (progressPercentage >= 50) {
+                progressBar.classList.add('bg-warning');
+                progressBar.style.background = 'var(--warning-gradient)';
+            } else {
+                progressBar.classList.add('bg-primary');
+                progressBar.style.background = 'var(--primary-gradient)';
+            }
+        }
+        
+        // Add change listeners to all radio buttons
+        document.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+            radio.addEventListener('change', updateProgress);
+        });
+        
+        // Form validation
+        document.getElementById('quiz-form').addEventListener('submit', function(e) {
+            var unansweredQuestions = [];
+            questions.forEach(function(questionCard, index) {
+                var inputs = questionCard.querySelectorAll('input[type="radio"]');
+                var isAnswered = Array.from(inputs).some(input => input.checked);
+                if (!isAnswered) {
+                    unansweredQuestions.push(index + 1);
+                }
+            });
+            
+            if (unansweredQuestions.length > 0) {
+                e.preventDefault();
+                alert('Veuillez répondre à toutes les questions avant de soumettre.\n' +
+                      'Questions non répondues: ' + unansweredQuestions.join(', '));
+                return false;
+            }
+            
+            clearInterval(timerInterval);
+            return confirm('Êtes-vous sûr de vouloir soumettre vos réponses ?');
+        });
+    });
+</script>
+{% endblock %}

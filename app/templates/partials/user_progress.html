@@ -1,0 +1,110 @@
+{# 
+Ce fichier contient des macros Jinja2 pour afficher la progression de l'utilisateur.
+Il utilise des barres de progression et des info-boxes pour visualiser les statistiques.
+
+NOTE: Les IDEs peuvent signaler des erreurs CSS/HTML dans ce fichier lorsque des variables Jinja2
+sont utilisées dans les attributs style, mais ces erreurs sont généralement des faux positifs.
+#}
+
+{% macro render_progress_bar(title, value, max_value=100, color='primary', show_percentage=True) %}
+<div class="progress-group">
+  {% if title %}
+  <span class="progress-text">{{ title }}</span>
+  {% if show_percentage %}
+  <span class="float-right"><b>{{ value }}</b>/{{ max_value }}</span>
+  {% endif %}
+  {% endif %}
+  <div class="progress">
+    <div class="progress-bar bg-{{ color }}" role="progressbar" 
+         style="width: {{ (0 if max_value == 0 else (value / max_value * 100))|round|int }}%;" 
+         aria-valuenow="{{ (0 if max_value == 0 else (value / max_value * 100))|round|int }}" aria-valuemin="0" aria-valuemax="100">
+      {{ (0 if max_value == 0 else (value / max_value * 100))|round|int }}%
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro render_module_progress(modules, user_progress) %}
+<div class="card card-primary card-outline shadow-sm mb-4">
+  <div class="card-header text-primary">
+    <h3 class="card-title">
+      <i class="fas fa-tasks mr-1"></i>
+      Progression des modules
+    </h3>
+  </div>
+  <div class="card-body">
+    {% set ns = namespace(completed_modules=0) %}
+    {% for module in modules %}
+      {% set progress = user_progress.get(module.id, None) %}
+      {# Determine module status for clarity #}
+      {% set current_module_is_completed = (progress and progress.completed == True) %}
+      {% set current_module_score = (progress.score if progress and progress.score is not none else 0) %}
+
+      {% if current_module_is_completed %}
+        {% set ns.completed_modules = ns.completed_modules + 1 %}
+        {% set color = 'success' %}
+      {% elif progress and current_module_score > 0 %} {# Module started but not completed #}
+        {% set color = 'primary' %}
+      {% else %} {# Module not started or progress object missing #}
+        {% set color = 'secondary' %}
+      {% endif %}
+      
+      {# Determine progress value for the bar #}
+      {% set progress_value = 100 if current_module_is_completed else current_module_score %}
+      {{ render_progress_bar(module.title, progress_value, 100, color, False) }}
+    {% endfor %}
+    
+    <div class="mt-4">
+      {{ render_progress_bar('Progression totale', ns.completed_modules, modules|length, 'info') }}
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro render_user_stats(user, user_progress) %}
+<div class="row">
+  <div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box">
+      <span class="info-box-icon bg-info"><i class="fas fa-book"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Modules terminés</span>
+        <span class="info-box-number">{{ user_progress|selectattr('completed', 'equalto', True)|list|length }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box">
+      <span class="info-box-icon bg-success"><i class="fas fa-check-circle"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Score moyen</span>
+        {% set scores = user_progress|selectattr('score', 'defined')|map(attribute='score')|list %}
+        <span class="info-box-number">
+          {% if scores|length > 0 %}
+            {{ (scores|sum / scores|length)|round|int }}%
+          {% else %}
+            0%
+          {% endif %}
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box">
+      <span class="info-box-icon bg-warning"><i class="fas fa-clock"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">En cours</span>
+        <span class="info-box-number">{{ user_progress|selectattr('completed', 'equalto', False)|list|length }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box">
+      <span class="info-box-icon bg-danger"><i class="fas fa-star"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Badges</span>
+        <span class="info-box-number">{{ user.badges|default(0) }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endmacro %}

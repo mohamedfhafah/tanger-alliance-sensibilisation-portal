@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">{{ sim.title }}</h1>
+    <p class="lead">{{ sim.description }}</p>
+    <div class="simulation-page">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                {% if sim.flags %}
+                <form method="post">
+                    <div class="mb-3">
+                        <p>Sélectionnez les éléments suspects :</p>
+                        <div class="row">
+                        {% for flag in sim.flags %}
+                            <div class="col-md-4 mb-3">
+                                <div class="flag-card p-3 text-center position-relative" data-flag-index="{{ loop.index }}">
+                                    <i class="fas fa-flag fa-2x mb-2 text-danger"></i>
+                                    <div class="flag-text small">{{ flag }}</div>
+                                    <i class="checkmark fas fa-check-circle"></i>
+                                    <input type="checkbox" name="flags" value="{{ flag }}" id="flag{{ loop.index }}" class="d-none">
+                                </div>
+                            </div>
+                        {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg w-100">Soumettre</button>
+                    <script>
+                    document.querySelectorAll('.flag-card').forEach(card => {
+                      const idx = card.dataset.flagIndex;
+                      const input = document.getElementById('flag' + idx);
+                      card.addEventListener('click', () => {
+                        card.classList.toggle('selected');
+                        input.checked = !input.checked;
+                      });
+                    });
+                    </script>
+                </form>
+                {% else %}
+                <div class="alert alert-info simulation-page">Cette simulation n'est pas encore disponible. Revenez bientôt !</div>
+                {% endif %}
+            </div>
+        </div>
+        <a class="btn btn-outline-primary" href="{{ url_for('main.simulations') }}">← Retour aux simulations</a>
+    </div>
+    <style>
+      .simulation-page .card {
+        border-radius: 10px;
+      }
+      .simulation-page .btn {
+        border-radius: 5px;
+      }
+      .flag-card {
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        background-color: #fff;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+      }
+      .flag-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      }
+      .flag-card.selected {
+        border-color: #0d6efd;
+        background-color: #e7f1ff;
+      }
+      .flag-card .flag-text {
+        font-weight: 500;
+        color: #333;
+      }
+      .flag-card .checkmark {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 1.2rem;
+        color: #0d6efd;
+        display: none;
+      }
+      .flag-card.selected .checkmark {
+        display: block;
+      }
+    </style>
+</div>
+{% endblock %}

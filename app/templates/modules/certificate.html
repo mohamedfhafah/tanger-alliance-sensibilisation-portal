@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block page_title %}
+  <h1>{{ title }}</h1>
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Tableau de Bord</a></li>
+  <li class="breadcrumb-item"><a href="{{ url_for('modules.index') }}">Modules</a></li>
+  <li class="breadcrumb-item active">Certificat</li>
+{% endblock %}
+
+{% block content %}
+<style>
+  @media print {
+    body * { visibility: hidden !important; }
+    #certificate-container, #certificate-container * { visibility: visible !important; }
+    #certificate-container { position: absolute; top: 0; left: 0; width: 100%; }
+    #certificate-container .card-footer { display: none !important; }
+  }
+</style>
+<div id="certificate-container" class="container mt-5">
+  <div class="card shadow-lg">
+    <div class="card-header bg-success text-white text-center">
+      <img src="{{ url_for('static', filename='images/tanger-alliance-logo.png') }}" alt="Logo Tanger Alliance" style="width:100px; margin-bottom:10px;">
+      <h2>Certificat de Réussite</h2>
+    </div>
+    <div class="card-body p-5">
+      <div class="text-center mb-4">
+        <i class="fas fa-award fa-5x text-warning"></i>
+      </div>
+      <h3 class="text-center mb-3">Ceci certifie que</h3>
+      <h1 class="text-center display-4 text-primary">{{ user.firstname }} {{ user.lastname }}</h1>
+      <h5 class="text-center mb-2 text-secondary">Département : {{ user.department }}</h5>
+      <h3 class="text-center mt-3 mb-4">a complété avec succès la formation de sensibilisation à la sécurité.</h3>
+      
+      <hr>
+      
+      <div class="row mt-4">
+        <div class="col-md-6 text-center">
+          <h4>Score Moyen Obtenu</h4>
+          <p class="lead">{{ "%.1f"|format(avg_score) }}%</p>
+        </div>
+        <div class="col-md-6 text-center">
+          <h4>Date d'Émission</h4>
+          <p class="lead">{{ date.strftime('%d/%m/%Y') if date else 'Date non disponible' }}</p>
+        </div>
+      </div>
+      
+      <!-- Modules complétés et badges acquis -->
+      <div class="row mt-4">
+        <div class="col text-center">
+          <h4>Modules Complétés</h4>
+          <ul class="list-inline">
+            {% for module in modules %}
+              <li class="list-inline-item badge badge-pill badge-primary p-2 m-1">{{ module.title }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="row mt-3">
+        <div class="col text-center">
+          <h4>Badges Acquis</h4>
+          {% if badges %}
+            {% for badge in badges %}
+              <img src="{{ url_for('static', filename='images/badges/' + badge.image_filename) }}" alt="{{ badge.name }}" class="mx-1" style="width: 50px; height: 50px; object-fit: cover;">
+            {% endfor %}
+          {% else %}
+            <p class="text-muted">Aucun badge acquis pour le moment.</p>
+          {% endif %}
+        </div>
+      </div>
+      
+      <div class="text-center mt-5">
+        <p class="text-muted">Tanger Alliance - Portail de Sensibilisation à la Sécurité</p>
+      </div>
+    </div>
+    <div class="card-footer text-center">
+        <button class="btn btn-primary" onclick="window.print();"><i class="fas fa-print mr-2"></i> Imprimer le Certificat</button>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary"><i class="fas fa-arrow-left mr-2"></i> Retour au Tableau de Bord</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

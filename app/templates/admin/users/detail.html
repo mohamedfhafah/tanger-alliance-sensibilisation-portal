@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Détails de l'utilisateur</h1>
+                <div>
+                    <a href="{{ url_for('admin_portal.edit_user', user_id=user.id) }}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Modifier
+                    </a>
+                    <a href="{{ url_for('admin_portal.users') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour à la liste
+                    </a>
+                </div>
+            </div>
+
+            <!-- User Details Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user"></i> Informations personnelles
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <img src="{{ url_for('static', filename='img/profiles/' + (user.profile_picture or 'default_profile.jpg')) }}" 
+                                 class="img-circle img-fluid" style="max-width: 150px;" alt="Photo de profil">
+                            <p class="text-muted mt-2">Photo de profil</p>
+                        </div>
+                        <div class="col-md-9">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="200">Email:</th>
+                                    <td>{{ user.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Prénom:</th>
+                                    <td>{{ user.firstname or '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Nom:</th>
+                                    <td>{{ user.lastname or '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Département:</th>
+                                    <td>{{ user.department or '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Rôle:</th>
+                                    <td>
+                                        <span class="badge badge-{% if user.role == 'admin' %}danger{% else %}primary{% endif %}">
+                                            {{ user.role.title() }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Inscrit le:</th>
+                                    <td>{{ user.created_at.strftime('%d/%m/%Y à %H:%M') if user.created_at else '-' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Dernière connexion:</th>
+                                    <td>{{ user.last_login.strftime('%d/%m/%Y à %H:%M') if user.last_login else 'Jamais connecté' }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Dernière formation:</th>
+                                    <td>{{ user.last_security_training.strftime('%d/%m/%Y à %H:%M') if user.last_security_training else 'Aucune formation' }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-chart-line"></i> Progression dans les modules
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if user.progress %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Module</th>
+                                        <th>Commencé le</th>
+                                        <th>Terminé le</th>
+                                        <th>Statut</th>
+                                        <th>Score du quiz</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for progress in user.progress %}
+                                    <tr>
+                                        <td>{{ progress.module.title if progress.module else 'Module supprimé' }}</td>
+                                        <td>{{ progress.started_at.strftime('%d/%m/%Y') if progress.started_at else '-' }}</td>
+                                        <td>{{ progress.completed_at.strftime('%d/%m/%Y') if progress.completed_at else '-' }}</td>
+                                        <td>
+                                            <span class="badge badge-{% if progress.completed_at %}success{% else %}warning{% endif %}">
+                                                {% if progress.completed_at %}Terminé{% else %}En cours{% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if progress.quiz_score is not none %}
+                                                {{ progress.quiz_score|round(1) }}%
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucun module commencé.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Badges Card -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-medal"></i> Badges obtenus
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if user.badges %}
+                        <div class="row">
+                            {% for badge in user.badges %}
+                            <div class="col-md-3 text-center mb-3">
+                                <div class="card border-primary">
+                                    <div class="card-body">
+                                        <i class="fas fa-medal fa-3x text-warning"></i>
+                                        <h5 class="card-title mt-2">{{ badge.name }}</h5>
+                                        <p class="card-text small">{{ badge.description }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Aucun badge obtenu.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
