@@ -1,0 +1,780 @@
+{% extends "modules_v2/base.html" %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{{ url_for('modules_v2.module_list') }}">Modules</a></li>
+<li class="breadcrumb-item active" aria-current="page">My Progress</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Progress Overview -->
+    <div class="col-12">
+        <div class="progress-header mb-4">
+            <div class="card bg-gradient-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-1">My Learning Progress</h2>
+                            <p class="mb-0 opacity-75">Track your security training journey</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="progress-stats">
+                                <div class="h3 mb-0">{{ overall_progress.completion_percentage }}%</div>
+                                <small class="opacity-75">Overall Completion</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats Cards -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-graduation-cap text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="h4 mb-0 text-success">{{ overall_progress.completed_modules }}</div>
+                        <small class="text-muted">Modules Completed</small>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-success" style="width: {{ (overall_progress.completed_modules / overall_progress.total_modules * 100) if overall_progress.total_modules > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-clock text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="h4 mb-0 text-primary">{{ overall_progress.total_time_spent }}</div>
+                        <small class="text-muted">Hours Studied</small>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-primary" style="width: {{ min(100, overall_progress.total_time_spent / 10 * 100) }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-trophy text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="h4 mb-0 text-warning">{{ overall_progress.badges_earned }}</div>
+                        <small class="text-muted">Badges Earned</small>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-warning" style="width: {{ min(100, overall_progress.badges_earned / 5 * 100) }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-fire text-danger" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="h4 mb-0 text-danger">{{ overall_progress.current_streak }}</div>
+                        <small class="text-muted">Day Streak</small>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-danger" style="width: {{ min(100, overall_progress.current_streak / 30 * 100) }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Progress Details Tabs -->
+    <div class="col-12">
+        <ul class="nav nav-tabs" id="progressTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="modules-tab" data-bs-toggle="tab" 
+                        data-bs-target="#modules" type="button" role="tab">
+                    <i class="fas fa-book me-1"></i> Modules
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" 
+                        data-bs-target="#analytics" type="button" role="tab">
+                    <i class="fas fa-chart-line me-1"></i> Analytics
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="badges-tab" data-bs-toggle="tab" 
+                        data-bs-target="#badges" type="button" role="tab">
+                    <i class="fas fa-trophy me-1"></i> Badges
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="activity-tab" data-bs-toggle="tab" 
+                        data-bs-target="#activity" type="button" role="tab">
+                    <i class="fas fa-history me-1"></i> Activity
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="progressTabContent">
+            <!-- Modules Tab -->
+            <div class="tab-pane fade show active" id="modules" role="tabpanel">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <!-- Filter Controls -->
+                        <div class="filter-controls mb-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="btn-group" role="group" aria-label="Module status filter">
+                                        <input type="radio" class="btn-check" name="statusFilter" id="all" value="all" checked>
+                                        <label class="btn btn-outline-primary" for="all">All</label>
+                                        
+                                        <input type="radio" class="btn-check" name="statusFilter" id="completed" value="completed">
+                                        <label class="btn btn-outline-success" for="completed">Completed</label>
+                                        
+                                        <input type="radio" class="btn-check" name="statusFilter" id="in-progress" value="in-progress">
+                                        <label class="btn btn-outline-warning" for="in-progress">In Progress</label>
+                                        
+                                        <input type="radio" class="btn-check" name="statusFilter" id="not-started" value="not-started">
+                                        <label class="btn btn-outline-secondary" for="not-started">Not Started</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <div class="input-group" style="max-width: 300px; margin-left: auto;">
+                                        <input type="text" class="form-control" placeholder="Search modules..." id="moduleSearch">
+                                        <button class="btn btn-outline-secondary" type="button">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Modules List -->
+                        <div class="modules-progress-list">
+                            {% for progress in module_progress %}
+                            <div class="module-progress-item mb-3 module-item" 
+                                 data-status="{{ progress.status }}" 
+                                 data-title="{{ progress.module.title.lower() }}">
+                                <div class="card border-start border-4 
+                                     {% if progress.status == 'completed' %}border-success
+                                     {% elif progress.status == 'in_progress' %}border-warning
+                                     {% else %}border-secondary{% endif %}">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="module-icon me-3">
+                                                        {% if progress.status == 'completed' %}
+                                                        <i class="fas fa-check-circle text-success" style="font-size: 1.5rem;"></i>
+                                                        {% elif progress.status == 'in_progress' %}
+                                                        <i class="fas fa-play-circle text-warning" style="font-size: 1.5rem;"></i>
+                                                        {% else %}
+                                                        <i class="fas fa-circle text-muted" style="font-size: 1.5rem;"></i>
+                                                        {% endif %}
+                                                    </div>
+                                                    <div>
+                                                        <h5 class="mb-0">
+                                                            <a href="{{ url_for('modules_v2.module_detail', module_id=progress.module.id) }}" 
+                                                               class="text-decoration-none">{{ progress.module.title }}</a>
+                                                        </h5>
+                                                        <div class="module-meta">
+                                                            <span class="badge bg-light text-dark me-1">{{ progress.module.category }}</span>
+                                                            <span class="badge 
+                                                                  {% if progress.module.difficulty == 'beginner' %}bg-success
+                                                                  {% elif progress.module.difficulty == 'intermediate' %}bg-warning
+                                                                  {% else %}bg-danger{% endif %} me-1">
+                                                                {{ progress.module.difficulty.title() }}
+                                                            </span>
+                                                            <small class="text-muted">{{ progress.module.estimated_duration }} min</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Progress Bar -->
+                                                <div class="progress mb-2" style="height: 8px;">
+                                                    <div class="progress-bar 
+                                                         {% if progress.status == 'completed' %}bg-success
+                                                         {% elif progress.status == 'in_progress' %}bg-warning
+                                                         {% else %}bg-secondary{% endif %}" 
+                                                         style="width: {{ progress.completion_percentage }}%"></div>
+                                                </div>
+                                                
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted">{{ progress.completion_percentage }}% complete</small>
+                                                    {% if progress.last_accessed %}
+                                                    <small class="text-muted">Last accessed: {{ progress.last_accessed.strftime('%Y-%m-%d') }}</small>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-md-4 text-md-end">
+                                                <div class="module-stats mb-2">
+                                                    {% if progress.time_spent %}
+                                                    <div class="stat-item">
+                                                        <i class="fas fa-clock text-primary me-1"></i>
+                                                        <span class="text-muted">{{ progress.time_spent }}h</span>
+                                                    </div>
+                                                    {% endif %}
+                                                    
+                                                    {% if progress.quiz_score is not none %}
+                                                    <div class="stat-item">
+                                                        <i class="fas fa-chart-line text-info me-1"></i>
+                                                        <span class="text-muted">Quiz: {{ progress.quiz_score }}%</span>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                
+                                                <div class="module-actions">
+                                                    {% if progress.status == 'completed' %}
+                                                    <a href="{{ url_for('modules_v2.module_detail', module_id=progress.module.id) }}" 
+                                                       class="btn btn-sm btn-outline-success">
+                                                        <i class="fas fa-eye me-1"></i> Review
+                                                    </a>
+                                                    {% elif progress.status == 'in_progress' %}
+                                                    <a href="{{ url_for('modules_v2.module_detail', module_id=progress.module.id) }}" 
+                                                       class="btn btn-sm btn-warning">
+                                                        <i class="fas fa-play me-1"></i> Continue
+                                                    </a>
+                                                    {% else %}
+                                                    <a href="{{ url_for('modules_v2.module_detail', module_id=progress.module.id) }}" 
+                                                       class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-play me-1"></i> Start
+                                                    </a>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Empty State -->
+                        <div class="empty-state text-center py-5" style="display: none;">
+                            <i class="fas fa-search text-muted" style="font-size: 3rem;"></i>
+                            <h5 class="text-muted mt-3">No modules found</h5>
+                            <p class="text-muted">Try adjusting your filters or search terms.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Analytics Tab -->
+            <div class="tab-pane fade" id="analytics" role="tabpanel">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Progress Over Time -->
+                            <div class="col-md-8">
+                                <h5><i class="fas fa-chart-line me-2"></i>Progress Over Time</h5>
+                                <canvas id="progressChart" height="300"></canvas>
+                            </div>
+                            
+                            <!-- Category Breakdown -->
+                            <div class="col-md-4">
+                                <h5><i class="fas fa-chart-pie me-2"></i>Category Progress</h5>
+                                <canvas id="categoryChart" height="300"></canvas>
+                                
+                                <div class="category-stats mt-3">
+                                    {% for category, stats in category_progress.items() %}
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="text-muted">{{ category }}</span>
+                                        <span class="badge bg-primary">{{ stats.completed }}/{{ stats.total }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="row">
+                            <!-- Learning Velocity -->
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-tachometer-alt me-2"></i>Learning Velocity</h5>
+                                <div class="velocity-stats">
+                                    <div class="row text-center">
+                                        <div class="col-4">
+                                            <div class="stat-card p-3 border rounded">
+                                                <div class="h4 mb-0 text-primary">{{ weekly_progress.modules_completed }}</div>
+                                                <small class="text-muted">This Week</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="stat-card p-3 border rounded">
+                                                <div class="h4 mb-0 text-info">{{ monthly_progress.modules_completed }}</div>
+                                                <small class="text-muted">This Month</small>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="stat-card p-3 border rounded">
+                                                <div class="h4 mb-0 text-success">{{ average_completion_time }}</div>
+                                                <small class="text-muted">Avg. Time</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quiz Performance -->
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-chart-bar me-2"></i>Quiz Performance</h5>
+                                <canvas id="quizChart" height="200"></canvas>
+                                
+                                <div class="quiz-stats mt-3">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">Average Score:</span>
+                                        <strong class="text-primary">{{ quiz_analytics.average_score }}%</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">Quizzes Passed:</span>
+                                        <strong class="text-success">{{ quiz_analytics.passed }}/{{ quiz_analytics.total }}</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span class="text-muted">Best Score:</span>
+                                        <strong class="text-warning">{{ quiz_analytics.best_score }}%</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Badges Tab -->
+            <div class="tab-pane fade" id="badges" role="tabpanel">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Earned Badges -->
+                            <div class="col-md-8">
+                                <h5><i class="fas fa-trophy me-2"></i>Earned Badges</h5>
+                                
+                                {% if user_badges %}
+                                <div class="badges-grid">
+                                    <div class="row">
+                                        {% for badge in user_badges %}
+                                        <div class="col-md-4 col-sm-6 mb-3">
+                                            <div class="badge-card card border-warning">
+                                                <div class="card-body text-center">
+                                                    <div class="badge-icon mb-2">
+                                                        <i class="{{ badge.icon }} text-warning" style="font-size: 2.5rem;"></i>
+                                                    </div>
+                                                    <h6 class="badge-title">{{ badge.name }}</h6>
+                                                    <p class="badge-description text-muted small">{{ badge.description }}</p>
+                                                    <small class="text-muted">Earned: {{ badge.earned_at.strftime('%Y-%m-%d') }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-trophy text-muted" style="font-size: 3rem;"></i>
+                                    <h5 class="text-muted mt-3">No badges earned yet</h5>
+                                    <p class="text-muted">Complete modules and quizzes to earn your first badge!</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Badge Progress -->
+                            <div class="col-md-4">
+                                <h5><i class="fas fa-target me-2"></i>Badge Progress</h5>
+                                
+                                <div class="badge-progress-list">
+                                    {% for badge_progress in available_badges %}
+                                    <div class="badge-progress-item mb-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="{{ badge_progress.icon }} text-muted me-2"></i>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-0">{{ badge_progress.name }}</h6>
+                                                <small class="text-muted">{{ badge_progress.description }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="progress" style="height: 6px;">
+                                            <div class="progress-bar bg-warning" 
+                                                 style="width: {{ badge_progress.progress_percentage }}%"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-1">
+                                            <small class="text-muted">{{ badge_progress.current }}/{{ badge_progress.required }}</small>
+                                            <small class="text-muted">{{ badge_progress.progress_percentage }}%</small>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Activity Tab -->
+            <div class="tab-pane fade" id="activity" role="tabpanel">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Recent Activity -->
+                            <div class="col-md-8">
+                                <h5><i class="fas fa-history me-2"></i>Recent Activity</h5>
+                                
+                                <div class="activity-timeline">
+                                    {% for activity in recent_activities %}
+                                    <div class="activity-item d-flex mb-3">
+                                        <div class="activity-icon me-3">
+                                            <div class="rounded-circle bg-{{ activity.type_color }} d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px;">
+                                                <i class="{{ activity.icon }} text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="activity-content flex-grow-1">
+                                            <div class="activity-header d-flex justify-content-between align-items-start">
+                                                <h6 class="mb-1">{{ activity.title }}</h6>
+                                                <small class="text-muted">{{ activity.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                                            </div>
+                                            <p class="text-muted mb-0">{{ activity.description }}</p>
+                                            {% if activity.details %}
+                                            <div class="activity-details mt-1">
+                                                {% for key, value in activity.details.items() %}
+                                                <span class="badge bg-light text-dark me-1">{{ key }}: {{ value }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if recent_activities|length == 0 %}
+                                <div class="text-center py-4">
+                                    <i class="fas fa-history text-muted" style="font-size: 3rem;"></i>
+                                    <h5 class="text-muted mt-3">No recent activity</h5>
+                                    <p class="text-muted">Start learning to see your activity here!</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Activity Summary -->
+                            <div class="col-md-4">
+                                <h5><i class="fas fa-calendar me-2"></i>Activity Summary</h5>
+                                
+                                <!-- Calendar Heatmap -->
+                                <div class="activity-calendar mb-4">
+                                    <canvas id="activityHeatmap" height="150"></canvas>
+                                </div>
+                                
+                                <!-- Weekly Summary -->
+                                <div class="weekly-summary">
+                                    <h6>This Week</h6>
+                                    <div class="summary-stats">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Modules Started:</span>
+                                            <strong>{{ weekly_activity.modules_started }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Modules Completed:</span>
+                                            <strong>{{ weekly_activity.modules_completed }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Quizzes Taken:</span>
+                                            <strong>{{ weekly_activity.quizzes_taken }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Time Spent:</span>
+                                            <strong>{{ weekly_activity.time_spent }}h</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Goals -->
+                                <div class="goals mt-4">
+                                    <h6>Weekly Goals</h6>
+                                    <div class="goal-item mb-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted">Complete 3 modules</span>
+                                            <span class="text-muted">{{ weekly_activity.modules_completed }}/3</span>
+                                        </div>
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar bg-success" 
+                                                 style="width: {{ min(100, weekly_activity.modules_completed / 3 * 100) }}%"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="goal-item mb-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted">Study 5 hours</span>
+                                            <span class="text-muted">{{ weekly_activity.time_spent }}/5h</span>
+                                        </div>
+                                        <div class="progress" style="height: 4px;">
+                                            <div class="progress-bar bg-primary" 
+                                                 style="width: {{ min(100, weekly_activity.time_spent / 5 * 100) }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Module filtering
+$(document).ready(function() {
+    // Status filter
+    $('input[name="statusFilter"]').change(function() {
+        filterModules();
+    });
+    
+    // Search filter
+    $('#moduleSearch').on('input', function() {
+        filterModules();
+    });
+    
+    function filterModules() {
+        const selectedStatus = $('input[name="statusFilter"]:checked').val();
+        const searchTerm = $('#moduleSearch').val().toLowerCase();
+        let visibleCount = 0;
+        
+        $('.module-item').each(function() {
+            const $item = $(this);
+            const status = $item.data('status');
+            const title = $item.data('title');
+            
+            let statusMatch = selectedStatus === 'all' || status === selectedStatus;
+            let searchMatch = searchTerm === '' || title.includes(searchTerm);
+            
+            if (statusMatch && searchMatch) {
+                $item.show();
+                visibleCount++;
+            } else {
+                $item.hide();
+            }
+        });
+        
+        $('.empty-state').toggle(visibleCount === 0);
+    }
+});
+
+// Progress Chart
+const progressCtx = document.getElementById('progressChart').getContext('2d');
+const progressChart = new Chart(progressCtx, {
+    type: 'line',
+    data: {
+        labels: {{ progress_timeline.dates | tojson }},
+        datasets: [{
+            label: 'Modules Completed',
+            data: {{ progress_timeline.completed | tojson }},
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',
+            tension: 0.4
+        }, {
+            label: 'Modules Started',
+            data: {{ progress_timeline.started | tojson }},
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Category Chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryChart = new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ category_progress.keys() | list | tojson }},
+        datasets: [{
+            data: {{ category_progress.values() | map(attribute='completed') | list | tojson }},
+            backgroundColor: [
+                '#007bff', '#28a745', '#ffc107', '#dc3545', 
+                '#6f42c1', '#fd7e14', '#20c997', '#6c757d'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Quiz Chart
+const quizCtx = document.getElementById('quizChart').getContext('2d');
+const quizChart = new Chart(quizCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ quiz_performance.modules | tojson }},
+        datasets: [{
+            label: 'Quiz Scores',
+            data: {{ quiz_performance.scores | tojson }},
+            backgroundColor: '#007bff',
+            borderRadius: 4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Activity Heatmap (simplified)
+const heatmapCtx = document.getElementById('activityHeatmap').getContext('2d');
+const heatmapChart = new Chart(heatmapCtx, {
+    type: 'bar',
+    data: {
+        labels: {{ activity_heatmap.days | tojson }},
+        datasets: [{
+            label: 'Activity',
+            data: {{ activity_heatmap.values | tojson }},
+            backgroundColor: function(context) {
+                const value = context.parsed.y;
+                if (value === 0) return '#ebedf0';
+                if (value <= 2) return '#c6e48b';
+                if (value <= 4) return '#7bc96f';
+                if (value <= 6) return '#239a3b';
+                return '#196127';
+            },
+            borderWidth: 1,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                display: false
+            },
+            x: {
+                display: false
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                callbacks: {
+                    title: function(context) {
+                        return context[0].label;
+                    },
+                    label: function(context) {
+                        return `${context.parsed.y} activities`;
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+}
+
+.stat-card {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.module-progress-item {
+    transition: all 0.3s ease;
+}
+
+.module-progress-item:hover {
+    transform: translateX(5px);
+}
+
+.badge-card {
+    transition: all 0.3s ease;
+}
+
+.badge-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.activity-timeline {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    border-left: 2px solid #e9ecef;
+    padding-left: 1rem;
+    margin-left: 20px;
+    position: relative;
+}
+
+.activity-item:last-child {
+    border-left: none;
+}
+
+.activity-icon {
+    margin-left: -21px;
+}
+
+@media (max-width: 768px) {
+    .filter-controls .row {
+        flex-direction: column;
+    }
+    
+    .filter-controls .col-md-6:last-child {
+        margin-top: 1rem;
+    }
+    
+    .module-progress-item .row {
+        flex-direction: column;
+    }
+    
+    .module-progress-item .col-md-4 {
+        margin-top: 1rem;
+        text-align: left !important;
+    }
+}
+</style>
+{% endblock %}

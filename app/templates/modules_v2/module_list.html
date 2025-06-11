@@ -1,0 +1,432 @@
+{% extends "modules_v2/base.html" %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active" aria-current="page">All Modules</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-9">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h2 mb-1">Security Training Modules</h1>
+                <p class="text-muted mb-0">Master cybersecurity through interactive learning modules</p>
+            </div>
+            <div>
+                <!-- Search Form -->
+                <form method="GET" action="{{ url_for('modules_v2.search_modules') }}" class="d-flex">
+                    <input type="search" name="q" class="form-control me-2" placeholder="Search modules..." 
+                           value="{{ request.args.get('q', '') }}" style="min-width: 250px;">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Filter Tabs -->
+        <ul class="nav nav-pills mb-4" id="moduleFilter" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#all" 
+                        type="button" role="tab" aria-controls="all" aria-selected="true">
+                    <i class="fas fa-list me-1"></i>
+                    All Modules
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="available-tab" data-bs-toggle="pill" data-bs-target="#available" 
+                        type="button" role="tab" aria-controls="available" aria-selected="false">
+                    <i class="fas fa-unlock me-1"></i>
+                    Available
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="in-progress-tab" data-bs-toggle="pill" data-bs-target="#in-progress" 
+                        type="button" role="tab" aria-controls="in-progress" aria-selected="false">
+                    <i class="fas fa-play me-1"></i>
+                    In Progress
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="completed-tab" data-bs-toggle="pill" data-bs-target="#completed" 
+                        type="button" role="tab" aria-controls="completed" aria-selected="false">
+                    <i class="fas fa-check me-1"></i>
+                    Completed
+                </button>
+            </li>
+        </ul>
+        
+        <!-- Module Grid -->
+        <div class="tab-content" id="moduleFilterContent">
+            <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                <div class="row" id="moduleGrid">
+                    {% for module in modules %}
+                    <div class="col-md-6 col-lg-4 mb-4 module-item" 
+                         data-status="{{ module.progress.status if module.progress else 'not_started' }}"
+                         data-available="{{ 'true' if module.can_access else 'false' }}">
+                        <div class="card h-100 module-card 
+                                    {% if module.progress and module.progress.status == 'completed' %}completed-module{% endif %}
+                                    {% if not module.can_access %}locked-module{% endif %}">
+                            
+                            <!-- Module Header -->
+                            <div class="card-header bg-transparent border-0 pb-0">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="module-meta">
+                                        <span class="badge bg-primary mb-2">{{ module.category or 'General' }}</span>
+                                        {% if module.difficulty %}
+                                        <span class="badge 
+                                              {% if module.difficulty == 'beginner' %}bg-success
+                                              {% elif module.difficulty == 'intermediate' %}bg-warning
+                                              {% else %}bg-danger{% endif %} ms-1">
+                                            {{ module.difficulty.title() }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="module-status">
+                                        {% if not module.can_access %}
+                                            <i class="fas fa-lock text-muted" data-bs-toggle="tooltip" 
+                                               title="Prerequisites required"></i>
+                                        {% elif module.progress and module.progress.status == 'completed' %}
+                                            <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" 
+                                               title="Completed"></i>
+                                        {% elif module.progress and module.progress.status == 'in_progress' %}
+                                            <i class="fas fa-play-circle text-primary" data-bs-toggle="tooltip" 
+                                               title="In Progress"></i>
+                                        {% else %}
+                                            <i class="fas fa-circle text-muted" data-bs-toggle="tooltip" 
+                                               title="Not Started"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Module Body -->
+                            <div class="card-body">
+                                <h5 class="card-title mb-2">{{ module.title }}</h5>
+                                <p class="card-text text-muted small mb-3">{{ module.description[:120] }}{% if module.description|length > 120 %}...{% endif %}</p>
+                                
+                                <!-- Progress Bar -->
+                                {% if module.progress %}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <small class="text-muted">Progress</small>
+                                        <small class="text-muted">{{ module.progress.progress_percentage or 0 }}%</small>
+                                    </div>
+                                    <div class="progress" style="height: 6px;">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ module.progress.progress_percentage or 0 }}%"
+                                             aria-valuenow="{{ module.progress.progress_percentage or 0 }}" 
+                                             aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Module Info -->
+                                <div class="row text-center mb-3">
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Duration</small>
+                                        <strong class="small">{{ module.estimated_duration or 30 }} min</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Lessons</small>
+                                        <strong class="small">{{ module.content_count or 0 }}</strong>
+                                    </div>
+                                    <div class="col-4">
+                                        <small class="text-muted d-block">Quiz</small>
+                                        <strong class="small">
+                                            {% if module.has_quiz %}
+                                                <i class="fas fa-check text-success"></i>
+                                            {% else %}
+                                                <i class="fas fa-times text-muted"></i>
+                                            {% endif %}
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Module Footer -->
+                            <div class="card-footer bg-transparent border-0 pt-0">
+                                {% if module.can_access %}
+                                    <a href="{{ url_for('modules_v2.module_detail', module_id=module.id) }}" 
+                                       class="btn btn-primary w-100">
+                                        {% if module.progress and module.progress.status == 'completed' %}
+                                            <i class="fas fa-eye me-1"></i> Review
+                                        {% elif module.progress and module.progress.status == 'in_progress' %}
+                                            <i class="fas fa-play me-1"></i> Continue
+                                        {% else %}
+                                            <i class="fas fa-play me-1"></i> Start
+                                        {% endif %}
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-outline-secondary w-100" disabled>
+                                        <i class="fas fa-lock me-1"></i> Locked
+                                    </button>
+                                    {% if module.missing_prerequisites %}
+                                    <small class="text-muted d-block mt-2 text-center">
+                                        Complete: {{ module.missing_prerequisites|join(', ') }}
+                                    </small>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    {% if not modules %}
+                    <div class="col-12">
+                        <div class="text-center py-5">
+                            <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No modules available</h4>
+                            <p class="text-muted">Check back later for new training modules.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-3">
+        <!-- Progress Summary -->
+        {% if progress_summary %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Your Progress
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="position-relative d-inline-block">
+                        <svg width="80" height="80" class="progress-ring">
+                            <circle cx="40" cy="40" r="35" stroke="#e9ecef" stroke-width="6" fill="transparent"></circle>
+                            <circle cx="40" cy="40" r="35" stroke="#007bff" stroke-width="6" fill="transparent"
+                                    stroke-dasharray="{{ 2 * 3.14159 * 35 }}" 
+                                    stroke-dashoffset="{{ 2 * 3.14159 * 35 * (1 - (progress_summary.completion_percentage or 0) / 100) }}"
+                                    transform="rotate(-90 40 40)"></circle>
+                        </svg>
+                        <div class="position-absolute top-50 start-50 translate-middle">
+                            <strong class="h5 mb-0">{{ progress_summary.completion_percentage or 0 }}%</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <div class="h4 mb-0 text-success">{{ progress_summary.completed_modules or 0 }}</div>
+                            <small class="text-muted">Completed</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h4 mb-0 text-primary">{{ progress_summary.total_modules or 0 }}</div>
+                        <small class="text-muted">Total</small>
+                    </div>
+                </div>
+                
+                {% if progress_summary.time_spent_minutes %}
+                <hr>
+                <div class="text-center">
+                    <small class="text-muted">Time Spent</small>
+                    <div class="fw-bold">{{ (progress_summary.time_spent_minutes / 60) | round(1) }} hours</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Recent Badges -->
+        {% if recent_badges %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-medal me-2"></i>
+                    Recent Badges
+                </h6>
+            </div>
+            <div class="card-body">
+                {% for badge in recent_badges %}
+                <div class="d-flex align-items-center mb-2">
+                    <div class="badge-icon me-2">
+                        <i class="{{ badge.icon or 'fas fa-award' }} text-warning"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold small">{{ badge.name }}</div>
+                        <small class="text-muted">{{ badge.earned_at.strftime('%b %d') }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('modules_v2.user_badges') }}" class="btn btn-sm btn-outline-primary">
+                        View All Badges
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Learning Path -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-route me-2"></i>
+                    Recommended Path
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="learning-path">
+                    {% set recommended_modules = modules[:3] %}
+                    {% for module in recommended_modules %}
+                    <div class="path-item d-flex align-items-center mb-2 
+                                {% if not module.can_access %}text-muted{% endif %}">
+                        <div class="path-number me-2">
+                            <span class="badge 
+                                  {% if module.progress and module.progress.status == 'completed' %}bg-success
+                                  {% elif module.can_access %}bg-primary
+                                  {% else %}bg-secondary{% endif %} rounded-circle">
+                                {{ loop.index }}
+                            </span>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="small fw-bold">{{ module.title }}</div>
+                            <small class="text-muted">{{ module.estimated_duration or 30 }} min</small>
+                        </div>
+                        {% if module.progress and module.progress.status == 'completed' %}
+                            <i class="fas fa-check text-success"></i>
+                        {% elif not module.can_access %}
+                            <i class="fas fa-lock text-muted"></i>
+                        {% endif %}
+                    </div>
+                    {% if not loop.last %}
+                    <div class="path-connector ms-2 mb-2">
+                        <div class="border-start border-2 ps-3" style="height: 10px;"></div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Filter functionality
+    $('#moduleFilter button').on('click', function() {
+        const filter = $(this).attr('aria-controls');
+        filterModules(filter);
+    });
+    
+    function filterModules(filter) {
+        const $modules = $('.module-item');
+        
+        $modules.each(function() {
+            const $module = $(this);
+            const status = $module.data('status');
+            const available = $module.data('available');
+            let show = false;
+            
+            switch(filter) {
+                case 'all':
+                    show = true;
+                    break;
+                case 'available':
+                    show = available === true && status !== 'completed';
+                    break;
+                case 'in-progress':
+                    show = status === 'in_progress';
+                    break;
+                case 'completed':
+                    show = status === 'completed';
+                    break;
+            }
+            
+            if (show) {
+                $module.removeClass('d-none').addClass('fade-in');
+            } else {
+                $module.addClass('d-none').removeClass('fade-in');
+            }
+        });
+    }
+    
+    // Module card click handling
+    $('.module-card:not(.locked-module)').on('click', function(e) {
+        if (!$(e.target).closest('a, button').length) {
+            const moduleUrl = $(this).find('.card-footer a').attr('href');
+            if (moduleUrl) {
+                window.location.href = moduleUrl;
+            }
+        }
+    });
+    
+    // Add hover effects
+    $('.module-card:not(.locked-module)').hover(
+        function() {
+            $(this).addClass('shadow-lg');
+        },
+        function() {
+            $(this).removeClass('shadow-lg');
+        }
+    );
+    
+    // Animate progress rings
+    $('.progress-ring circle:last-child').each(function() {
+        const circle = this;
+        const radius = circle.r.baseVal.value;
+        const circumference = radius * 2 * Math.PI;
+        const offset = circumference - ({{ progress_summary.completion_percentage or 0 }} / 100) * circumference;
+        
+        circle.style.strokeDasharray = circumference;
+        circle.style.strokeDashoffset = circumference;
+        
+        setTimeout(() => {
+            circle.style.transition = 'stroke-dashoffset 1s ease-in-out';
+            circle.style.strokeDashoffset = offset;
+        }, 500);
+    });
+});
+</script>
+
+<style>
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring circle {
+    transition: stroke-dashoffset 0.5s ease-in-out;
+}
+
+.path-connector {
+    margin-left: 12px;
+}
+
+.badge-icon {
+    font-size: 1.2rem;
+}
+
+.learning-path .path-number .badge {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+}
+</style>
+{% endblock %}

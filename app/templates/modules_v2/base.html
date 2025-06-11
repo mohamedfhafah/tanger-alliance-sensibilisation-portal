@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }} - Security Training Portal{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/modules_v2.css') }}" rel="stylesheet">
+    
+    <!-- Additional CSS -->
+    {% block extra_css %}{% endblock %}
+    
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --border-radius: 8px;
+            --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f6fa;
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            box-shadow: var(--box-shadow);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 120px);
+            padding: 2rem 0;
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .btn {
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #34495e, #2980b9);
+            transform: translateY(-1px);
+        }
+        
+        .progress {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        
+        .progress-bar {
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+        
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 20px;
+        }
+        
+        .alert {
+            border: none;
+            border-radius: var(--border-radius);
+            border-left: 4px solid;
+        }
+        
+        .alert-success {
+            border-left-color: var(--success-color);
+            background-color: rgba(39, 174, 96, 0.1);
+        }
+        
+        .alert-warning {
+            border-left-color: var(--warning-color);
+            background-color: rgba(243, 156, 18, 0.1);
+        }
+        
+        .alert-danger {
+            border-left-color: var(--danger-color);
+            background-color: rgba(231, 76, 60, 0.1);
+        }
+        
+        .alert-info {
+            border-left-color: var(--info-color);
+            background-color: rgba(23, 162, 184, 0.1);
+        }
+        
+        .breadcrumb {
+            background: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .breadcrumb-item + .breadcrumb-item::before {
+            content: ">";
+            color: #6c757d;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .module-card {
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .module-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+        }
+        
+        .quiz-card {
+            border-left: 4px solid var(--info-color);
+        }
+        
+        .completed-module {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .locked-module {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .locked-module:hover {
+            transform: none;
+        }
+        
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 1rem 0;
+            margin-top: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem 0;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('modules_v2.module_list') }}">
+                <i class="fas fa-shield-alt me-2"></i>
+                Security Training
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('modules_v2.module_list') }}">
+                            <i class="fas fa-book me-1"></i>
+                            Modules
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('modules_v2.user_progress') }}">
+                            <i class="fas fa-chart-line me-1"></i>
+                            Progress
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('modules_v2.user_badges') }}">
+                            <i class="fas fa-medal me-1"></i>
+                            Badges
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>
+                            {{ current_user.username if current_user.is_authenticated else 'User' }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('modules_v2.user_progress') }}">My Progress</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Breadcrumb -->
+            {% block breadcrumb %}
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules_v2.module_list') }}">Modules</a></li>
+                    {% block breadcrumb_items %}{% endblock %}
+                </ol>
+            </nav>
+            {% endblock %}
+            
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                            {% if category == 'success' %}
+                                <i class="fas fa-check-circle me-2"></i>
+                            {% elif category == 'warning' %}
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                            {% elif category == 'error' %}
+                                <i class="fas fa-times-circle me-2"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle me-2"></i>
+                            {% endif %}
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Page Content -->
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer mt-auto">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 Security Training Portal. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted">Version 2.0 - Refactored Module System</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="position-fixed top-0 start-0 w-100 h-100 d-none" style="background: rgba(0,0,0,0.5); z-index: 9999;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="text-center text-white">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/modules_v2.js') }}"></script>
+    
+    <!-- Base JavaScript -->
+    <script>
+        // Global utilities
+        window.ModulesV2 = {
+            // Show loading overlay
+            showLoading: function() {
+                document.getElementById('loadingOverlay').classList.remove('d-none');
+            },
+            
+            // Hide loading overlay
+            hideLoading: function() {
+                document.getElementById('loadingOverlay').classList.add('d-none');
+            },
+            
+            // Show toast notification
+            showToast: function(message, type = 'info') {
+                const toastHtml = `
+                    <div class="toast align-items-center text-white bg-${type} border-0" role="alert">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                `;
+                
+                // Create toast container if it doesn't exist
+                let toastContainer = document.getElementById('toastContainer');
+                if (!toastContainer) {
+                    toastContainer = document.createElement('div');
+                    toastContainer.id = 'toastContainer';
+                    toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+                    toastContainer.style.zIndex = '9999';
+                    document.body.appendChild(toastContainer);
+                }
+                
+                // Add toast
+                toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+                
+                // Initialize and show toast
+                const toastElement = toastContainer.lastElementChild;
+                const toast = new bootstrap.Toast(toastElement);
+                toast.show();
+                
+                // Remove toast element after it's hidden
+                toastElement.addEventListener('hidden.bs.toast', function() {
+                    toastElement.remove();
+                });
+            },
+            
+            // AJAX helper
+            ajax: function(url, options = {}) {
+                const defaults = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                };
+                
+                const config = Object.assign(defaults, options);
+                
+                return fetch(url, config)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        console.error('AJAX Error:', error);
+                        this.showToast('An error occurred. Please try again.', 'danger');
+                        throw error;
+                    });
+            },
+            
+            // Update progress bar
+            updateProgressBar: function(selector, percentage) {
+                const progressBar = document.querySelector(selector);
+                if (progressBar) {
+                    progressBar.style.width = percentage + '%';
+                    progressBar.setAttribute('aria-valuenow', percentage);
+                    progressBar.textContent = Math.round(percentage) + '%';
+                }
+            },
+            
+            // Format time duration
+            formatDuration: function(minutes) {
+                if (minutes < 60) {
+                    return minutes + ' min';
+                }
+                const hours = Math.floor(minutes / 60);
+                const remainingMinutes = minutes % 60;
+                return hours + 'h ' + remainingMinutes + 'm';
+            },
+            
+            // Confirm dialog
+            confirm: function(message, callback) {
+                if (confirm(message)) {
+                    callback();
+                }
+            }
+        };
+        
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+        
+        // Auto-hide alerts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000);
+            });
+        });
+    </script>
+    
+    <!-- Additional JavaScript -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,916 @@
+{% extends "modules_v2/base.html" %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{{ url_for('modules_v2.module_list') }}">Modules</a></li>
+<li class="breadcrumb-item active" aria-current="page">My Badges</li>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Badges Header -->
+    <div class="col-12">
+        <div class="badges-header mb-4">
+            <div class="card bg-gradient-warning text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h2 class="mb-1"><i class="fas fa-trophy me-2"></i>My Badges</h2>
+                            <p class="mb-0 opacity-75">Achievements and milestones in your security training journey</p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <div class="badges-stats">
+                                <div class="h3 mb-0">{{ user_badges|length }}</div>
+                                <small class="opacity-75">Badges Earned</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Badge Statistics -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-medal text-warning" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="h4 mb-0 text-warning">{{ badge_stats.total_earned }}</div>
+                        <small class="text-muted">Total Earned</small>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-warning" style="width: {{ (badge_stats.total_earned / badge_stats.total_available * 100) if badge_stats.total_available > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-star text-success" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="h4 mb-0 text-success">{{ badge_stats.completion_badges }}</div>
+                        <small class="text-muted">Completion Badges</small>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-success" style="width: {{ (badge_stats.completion_badges / badge_stats.total_completion_available * 100) if badge_stats.total_completion_available > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-brain text-primary" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="h4 mb-0 text-primary">{{ badge_stats.performance_badges }}</div>
+                        <small class="text-muted">Performance Badges</small>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-primary" style="width: {{ (badge_stats.performance_badges / badge_stats.total_performance_available * 100) if badge_stats.total_performance_available > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <div class="stat-icon mb-2">
+                            <i class="fas fa-gem text-info" style="font-size: 2rem;"></i>
+                        </div>
+                        <div class="h4 mb-0 text-info">{{ badge_stats.special_badges }}</div>
+                        <small class="text-muted">Special Badges</small>
+                        <div class="progress mt-2" style="height: 4px;">
+                            <div class="progress-bar bg-info" style="width: {{ (badge_stats.special_badges / badge_stats.total_special_available * 100) if badge_stats.total_special_available > 0 else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Badge Categories Tabs -->
+    <div class="col-12">
+        <ul class="nav nav-tabs" id="badgeTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="earned-tab" data-bs-toggle="tab" 
+                        data-bs-target="#earned" type="button" role="tab">
+                    <i class="fas fa-trophy me-1"></i> Earned ({{ user_badges|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="available-tab" data-bs-toggle="tab" 
+                        data-bs-target="#available" type="button" role="tab">
+                    <i class="fas fa-target me-1"></i> Available ({{ available_badges|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="leaderboard-tab" data-bs-toggle="tab" 
+                        data-bs-target="#leaderboard" type="button" role="tab">
+                    <i class="fas fa-chart-line me-1"></i> Leaderboard
+                </button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="badgeTabContent">
+            <!-- Earned Badges Tab -->
+            <div class="tab-pane fade show active" id="earned" role="tabpanel">
+                <div class="card border-0">
+                    <div class="card-body">
+                        {% if user_badges %}
+                        <!-- Filter Controls -->
+                        <div class="filter-controls mb-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="btn-group" role="group" aria-label="Badge category filter">
+                                        <input type="radio" class="btn-check" name="categoryFilter" id="all-earned" value="all" checked>
+                                        <label class="btn btn-outline-primary" for="all-earned">All</label>
+                                        
+                                        <input type="radio" class="btn-check" name="categoryFilter" id="completion-earned" value="completion">
+                                        <label class="btn btn-outline-success" for="completion-earned">Completion</label>
+                                        
+                                        <input type="radio" class="btn-check" name="categoryFilter" id="performance-earned" value="performance">
+                                        <label class="btn btn-outline-primary" for="performance-earned">Performance</label>
+                                        
+                                        <input type="radio" class="btn-check" name="categoryFilter" id="special-earned" value="special">
+                                        <label class="btn btn-outline-info" for="special-earned">Special</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <div class="btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="sortOrder" id="newest" value="newest" checked>
+                                        <label class="btn btn-outline-secondary" for="newest">Newest First</label>
+                                        
+                                        <input type="radio" class="btn-check" name="sortOrder" id="oldest" value="oldest">
+                                        <label class="btn btn-outline-secondary" for="oldest">Oldest First</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Earned Badges Grid -->
+                        <div class="badges-grid">
+                            <div class="row" id="earnedBadgesContainer">
+                                {% for badge in user_badges %}
+                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4 badge-item" 
+                                     data-category="{{ badge.category }}" 
+                                     data-earned="{{ badge.earned_at.timestamp() }}">
+                                    <div class="badge-card card border-0 shadow-sm h-100">
+                                        <div class="card-body text-center position-relative">
+                                            <!-- Badge Rarity Indicator -->
+                                            {% if badge.rarity == 'legendary' %}
+                                            <div class="badge-rarity position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-warning"><i class="fas fa-crown"></i> Legendary</span>
+                                            </div>
+                                            {% elif badge.rarity == 'epic' %}
+                                            <div class="badge-rarity position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-purple"><i class="fas fa-gem"></i> Epic</span>
+                                            </div>
+                                            {% elif badge.rarity == 'rare' %}
+                                            <div class="badge-rarity position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-primary"><i class="fas fa-star"></i> Rare</span>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            <!-- Badge Icon -->
+                                            <div class="badge-icon mb-3">
+                                                <div class="badge-icon-wrapper position-relative">
+                                                    <i class="{{ badge.icon }} badge-main-icon" 
+                                                       style="font-size: 3.5rem; color: {{ badge.color or '#ffc107' }};"></i>
+                                                    {% if badge.is_new %}
+                                                    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle badge-new">
+                                                        New!
+                                                    </span>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Badge Info -->
+                                            <h5 class="badge-title mb-2">{{ badge.name }}</h5>
+                                            <p class="badge-description text-muted small mb-3">{{ badge.description }}</p>
+                                            
+                                            <!-- Badge Metadata -->
+                                            <div class="badge-metadata">
+                                                <div class="row text-center">
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">Earned</small>
+                                                        <strong class="text-success">{{ badge.earned_at.strftime('%b %d, %Y') }}</strong>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <small class="text-muted d-block">Category</small>
+                                                        <span class="badge 
+                                                              {% if badge.category == 'completion' %}bg-success
+                                                              {% elif badge.category == 'performance' %}bg-primary
+                                                              {% elif badge.category == 'special' %}bg-info
+                                                              {% else %}bg-secondary{% endif %}">{{ badge.category.title() }}</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                {% if badge.progress_data %}
+                                                <div class="badge-progress mt-3">
+                                                    <small class="text-muted">Achievement Progress</small>
+                                                    <div class="progress mt-1" style="height: 6px;">
+                                                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                                                    </div>
+                                                    <small class="text-success">{{ badge.progress_data.current }}/{{ badge.progress_data.required }} completed</small>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            <!-- Badge Actions -->
+                                            <div class="badge-actions mt-3">
+                                                <button class="btn btn-sm btn-outline-primary me-1" 
+                                                        onclick="shareBadge('{{ badge.id }}')"
+                                                        title="Share Badge">
+                                                    <i class="fas fa-share"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-info" 
+                                                        onclick="viewBadgeDetails('{{ badge.id }}')"
+                                                        title="View Details">
+                                                    <i class="fas fa-info"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Empty State for Filtered Results -->
+                        <div class="empty-state text-center py-5" id="earnedEmptyState" style="display: none;">
+                            <i class="fas fa-filter text-muted" style="font-size: 3rem;"></i>
+                            <h5 class="text-muted mt-3">No badges found</h5>
+                            <p class="text-muted">Try adjusting your filters to see more badges.</p>
+                        </div>
+                        
+                        {% else %}
+                        <!-- No Badges State -->
+                        <div class="text-center py-5">
+                            <i class="fas fa-trophy text-muted" style="font-size: 4rem;"></i>
+                            <h4 class="text-muted mt-3">No badges earned yet</h4>
+                            <p class="text-muted mb-4">Complete modules and quizzes to earn your first badge!</p>
+                            <a href="{{ url_for('modules_v2.module_list') }}" class="btn btn-primary">
+                                <i class="fas fa-play me-1"></i> Start Learning
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Available Badges Tab -->
+            <div class="tab-pane fade" id="available" role="tabpanel">
+                <div class="card border-0">
+                    <div class="card-body">
+                        {% if available_badges %}
+                        <!-- Available Badges Grid -->
+                        <div class="badges-grid">
+                            <div class="row">
+                                {% for badge in available_badges %}
+                                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                                    <div class="badge-card card border-0 shadow-sm h-100 badge-available">
+                                        <div class="card-body text-center position-relative">
+                                            <!-- Badge Rarity Indicator -->
+                                            {% if badge.rarity == 'legendary' %}
+                                            <div class="badge-rarity position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-warning opacity-50"><i class="fas fa-crown"></i> Legendary</span>
+                                            </div>
+                                            {% elif badge.rarity == 'epic' %}
+                                            <div class="badge-rarity position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-purple opacity-50"><i class="fas fa-gem"></i> Epic</span>
+                                            </div>
+                                            {% elif badge.rarity == 'rare' %}
+                                            <div class="badge-rarity position-absolute top-0 end-0 m-2">
+                                                <span class="badge bg-primary opacity-50"><i class="fas fa-star"></i> Rare</span>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            <!-- Badge Icon (Grayed Out) -->
+                                            <div class="badge-icon mb-3">
+                                                <i class="{{ badge.icon }} text-muted opacity-50" style="font-size: 3.5rem;"></i>
+                                            </div>
+                                            
+                                            <!-- Badge Info -->
+                                            <h5 class="badge-title mb-2 text-muted">{{ badge.name }}</h5>
+                                            <p class="badge-description text-muted small mb-3">{{ badge.description }}</p>
+                                            
+                                            <!-- Progress Towards Badge -->
+                                            <div class="badge-progress mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <small class="text-muted">Progress</small>
+                                                    <small class="text-muted">{{ badge.current_progress }}/{{ badge.required_progress }}</small>
+                                                </div>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar" 
+                                                         style="width: {{ (badge.current_progress / badge.required_progress * 100) if badge.required_progress > 0 else 0 }}%;
+                                                                background-color: {{ badge.color or '#007bff' }};"></div>
+                                                </div>
+                                                <small class="text-muted">{{ ((badge.current_progress / badge.required_progress * 100) if badge.required_progress > 0 else 0)|round(1) }}% complete</small>
+                                            </div>
+                                            
+                                            <!-- Requirements -->
+                                            <div class="badge-requirements">
+                                                <small class="text-muted d-block mb-2">Requirements:</small>
+                                                <div class="requirements-list">
+                                                    {% for requirement in badge.requirements %}
+                                                    <div class="requirement-item d-flex align-items-center mb-1">
+                                                        <i class="fas fa-{{ 'check text-success' if requirement.completed else 'times text-muted' }} me-2"></i>
+                                                        <small class="{{ 'text-success' if requirement.completed else 'text-muted' }}">{{ requirement.description }}</small>
+                                                    </div>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Next Steps -->
+                                            {% if badge.next_steps %}
+                                            <div class="badge-next-steps mt-3">
+                                                <small class="text-primary">Next: {{ badge.next_steps }}</small>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        {% else %}
+                        <!-- No Available Badges -->
+                        <div class="text-center py-5">
+                            <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                            <h4 class="text-success mt-3">All badges earned!</h4>
+                            <p class="text-muted">Congratulations! You've earned all available badges.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Leaderboard Tab -->
+            <div class="tab-pane fade" id="leaderboard" role="tabpanel">
+                <div class="card border-0">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Top Performers -->
+                            <div class="col-md-8">
+                                <h5><i class="fas fa-crown me-2"></i>Badge Leaderboard</h5>
+                                
+                                <div class="leaderboard-list">
+                                    {% for user in leaderboard %}
+                                    <div class="leaderboard-item d-flex align-items-center p-3 mb-2 
+                                         {% if user.is_current_user %}bg-light border border-primary{% else %}bg-white border{% endif %} rounded">
+                                        <div class="rank-badge me-3">
+                                            {% if user.rank <= 3 %}
+                                            <div class="rank-medal text-center">
+                                                {% if user.rank == 1 %}
+                                                <i class="fas fa-medal text-warning" style="font-size: 1.5rem;"></i>
+                                                {% elif user.rank == 2 %}
+                                                <i class="fas fa-medal text-secondary" style="font-size: 1.5rem;"></i>
+                                                {% else %}
+                                                <i class="fas fa-medal text-warning" style="font-size: 1.5rem; opacity: 0.7;"></i>
+                                                {% endif %}
+                                                <div class="rank-number">{{ user.rank }}</div>
+                                            </div>
+                                            {% else %}
+                                            <div class="rank-number-only text-center">
+                                                <div class="h4 mb-0 text-muted">{{ user.rank }}</div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="user-avatar me-3">
+                                            {% if user.avatar %}
+                                            <img src="{{ user.avatar }}" alt="{{ user.name }}" class="rounded-circle" width="40" height="40">
+                                            {% else %}
+                                            <div class="avatar-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                                                 style="width: 40px; height: 40px;">
+                                                {{ user.name[0].upper() }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="user-info flex-grow-1">
+                                            <h6 class="mb-0">{{ user.name }}{% if user.is_current_user %} <span class="badge bg-primary">You</span>{% endif %}</h6>
+                                            <small class="text-muted">{{ user.title or 'Security Trainee' }}</small>
+                                        </div>
+                                        
+                                        <div class="user-stats text-end">
+                                            <div class="badges-count">
+                                                <span class="h5 mb-0 text-warning">{{ user.badge_count }}</span>
+                                                <small class="text-muted d-block">badges</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="user-badges ms-3">
+                                            {% for badge in user.recent_badges[:3] %}
+                                            <i class="{{ badge.icon }} text-warning me-1" title="{{ badge.name }}"></i>
+                                            {% endfor %}
+                                            {% if user.recent_badges|length > 3 %}
+                                            <span class="text-muted">+{{ user.recent_badges|length - 3 }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if current_user_rank and current_user_rank > 10 %}
+                                <div class="current-user-rank mt-3 p-3 bg-light border rounded">
+                                    <div class="text-center">
+                                        <small class="text-muted">Your current rank</small>
+                                        <div class="h4 text-primary">#{{ current_user_rank }}</div>
+                                        <small class="text-muted">{{ current_user_badge_count }} badges earned</small>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Leaderboard Stats -->
+                            <div class="col-md-4">
+                                <h5><i class="fas fa-chart-bar me-2"></i>Statistics</h5>
+                                
+                                <div class="stats-cards">
+                                    <div class="stat-card card border-0 bg-light mb-3">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-users text-primary mb-2" style="font-size: 2rem;"></i>
+                                            <div class="h4 mb-0">{{ leaderboard_stats.total_users }}</div>
+                                            <small class="text-muted">Total Users</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="stat-card card border-0 bg-light mb-3">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-trophy text-warning mb-2" style="font-size: 2rem;"></i>
+                                            <div class="h4 mb-0">{{ leaderboard_stats.total_badges_awarded }}</div>
+                                            <small class="text-muted">Badges Awarded</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="stat-card card border-0 bg-light mb-3">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-star text-success mb-2" style="font-size: 2rem;"></i>
+                                            <div class="h4 mb-0">{{ leaderboard_stats.average_badges }}</div>
+                                            <small class="text-muted">Average Badges</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Recent Badge Activity -->
+                                <div class="recent-activity mt-4">
+                                    <h6><i class="fas fa-clock me-2"></i>Recent Badge Activity</h6>
+                                    <div class="activity-list">
+                                        {% for activity in recent_badge_activity %}
+                                        <div class="activity-item d-flex align-items-center mb-2">
+                                            <i class="{{ activity.badge_icon }} text-warning me-2"></i>
+                                            <div class="flex-grow-1">
+                                                <small class="text-muted">{{ activity.user_name }} earned</small>
+                                                <div class="fw-bold">{{ activity.badge_name }}</div>
+                                                <small class="text-muted">{{ activity.earned_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Badge Details Modal -->
+<div class="modal fade" id="badgeDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Badge Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="badgeDetailsContent">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Badge Modal -->
+<div class="modal fade" id="shareBadgeModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Share Badge</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div id="shareBadgeIcon"></div>
+                    <h6 id="shareBadgeName" class="mt-2"></h6>
+                </div>
+                
+                <div class="share-options">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <button class="btn btn-outline-primary w-100" onclick="shareToSocial('twitter')">
+                                <i class="fab fa-twitter"></i><br>
+                                <small>Twitter</small>
+                            </button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-outline-primary w-100" onclick="shareToSocial('linkedin')">
+                                <i class="fab fa-linkedin"></i><br>
+                                <small>LinkedIn</small>
+                            </button>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-outline-primary w-100" onclick="copyBadgeLink()">
+                                <i class="fas fa-link"></i><br>
+                                <small>Copy Link</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <label for="shareMessage" class="form-label">Share Message</label>
+                    <textarea class="form-control" id="shareMessage" rows="3" 
+                              placeholder="Add a personal message..."></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Badge filtering and sorting
+$(document).ready(function() {
+    // Category filter for earned badges
+    $('input[name="categoryFilter"]').change(function() {
+        filterEarnedBadges();
+    });
+    
+    // Sort order for earned badges
+    $('input[name="sortOrder"]').change(function() {
+        sortEarnedBadges();
+    });
+    
+    function filterEarnedBadges() {
+        const selectedCategory = $('input[name="categoryFilter"]:checked').val();
+        let visibleCount = 0;
+        
+        $('.badge-item').each(function() {
+            const $item = $(this);
+            const category = $item.data('category');
+            
+            if (selectedCategory === 'all' || category === selectedCategory) {
+                $item.show();
+                visibleCount++;
+            } else {
+                $item.hide();
+            }
+        });
+        
+        $('#earnedEmptyState').toggle(visibleCount === 0);
+    }
+    
+    function sortEarnedBadges() {
+        const sortOrder = $('input[name="sortOrder"]:checked').val();
+        const container = $('#earnedBadgesContainer');
+        const items = container.children('.badge-item').get();
+        
+        items.sort(function(a, b) {
+            const aTime = $(a).data('earned');
+            const bTime = $(b).data('earned');
+            
+            if (sortOrder === 'newest') {
+                return bTime - aTime;
+            } else {
+                return aTime - bTime;
+            }
+        });
+        
+        $.each(items, function(index, item) {
+            container.append(item);
+        });
+    }
+});
+
+// Badge interaction functions
+function viewBadgeDetails(badgeId) {
+    // Show loading state
+    $('#badgeDetailsContent').html(`
+        <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2">Loading badge details...</div>
+        </div>
+    `);
+    
+    $('#badgeDetailsModal').modal('show');
+    
+    // Fetch badge details
+    fetch(`/api/badges/${badgeId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayBadgeDetails(data.badge);
+            } else {
+                $('#badgeDetailsContent').html(`
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Failed to load badge details: ${data.message}
+                    </div>
+                `);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching badge details:', error);
+            $('#badgeDetailsContent').html(`
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    An error occurred while loading badge details.
+                </div>
+            `);
+        });
+}
+
+function displayBadgeDetails(badge) {
+    const content = `
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <div class="badge-display mb-3">
+                    <i class="${badge.icon}" style="font-size: 4rem; color: ${badge.color || '#ffc107'};"></i>
+                    <h4 class="mt-2">${badge.name}</h4>
+                    <span class="badge bg-${badge.category === 'completion' ? 'success' : badge.category === 'performance' ? 'primary' : 'info'}">
+                        ${badge.category.charAt(0).toUpperCase() + badge.category.slice(1)}
+                    </span>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <h5>Description</h5>
+                <p class="text-muted">${badge.description}</p>
+                
+                <h6>Requirements</h6>
+                <ul class="list-unstyled">
+                    ${badge.requirements.map(req => `
+                        <li class="mb-1">
+                            <i class="fas fa-check text-success me-2"></i>
+                            ${req}
+                        </li>
+                    `).join('')}
+                </ul>
+                
+                ${badge.earned_at ? `
+                    <h6>Achievement Details</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted">Earned Date</small>
+                            <div class="fw-bold">${new Date(badge.earned_at).toLocaleDateString()}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Rarity</small>
+                            <div class="fw-bold">${badge.rarity || 'Common'}</div>
+                        </div>
+                    </div>
+                ` : ''}
+                
+                ${badge.statistics ? `
+                    <h6 class="mt-3">Statistics</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted">Total Earned</small>
+                            <div class="fw-bold">${badge.statistics.total_earned}</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Percentage</small>
+                            <div class="fw-bold">${badge.statistics.percentage}%</div>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        </div>
+    `;
+    
+    $('#badgeDetailsContent').html(content);
+}
+
+function shareBadge(badgeId) {
+    // Find badge data (in a real app, this would come from the server)
+    const badgeElement = $(`.badge-item[data-badge-id="${badgeId}"]`);
+    const badgeName = badgeElement.find('.badge-title').text();
+    const badgeIcon = badgeElement.find('.badge-main-icon').attr('class');
+    
+    // Update modal content
+    $('#shareBadgeIcon').html(`<i class="${badgeIcon}" style="font-size: 3rem; color: #ffc107;"></i>`);
+    $('#shareBadgeName').text(badgeName);
+    $('#shareMessage').val(`I just earned the "${badgeName}" badge in my security training! 🏆`);
+    
+    // Store badge ID for sharing functions
+    $('#shareBadgeModal').data('badge-id', badgeId);
+    $('#shareBadgeModal').modal('show');
+}
+
+function shareToSocial(platform) {
+    const badgeId = $('#shareBadgeModal').data('badge-id');
+    const message = $('#shareMessage').val();
+    const badgeName = $('#shareBadgeName').text();
+    const url = `${window.location.origin}/badges/${badgeId}`;
+    
+    let shareUrl = '';
+    
+    switch (platform) {
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}&url=${encodeURIComponent(url)}`;
+            break;
+        case 'linkedin':
+            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+            break;
+    }
+    
+    if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+}
+
+function copyBadgeLink() {
+    const badgeId = $('#shareBadgeModal').data('badge-id');
+    const url = `${window.location.origin}/badges/${badgeId}`;
+    
+    navigator.clipboard.writeText(url).then(function() {
+        showToast('Badge link copied to clipboard!', 'success');
+    }).catch(function() {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = url;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToast('Badge link copied to clipboard!', 'success');
+    });
+}
+
+// Badge animations
+$(document).ready(function() {
+    // Add hover effects to badge cards
+    $('.badge-card').hover(
+        function() {
+            $(this).addClass('shadow-lg').css('transform', 'translateY(-5px)');
+        },
+        function() {
+            $(this).removeClass('shadow-lg').css('transform', 'translateY(0)');
+        }
+    );
+    
+    // Animate new badges
+    $('.badge-new').each(function() {
+        $(this).addClass('animate__animated animate__pulse animate__infinite');
+    });
+});
+</script>
+
+<style>
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff8c00 100%);
+}
+
+.bg-purple {
+    background-color: #6f42c1;
+}
+
+.badge-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.badge-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.badge-available {
+    opacity: 0.7;
+}
+
+.badge-available:hover {
+    opacity: 1;
+}
+
+.badge-icon-wrapper {
+    display: inline-block;
+}
+
+.badge-new {
+    font-size: 0.7rem;
+    border-radius: 10px;
+}
+
+.rank-medal {
+    position: relative;
+}
+
+.rank-number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.rank-number-only {
+    width: 40px;
+}
+
+.leaderboard-item {
+    transition: all 0.3s ease;
+}
+
+.leaderboard-item:hover {
+    transform: translateX(5px);
+}
+
+.stat-card {
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.activity-item {
+    transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.requirements-list {
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.requirement-item {
+    font-size: 0.85rem;
+}
+
+.share-options .btn {
+    border-radius: 12px;
+    padding: 1rem 0.5rem;
+}
+
+.share-options .btn:hover {
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .filter-controls .row {
+        flex-direction: column;
+    }
+    
+    .filter-controls .col-md-6:last-child {
+        margin-top: 1rem;
+    }
+    
+    .badge-card {
+        margin-bottom: 1rem;
+    }
+    
+    .leaderboard-item {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .leaderboard-item .user-stats,
+    .leaderboard-item .user-badges {
+        margin-top: 0.5rem;
+        margin-left: 0 !important;
+    }
+}
+
+/* Animation classes */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.animate__pulse {
+    animation: pulse 2s infinite;
+}
+</style>
+{% endblock %}
