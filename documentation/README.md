@@ -115,7 +115,7 @@ open http://127.0.0.1:5013
 
 ### Admin Access
 - **Email**: admin@tangeralliance.com
-- **Password**: Admin@TangerAlliance2025
+- **Password**: set `TANGER_ADMIN_PASSWORD` before running the seed script
 - **Dashboard**: Full admin controls and analytics
 
 ### Database Status

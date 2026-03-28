@@ -801,7 +801,13 @@ def create_admin_user():
     
     # Créer un nouvel administrateur
     from app import bcrypt
-    hashed_password = bcrypt.generate_password_hash('Admin@TangerAlliance2025').decode('utf-8')
+    admin_password = os.environ.get('TANGER_ADMIN_PASSWORD')
+    if not admin_password:
+        raise RuntimeError(
+            "La variable d'environnement TANGER_ADMIN_PASSWORD doit être définie "
+            "avant l'initialisation du compte administrateur."
+        )
+    hashed_password = bcrypt.generate_password_hash(admin_password).decode('utf-8')
     
     admin = User(
         email='admin@tangeralliance.com',
