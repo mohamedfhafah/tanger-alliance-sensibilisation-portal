@@ -135,7 +135,7 @@ open http://127.0.0.1:5013
 ### Admin Access
 - **URL**: http://127.0.0.1:5013
 - **Email**: admin@tangeralliance.com
-- **Password**: Admin@TangerAlliance2025
+- **Password**: set `TANGER_ADMIN_PASSWORD` before seeding
 
 ### Production Deployment
 1. Copy `.env.production.example` to `.env`

@@ -30,7 +30,7 @@
 - **Primary Database**: `instance/tanger_alliance.db` (188,416 bytes)
 - **Tables**: 15 tables including user, module, quiz, badges, certificates
 - **Data Integrity**: Verified with proper relationships and constraints
-- **Admin Access**: admin@tangeralliance.com / Admin@TangerAlliance2025
+- **Admin Access**: admin@tangeralliance.com / set `TANGER_ADMIN_PASSWORD` before seeding
 
 ### Application Stack
 - **Framework**: Flask with SQLAlchemy ORM

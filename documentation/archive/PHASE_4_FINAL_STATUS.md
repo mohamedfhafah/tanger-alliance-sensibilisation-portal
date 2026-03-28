@@ -58,7 +58,7 @@
 
 ### Security
 - **Authentication**: Secure login/logout with role-based access
-- **Admin Access**: admin@tangeralliance.com / Admin@TangerAlliance2025
+- **Admin Access**: admin@tangeralliance.com / set `TANGER_ADMIN_PASSWORD` before seeding
 - **Protection**: CSRF enabled, secret key configured, XSS prevention
 - **Data Security**: Encrypted passwords, secure session management
 
