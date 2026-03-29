@@ -1,99 +1,58 @@
 {% extends "base.html" %}
-{% from "macros/quiz_macros.html" import render_quiz_button %}
+{% from "macros/module_macros.html" import module_card %}
 
 {% block title %}{{ title }}{% endblock %}
+{% block header_wrapper %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-2">
-        <div class="col-sm-6">
-            <h1>{{ title }}</h1>
+<section class="ta-route-shell">
+    <header class="ta-route-header">
+        <div class="ta-route-header-copy">
+            <p class="ta-route-eyebrow">Modules Overview</p>
+            <h1 class="ta-route-title">{{ title }}</h1>
+            <p class="ta-route-subtitle">
+                Vue consolidée des parcours, de leur état d’avancement et des actions à lancer pour chaque module.
+            </p>
         </div>
-        <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Accueil</a></li>
-                <li class="breadcrumb-item active">{{ title }}</li>
-            </ol>
+        <div class="ta-route-meta">
+            <span class="ta-pill-badge ta-pill-badge--blue">{{ modules|length }} module{{ 's' if modules|length != 1 else '' }}</span>
         </div>
-    </div>
+    </header>
 
-    <div class="row">
+    <article class="ta-surface-card">
+        <div class="ta-stat-strip">
+            {% set completed_count = user_progress.values() | selectattr('completed', 'equalto', True) | list | length if user_progress is mapping else 0 %}
+            {% set started_count = user_progress.values() | rejectattr('completed', 'equalto', True) | list | length if user_progress is mapping else 0 %}
+            <div class="ta-stat-tile">
+                <p class="ta-stat-label">Modules complétés</p>
+                <p class="ta-stat-value">{{ completed_count }}</p>
+            </div>
+            <div class="ta-stat-tile">
+                <p class="ta-stat-label">Modules en cours</p>
+                <p class="ta-stat-value">{{ started_count }}</p>
+            </div>
+            <div class="ta-stat-tile">
+                <p class="ta-stat-label">Parcours total</p>
+                <p class="ta-stat-value">{{ modules|length }}</p>
+            </div>
+        </div>
+    </article>
+
+    <div class="row g-4">
         {% if modules %}
             {% for module in modules %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 shadow module-card position-relative" style="border-radius: 10px; overflow: hidden;">
-                    <div class="card-header py-2 {% if progress and progress.completed %}bg-success{% elif progress and progress.started_at %}bg-warning{% else %}bg-light{% endif %}"></div>
-                    <div class="card-body d-flex flex-column">
-                        {% set progress = user_progress.get(module.id) %}
-                        
-                        <div class="module-icon mb-3 text-center">
-                            <i class="{{ module.icon_class or 'fas fa-book' }} fa-2x {% if progress and progress.completed %}text-success{% elif progress and progress.started_at %}text-warning{% else %}text-secondary{% endif %}"></i>
-                        </div>
-                        
-                        <h5 class="card-title text-primary fw-bold">{{ module.title }}</h5>
-                        
-                        <p class="card-text text-muted">{{ module.description }}</p>
-                        
-                        <div class="module-meta mt-2 mb-3 small">
-                            <div><i class="fas fa-clock me-1"></i> Durée: {{ module.estimated_time or '30' }} min</div>
-                            {% if module.quiz_id %}
-                            <div><i class="fas fa-question-circle me-1"></i> Quiz inclus</div>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="mt-auto">
-                            {% if progress and progress.completed %}
-                                <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ progress.score|default(100)|round(0) }}%;" aria-valuenow="{{ progress.score|default(100)|round(0) }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <p class="d-flex justify-content-between align-items-center text-success mb-1">
-                                    <span><i class="fas fa-check-circle me-1"></i> Complété</span>
-                                    <span class="badge bg-success">{{ progress.score|default(100)|round(1) }}%</span>
-                                </p>
-                            {% elif progress and progress.started_at %}
-                                <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ progress.score|default(50)|round(0) }}%;" aria-valuenow="{{ progress.score|default(50)|round(0) }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <p class="d-flex justify-content-between align-items-center text-warning mb-1">
-                                    <span><i class="fas fa-hourglass-half me-1"></i> En cours</span>
-                                    {% if progress.score is not none %}
-                                    <span class="badge bg-warning text-dark">{{ progress.score|round(1) }}%</span>
-                                    {% endif %}
-                                </p>
-                            {% else %}
-                                <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-secondary" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <p class="d-flex justify-content-between align-items-center text-secondary mb-1">
-                                    <span><i class="fas fa-play-circle me-1"></i> Non commencé</span>
-                                    <span class="badge bg-secondary">0%</span>
-                                </p>
-                            {% endif %}
-                            
-                            <div class="action-buttons d-flex justify-content-between align-items-center mt-3 gap-2">
-                                <a href="{{ url_for('main.view_module', module_id=module.id) }}" class="btn btn-primary flex-grow-1" style="border-radius: 6px; transition: all 0.3s ease;">
-                                    <i class="fas fa-book-reader me-1"></i> Voir le module
-                                </a>
-                                {% if module.quiz_id %}
-                                    {% if render_quiz_button(module, progress, module_overview=True) %}
-                                        {{ render_quiz_button(module, progress, module_overview=True)|replace('btn-sm', 'flex-grow-1')|replace('btn-outline-', 'btn-') }}
-                                    {% else %}
-                                        <a href="{{ url_for('main.view_quiz', quiz_id=module.quiz_id) }}" class="btn btn-success flex-grow-1" style="border-radius: 6px; transition: all 0.3s ease;">
-                                            <i class="fas fa-question-circle me-1"></i> Quiz
-                                        </a>
-                                    {% endif %}
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                {{ module_card(module, user_progress) }}
             {% endfor %}
         {% else %}
             <div class="col-12">
-                <p class="text-center text-muted">Aucun module n'est actuellement disponible.</p>
+                <div class="alert alert-info ta-alert" role="alert">
+                    <div class="ta-alert-copy">
+                        <i class="fas fa-circle-info" aria-hidden="true"></i>
+                        <span>Aucun module n'est actuellement disponible.</span>
+                    </div>
+                </div>
             </div>
         {% endif %}
     </div>
-</div>
+</section>
 {% endblock %}

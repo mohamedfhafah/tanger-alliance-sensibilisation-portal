@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Créer un quiz{% endblock %}
+{% block header_wrapper %}{% endblock %}
+
+{% block content %}
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">Admin Quiz</p>
+      <h1 class="ta-route-title">Créer un quiz</h1>
+      <p class="ta-route-subtitle">Associez un nouveau quiz à un module et définissez immédiatement son seuil de validation.</p>
+    </div>
+    <div class="ta-route-meta">
+      <a href="{{ url_for('admin_portal.modules') }}" class="btn btn-outline-primary">Retour aux modules</a>
+    </div>
+  </header>
+
+  <article class="ta-surface-card">
+    <form method="POST" class="ta-form-stack">
+      {{ form.hidden_tag() }}
+      {% for field in form if field.type != 'CSRFTokenField' and field.name != 'submit' %}
+        <div class="ta-form-field">
+          {{ field.label }}
+          {{ field(class="form-control") }}
+          {% if field.errors %}
+            <div class="invalid-feedback d-block">
+              {% for error in field.errors %}
+                <span>{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <div class="ta-inline-actions">
+        <button type="submit" class="btn btn-primary">Créer le quiz</button>
+        <a href="{{ url_for('admin_portal.modules') }}" class="btn btn-outline-primary">Annuler</a>
+      </div>
+    </form>
+  </article>
+</section>
+{% endblock %}

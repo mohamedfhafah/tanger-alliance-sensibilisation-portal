@@ -135,7 +135,10 @@ def view(module_id):
         template_name = 'modules/password_module.html'
     elif 'phishing' in module_title_lower or 'hameçonnage' in module_title_lower:
         template_name = 'modules/phishing_awareness.html'
-    elif 'vulnérabilit' in module_title_lower or 'vulnerability' in module_title_lower:
+    elif ('vuln' in module_title_lower  # match any word starting with "vuln" (vulnérabilité, vulnerability, etc.)
+          or 'vulnerability' in module_title_lower
+          or 'vulnérabilit' in module_title_lower
+          or module.id == 3):  # explicit fallback by ID for the Vulnerability Management module
         template_name = 'modules/vulnerability_management.html'
     elif 'données' in module_title_lower or 'data' in module_title_lower:
         template_name = 'modules/data_protection_module.html'
@@ -225,21 +228,31 @@ def quiz(module_id):
         db.session.add(progress)
         db.session.commit()
     
-    # Si l'utilisateur a déjà complété ce quiz et ne demande pas à le refaire, rediriger vers les résultats
-    retaking = request.args.get('retaking', 'false') == 'true'
+    # Vérifier si l'utilisateur est en train de refaire un quiz (suite à l'appel de retake_quiz)
+    retaking = request.args.get('retaking', 'false') == 'true' or session.get('retaking_quiz', False)
     force_quiz = request.args.get('force', 'false') == 'true'
     
-    # Vérifier si l'utilisateur est en train de refaire un quiz (suite à l'appel de retake_quiz)
+    # Si l'utilisateur vient de cliquer sur "Refaire le quiz", initialiser la session
     if retaking and 'previous_completion' not in session:
         # Stocker l'historique de complétion dans la session pour le rétablir si nécessaire
-        session['previous_completion'] = {
-            'module_id': module_id,
-            'completed': progress.completed,
-            'score': progress.score,
-            'completed_at': progress.completed_at.isoformat() if progress.completed_at else None
-        }
-        session['retaking_quiz'] = True
-        current_app.logger.info(f'User {current_user.id} accessing quiz for module {module_id} for retake. Previous completion status stored.')
+        try:
+            completed_at_str = progress.completed_at.isoformat() if progress.completed_at else None
+            session['previous_completion'] = {
+                'module_id': module_id,
+                'completed': progress.completed,
+                'score': progress.score,
+                'completed_at': completed_at_str
+            }
+            session['retaking_quiz'] = True
+            current_app.logger.info(f'User {current_user.id} accessing quiz for module {module_id} for retake. Previous completion status stored.')
+        except Exception as e:
+            current_app.logger.error(f'Error storing previous completion status: {str(e)}')
+            session['previous_completion'] = {
+                'module_id': module_id,
+                'completed': progress.completed,
+                'score': progress.score,
+                'completed_at': None
+            }
     
     # Si l'utilisateur a déjà complété ce quiz et ne demande pas à le refaire ou ne force pas l'affichage, rediriger vers les résultats
     if progress.completed and progress.score is not None and progress.score >= quiz.passing_score and not retaking and not force_quiz:
@@ -313,9 +326,9 @@ def submit_quiz(module_id):
                 'question_text': question.content,
                 'user_answer': user_choice.content if user_choice else "Aucune réponse",
                 'correct_answer': correct_choice.content if correct_choice else "Inconnue",
-            'is_correct': is_correct,
-            'feedback': "Bonne réponse!" if is_correct else "Réponse incorrecte. Revoyez cette section du module."
-        })
+                'is_correct': is_correct,
+                'feedback': "Bonne réponse!" if is_correct else "Réponse incorrecte. Revoyez cette section du module."
+            })
     
         # Calculer le pourcentage
         percentage = round((score / total_questions) * 100, 1) if total_questions > 0 else 0
@@ -323,11 +336,13 @@ def submit_quiz(module_id):
         
         # Mettre à jour la progression de l'utilisateur (UserProgress pour compatibilité)
         progress = UserProgress.query.filter_by(user_id=current_user.id, module_id=module.id).first()
-        
+        # Si l'utilisateur n'a pas encore de progression pour ce module (par exemple, accès direct au quiz)
         if not progress:
-            current_app.logger.error(f'No progress found for user {current_user.id}, module {module_id}')
-            flash('Erreur: progression utilisateur non trouvée.', 'error')
-            return redirect(url_for('modules.quiz', module_id=module_id))
+            current_app.logger.warning(
+                f'Création automatique d\'une progression pour l\'utilisateur {current_user.id} et le module {module_id}.'
+            )
+            progress = UserProgress(user_id=current_user.id, module_id=module.id, started_at=db.func.now())
+            db.session.add(progress)
         
         # Mettre à jour ou créer QuizProgress pour le quiz spécifique
         quiz_progress = QuizProgress.query.filter_by(user_id=current_user.id, quiz_id=quiz.id).first()
@@ -336,17 +351,22 @@ def submit_quiz(module_id):
             quiz_progress = QuizProgress(user_id=current_user.id, quiz_id=quiz.id)
             db.session.add(quiz_progress)
         
-        # Incrémenter le nombre de tentatives
-        quiz_progress.attempts += 1
+        # Incrémenter le nombre de tentatives (assurer qu'il est initialisé)
+        if quiz_progress.attempts is None:
+            quiz_progress.attempts = 1
+        else:
+            quiz_progress.attempts += 1
         
         # Vérifier si l'utilisateur est en train de refaire un quiz
         is_retaking = session.get('retaking_quiz', False)
         previous_completion = session.get('previous_completion', {})
+        # Score précédent sauvegardé, utilisé quel que soit le chemin d'exécution suivant
+        previous_score = previous_completion.get('score')
         
         if progress:
             # Cas de reprise d'un quiz avec un état de complétion précédent
             if is_retaking and previous_completion and str(module.id) == str(previous_completion.get('module_id')):
-                previous_score = previous_completion.get('score')
+                # previous_score déjà défini plus haut
                 
                 # Mettre à jour QuizProgress avec le nouveau score
                 quiz_progress.score = percentage
@@ -440,12 +460,6 @@ def submit_quiz(module_id):
         
         db.session.commit() # Commit après toutes les modifications
         
-        # Nettoyer les variables de session liées à la reprise du quiz
-        if 'retaking_quiz' in session:
-            del session['retaking_quiz']
-        if 'previous_completion' in session:
-            del session['previous_completion']
-        
         # Stocker les réponses dans la session pour l'affichage des résultats
         session['quiz_answers'] = answers
         session['quiz_score'] = percentage
@@ -462,6 +476,15 @@ def submit_quiz(module_id):
         current_app.logger.error(f'Error in quiz submission for user {current_user.id}, module {module_id}: {str(e)}')
         flash('Une erreur est survenue lors de la soumission du quiz. Veuillez réessayer.', 'error')
         return redirect(url_for('modules.quiz', module_id=module_id))
+    finally:
+        # Toujours nettoyer les variables de session liées à la reprise du quiz
+        # même en cas d'erreur ou de redirection anticipée
+        if 'retaking_quiz' in session:
+            del session['retaking_quiz']
+            current_app.logger.info(f'Cleaned retaking_quiz session variable for user {current_user.id}')
+        if 'previous_completion' in session:
+            del session['previous_completion']
+            current_app.logger.info(f'Cleaned previous_completion session variable for user {current_user.id}')
 
 @modules.route('/<int:module_id>/congratulations')
 @login_required
@@ -574,8 +597,9 @@ def certificate():
     if not user_progress:
         flash('Vous devez compléter au moins un module pour obtenir votre certificat.', 'warning')
         return redirect(url_for('modules.index'))
-    # Calcul du score moyen
-    avg_score = sum(p.score for p in user_progress) / len(user_progress)
+    # Calcul du score moyen en excluant les scores None
+    scores = [p.score for p in user_progress if p.score is not None]
+    avg_score = sum(scores) / len(scores) if scores else 0
     # Modules complétés et badges
     module_ids = [p.module_id for p in user_progress]
     completed_modules = Module.query.filter(Module.id.in_(module_ids)).all()

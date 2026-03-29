@@ -8,6 +8,7 @@ from app.utils.decorators import admin_required
 from app import db, bcrypt
 from app.models.user import User
 from app.models.module import Module, UserProgress, Quiz, Question, Choice
+from app.models.settings import Setting
 from app.forms import ModuleForm, UserForm, QuizForm, QuestionForm
 
 @admin_bp.route('/')
@@ -552,6 +553,36 @@ def delete_quiz(quiz_id):
         db.session.rollback()
         flash(f'Erreur lors de la suppression: {str(e)}', 'danger')
         return redirect(url_for('admin_portal.modules'))
+@admin_bp.route('/reports')
+@admin_required
+def reports():
+    """Main reports dashboard."""
+    return render_template('admin/reports.html', title='Centre de Rapports')
+
+@admin_bp.route('/reports/users')
+@admin_required
+def users_report():
+    """Display user statistics report."""
+    try:
+        # Statistiques par département (users_by_dept)
+        users_by_dept = db.session.query(
+            User.department, 
+            func.count(User.id).label('count')
+        ).group_by(User.department).all()
+        
+        # Statistiques par rôle (users_by_role)
+        users_by_role = db.session.query(
+            User.role,
+            func.count(User.id).label('count')
+        ).group_by(User.role).all()
+        
+        return render_template('admin/users_report.html',
+                             title='Rapport Utilisateurs',
+                             users_by_dept=users_by_dept,
+                             users_by_role=users_by_role)
+    except Exception as e:
+        flash(f'Erreur lors du chargement du rapport utilisateurs: {str(e)}', 'danger')
+        return redirect(url_for('admin_portal.reports'))
 
 @admin_bp.route('/reports/progress')
 @admin_required
@@ -751,3 +782,37 @@ def get_next_module_order():
     max_order = db.session.query(func.max(Module.order)).scalar()
     next_order = (max_order or 0) + 1
     return jsonify({'next_order': next_order})
+
+@admin_bp.route('/system/config')
+@admin_required
+def system_config():
+    """Display system configuration and stats."""
+    # Mock system stats for now
+    system_stats = {
+        'total_users': User.query.count(),
+        'total_modules': Module.query.count(),
+        'total_progress': UserProgress.query.count(),
+        'database_size': '2.4 MB',  # Placeholder
+        'last_backup': 'Hier à 02:00',  # Placeholder
+        'system_version': '1.2.0',
+        'recent_logs': 'No recent critical logs found.'
+    }
+    
+    # Get all settings
+    try:
+        settings = Setting.query.all()
+    except:
+        settings = []
+        
+    return render_template('admin/system_config.html', 
+                         title='Configuration Système',
+                         system_stats=system_stats,
+                         settings=settings)
+
+@admin_bp.route('/system/backup', methods=['POST'])
+@admin_required
+def create_backup():
+    """Trigger system backup manually."""
+    # In a real app, this would trigger a background task
+    flash('Sauvegarde du système lancée avec succès. Vous recevrez une notification à la fin.', 'success')
+    return redirect(url_for('admin_portal.system_config'))

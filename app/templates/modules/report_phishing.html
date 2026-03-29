@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Signaler un Phishing{% endblock %}
+{% block header_wrapper %}{% endblock %}
+
+{% block content %}
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">Security Intake</p>
+      <h1 class="ta-route-title">Signaler une tentative de phishing</h1>
+      <p class="ta-route-subtitle">
+        Centralisez l’expéditeur, l’objet et le contexte de l’email suspect afin d’accélérer l’analyse de l’équipe sécurité.
+      </p>
+    </div>
+    <div class="ta-route-meta">
+      <span class="ta-pill-badge ta-pill-badge--red">Signalement prioritaire</span>
+      <span class="ta-pill-badge ta-pill-badge--blue">Triage sécurité</span>
+    </div>
+  </header>
+
+  <div class="ta-route-grid ta-route-grid--sidebar">
+    <article class="ta-surface-card">
+      <div class="ta-surface-card-header">
+        <div>
+          <p class="ta-surface-kicker">Incident form</p>
+          <h2 class="ta-surface-title">Déclarer le message suspect</h2>
+        </div>
+      </div>
+      <form method="POST" class="ta-form-stack">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="ta-form-field">
+          <label for="email_sender">Expéditeur suspect</label>
+          <input id="email_sender" name="email_sender" type="text" class="form-control" placeholder="exemple@domaine-suspect.com" required>
+          <p class="ta-form-note">Indiquez l’adresse réellement visible dans l’email reçu.</p>
+        </div>
+
+        <div class="ta-form-field">
+          <label for="email_subject">Objet du message</label>
+          <input id="email_subject" name="email_subject" type="text" class="form-control" placeholder="Objet exact de l’email" required>
+        </div>
+
+        <div class="ta-form-field">
+          <label for="description">Contexte et indices observés</label>
+          <textarea id="description" name="description" class="form-control" rows="8" placeholder="Décrivez les indices observés: urgence inhabituelle, lien suspect, demande d’identifiants, pièce jointe..." required></textarea>
+        </div>
+
+        <div class="ta-inline-actions">
+          <button type="submit" class="btn btn-primary">Envoyer le signalement</button>
+          <a href="{{ url_for('security.contact') }}" class="btn btn-outline-primary">Contacter l’équipe sécurité</a>
+        </div>
+      </form>
+    </article>
+
+    <aside class="ta-route-grid">
+      <div class="ta-note-panel">
+        <h3>Bon réflexe</h3>
+        <p>Ne transférez pas le message à d’autres collègues sans signaler le risque. Prenez une capture si nécessaire.</p>
+      </div>
+      <div class="ta-note-panel">
+        <h3>À inclure</h3>
+        <p>Expéditeur, objet exact, action demandée, lien visible, pièce jointe et impact potentiel sur l’exploitation.</p>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

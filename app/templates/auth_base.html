@@ -1,74 +1,103 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="dark">
 <head>
+  <script>
+    (function() {
+      var storedTheme = localStorage.getItem('theme');
+      var theme = storedTheme || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{% endblock %} - Tanger Alliance Security</title>
   <link rel="icon" href="{{ url_for('static', filename='images/tanger-alliance-logo.png') }}">
 
-  <!-- Google Font: Source Sans Pro -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <!-- Font Awesome -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/plugins/fontawesome-free/css/all.min.css') }}">
-  <!-- icheck bootstrap -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/plugins/icheck-bootstrap/icheck-bootstrap.min.css') }}">
-  <!-- Theme style -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='adminlte/dist/css/adminlte.min.css') }}">
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-design-system.css') }}">
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-  <div class="login-logo">
-    <a href="{{ url_for('main.home') }}">
-      <img src="{{ url_for('static', filename='images/tanger-alliance-logo.png') }}" alt="Tanger Alliance Logo" style="width: 200px; max-width: 80%; height: auto;">
-    </a>
-  </div>
-  <!-- /.login-logo -->
-  <div class="card card-outline card-primary">
-    <div class="card-header text-center">
-      <a href="{{ url_for('main.home') }}" class="h1"><b>Portail</b> Sécurité</a>
-    </div>
-    <div class="card-body login-card-body">
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<body class="ta-auth-body">
+  <div class="ta-auth-layout">
+    <section class="ta-auth-panel ta-auth-panel-brand">
+      <a href="{{ url_for('main.home') }}" class="ta-auth-brandmark">
+        <img src="{{ url_for('static', filename='images/tanger-alliance-logo.png') }}" alt="Logo Tanger Alliance">
+        <div>
+          <span>Tanger Alliance</span>
+          <small>Security Awareness Portal</small>
+        </div>
+      </a>
+
+      <div class="ta-auth-hero">
+        <p class="ta-auth-kicker">Cyber Resilience</p>
+        <h1>Une expérience de formation élégante, sécurisée & réellement opérationnelle.</h1>
+        <p>
+          Accédez aux modules, simulations et indicateurs qui renforcent la vigilance des équipes portuaires face aux menaces numériques.
+        </p>
+      </div>
+
+      <div class="ta-auth-benefits">
+        <div>
+          <strong>Modules ciblés</strong>
+          <span>Parcours pensés pour les opérations critiques, la conformité & la réponse aux incidents.</span>
+        </div>
+        <div>
+          <strong>Simulations réalistes</strong>
+          <span>Phishing, scénarios métiers & validation des réflexes avant impact réel.</span>
+        </div>
+        <div>
+          <strong>Suivi unifié</strong>
+          <span>Scores, progression et preuves d’engagement au même endroit.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="ta-auth-panel ta-auth-panel-form">
+      <div class="ta-auth-card">
+        <div class="ta-auth-card-head">
+          <p class="ta-auth-kicker">Secure Access</p>
+          <h2>Portail Sécurité</h2>
+          {% block page_title_auth %}
+          <p>Connectez-vous pour accéder au poste de pilotage cybersécurité.</p>
+          {% endblock %}
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="ta-flash-stack ta-auth-flash-stack" aria-live="polite">
+              {% for category, message in messages %}
+                <div class="alert alert-{{ 'danger' if category == 'error' else category }} ta-alert" role="alert">
+                  <div class="ta-alert-copy">
+                    <i class="fas fa-circle-info" aria-hidden="true"></i>
+                    <span>{{ message }}</span>
+                  </div>
+                  <button type="button" class="close ta-alert-close" data-dismiss="alert" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+              {% endfor %}
             </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-      
-      {% block page_title_auth %}
-      <p class="login-box-msg">
-        {% if self.title() %}
-          {{ self.title() | replace(" - Tanger Alliance Security", "") }}
-        {% else %}
-          Connectez-vous pour démarrer votre session
-        {% endif %}
-      </p>
-      {% endblock %}
+          {% endif %}
+        {% endwith %}
 
-      {% block auth_content %}{% endblock %}
+        <div class="ta-auth-card-body">
+          {% block auth_content %}{% endblock %}
+        </div>
 
-    </div>
-    <!-- /.login-card-body -->
-    <div class="card-footer text-center">
-        {% block auth_footer_links %}{% endblock %}
-    </div>
+        <div class="ta-auth-card-footer">
+          {% block auth_footer_links %}{% endblock %}
+        </div>
+      </div>
+    </section>
   </div>
-</div>
-<!-- /.login-box -->
 
-<!-- jQuery -->
-<script src="{{ url_for('static', filename='adminlte/plugins/jquery/jquery.min.js') }}"></script>
-<!-- Bootstrap 4 -->
-<script src="{{ url_for('static', filename='adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-<!-- AdminLTE App -->
-<script src="{{ url_for('static', filename='adminlte/dist/js/adminlte.min.js') }}"></script>
-{% block scripts %}{% endblock %}
+  <script src="{{ url_for('static', filename='adminlte/plugins/jquery/jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dark-mode.js') }}"></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -5,7 +5,7 @@ Gestion des campagnes, envoi, tracking et résultats
 
 from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify, current_app
 from flask_login import login_required, current_user
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, time
 from sqlalchemy import func, desc, and_
 import uuid
 import json
@@ -13,6 +13,7 @@ import json
 from app import db
 from app.models.user import User
 from app.models.campaign import Campaign, PhishingSimulation, PhishingTarget
+from app.models.module import Module
 from app.models.simulation import SimulationAttempt
 from app.forms import PhishingCampaignForm
 from app.utils.decorators import admin_required
@@ -90,15 +91,33 @@ def new_campaign():
     # Charger les utilisateurs pour la sélection des cibles
     users = User.query.filter(User.role != 'admin').all()
     departments = db.session.query(User.department).distinct().all()
+    department_choices = [(dept[0], dept[0]) for dept in departments if dept[0]]
+    user_choices = [(str(user.id), f'{user.firstname} {user.lastname} ({user.department or "N/A"})') for user in users]
+
+    form.template.choices = [(key, value['name']) for key, value in PHISHING_TEMPLATES.items()]
+    form.target_departments.choices = department_choices
+    form.department.choices = [('', 'Sélectionner un département')] + department_choices
+    form.target_users.choices = user_choices
     
     if form.validate_on_submit():
+        start_at = (
+            datetime.combine(form.start_date.data, time.min, tzinfo=timezone.utc)
+            if form.start_date.data
+            else datetime.now(timezone.utc)
+        )
+        end_at = (
+            datetime.combine(form.end_date.data, time.max, tzinfo=timezone.utc)
+            if form.end_date.data
+            else None
+        )
+
         # Créer la campagne
         campaign = Campaign(
             name=form.name.data,
             type='Phishing Email',
-            description=form.description.data,
-            start_date=form.start_date.data or datetime.now(timezone.utc),
-            end_date=form.end_date.data,
+            description=form.description.data or '',
+            start_date=start_at,
+            end_date=end_at,
             status='active'
         )
         db.session.add(campaign)
@@ -109,7 +128,7 @@ def new_campaign():
             campaign_id=campaign.id,
             title=form.simulation_title.data,
             template=form.template.data,
-            description=form.simulation_description.data
+            description=form.simulation_description.data or ''
         )
         db.session.add(simulation)
         db.session.flush()  # Pour obtenir l'ID de la simulation
@@ -222,6 +241,7 @@ def simulate_email(template_key, token):
 def handle_click(target_id):
     """Gère le clic sur un lien de phishing"""
     target = PhishingTarget.query.get_or_404(target_id)
+    phishing_module = Module.query.filter(Module.title.ilike('%phishing%')).first()
     
     # Marquer comme cliqué
     if not target.clicked:
@@ -243,12 +263,14 @@ def handle_click(target_id):
     # Rediriger vers la page éducative
     return render_template('phishing/educative_click.html',
                          title='Attention - Simulation de Phishing',
-                         target=target)
+                         target=target,
+                         phishing_module=phishing_module)
 
 @phishing.route('/report/<int:target_id>')
 def handle_report(target_id):
     """Gère le signalement d'un email de phishing"""
     target = PhishingTarget.query.get_or_404(target_id)
+    phishing_module = Module.query.filter(Module.title.ilike('%phishing%')).first()
     
     # Marquer comme signalé
     if not target.reported:
@@ -270,7 +292,8 @@ def handle_report(target_id):
     # Rediriger vers la page de félicitations
     return render_template('phishing/educative_report.html',
                          title='Félicitations - Bon Réflexe!',
-                         target=target)
+                         target=target,
+                         phishing_module=phishing_module)
 
 @phishing.route('/api/campaign/<int:campaign_id>/send', methods=['POST'])
 @login_required

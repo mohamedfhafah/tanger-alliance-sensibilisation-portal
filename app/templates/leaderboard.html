@@ -1,146 +1,186 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Leaderboard - Tanger Alliance Security{% endblock %}
+{% block header_wrapper %}{% endblock %}
 
 {% block content %}
-<div class="card">
-  <div class="card-header d-flex justify-content-between align-items-center">
-    <h3 class="card-title"><i class="fas fa-trophy"></i> Leaderboard</h3>
-    <div>
-      <a href="{{ url_for('main.leaderboard', period='all') }}" class="btn btn-sm {% if period=='all' %}btn-primary{% else %}btn-outline-secondary{% endif %}">All Time</a>
-      <a href="{{ url_for('main.leaderboard', period='monthly') }}" class="btn btn-sm {% if period=='monthly' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Monthly</a>
-      <a href="{{ url_for('main.leaderboard', period='weekly') }}" class="btn btn-sm {% if period=='weekly' %}btn-primary{% else %}btn-outline-secondary{% endif %}">Weekly</a>
-    </div>
-  </div>
-  <div class="card-body">
-    <form method="get" class="form-inline mb-3">
-      <input type="hidden" name="period" value="{{ period }}">
-      <div class="input-group mr-2">
-        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Recherche utilisateur">
-        <div class="input-group-append">
-          <button class="btn btn-outline-secondary" type="submit"><i class="fas fa-search"></i></button>
-        </div>
-      </div>
-      <select name="category" class="form-control mr-2">
-        <option value="all" {% if category=='all' %}selected{% endif %}>Toutes catégories</option>
-        <option value="password" {% if category=='password' %}selected{% endif %}>Mots de passe</option>
-        <option value="phishing" {% if category=='phishing' %}selected{% endif %}>Phishing</option>
-        <option value="network" {% if category=='network' %}selected{% endif %}>Réseau</option>
-        <option value="vulnerability" {% if category=='vulnerability' %}selected{% endif %}>Vulnérabilités</option>
-        <option value="data" {% if category=='data' %}selected{% endif %}>Données</option>
-        <option value="mobile" {% if category=='mobile' %}selected{% endif %}>Mobile</option>
-      </select>
-      <button type="submit" class="btn btn-primary">Filtrer</button>
-    </form>
-    <div class="table-responsive p-0">
-      <table class="table table-hover text-nowrap">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>User</th>
-            <th>Modules</th>
-            <th>Avg Score</th>
-            <th>Badges</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for item in stats %}
-          {% set is_current = item.user.id == current_user.id %}
-          <tr class="{% if is_current %}table-primary{% endif %}">
-            <td>
-              {% if item.rank == 1 %}🥇
-              {% elif item.rank == 2 %}🥈
-              {% elif item.rank == 3 %}🥉
-              {% else %}{{ item.rank }}{% endif %}
-            </td>
-            <td class="user-cell" data-toggle="popover" data-trigger="hover" data-html="true" data-user-id="{{ item.user.id }}">
-              {% if item.user.profile_picture %}
-                <img src="{{ url_for('static', filename='profile_pics/' + item.user.profile_picture) }}" class="img-circle elevation-2 mr-2" alt="Avatar" style="width:30px;height:30px;object-fit:cover;">
-              {% endif %}
-              {{ item.user.firstname or item.user.email.split('@')[0] }}
-            </td>
-            <td>{{ item.completed }}/{{ total_modules }}</td>
-            <td>
-              <span class="badge {% if item.avg_score >= 90 %}badge-success{% elif item.avg_score >= 70 %}badge-warning{% else %}badge-danger{% endif %}">{{ item.avg_score|round(1) }}%</span>
-            </td>
-            <td><span data-toggle="tooltip" title="{{ item.badges }} badge(s)">🏅{{ item.badges }}</span></td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-  <!-- Pagination -->
-  <div class="card-footer clearfix">
-    <ul class="pagination pagination-sm m-0 float-right">
-      <li class="page-item {% if page<=1 %}disabled{% endif %}"><a class="page-link" href="?period={{period}}&category={{category}}&q={{q}}&page={{page-1}}">&laquo;</a></li>
-      {% for p in range(1, pages+1) %}
-      <li class="page-item {% if p==page %}active{% endif %}"><a class="page-link" href="?period={{period}}&category={{category}}&q={{q}}&page={{p}}">{{p}}</a></li>
-      {% endfor %}
-      <li class="page-item {% if page>=pages %}disabled{% endif %}"><a class="page-link" href="?period={{period}}&category={{category}}&q={{q}}&page={{page+1}}">&raquo;</a></li>
-    </ul>
-    <div id='loading' class='text-center my-2' style='display:none;'>
-      <span class='spinner-border spinner-border-sm'></span> Chargement...
-    </div>
-  </div>
-</div>
-{% endblock %}
+{% set period_labels = {'all': 'Global', 'monthly': '30 jours', 'weekly': '7 jours'} %}
+{% set category_labels = {
+  'all': 'Toutes catégories',
+  'password': 'Mots de passe',
+  'phishing': 'Phishing',
+  'network': 'Réseau',
+  'vulnerability': 'Vulnérabilités',
+  'data': 'Données',
+  'mobile': 'Mobile'
+} %}
 
-{% block scripts %}
-{{ super() }}
-<script>
-  /* eslint-disable */
-  // Initialize tooltips on badge icons
-  $(function() {
-    $('[data-toggle="tooltip"]').tooltip();
-  });
-  // Infinite scroll logic
-  var totalModules = {{ total_modules|tojson }};
-  var currentPage = {{ page|tojson }};
-  var totalPages = {{ pages|tojson }};
-  var loading = false;
-  $(window).scroll(function() {
-    if (!loading && currentPage < totalPages && $(window).scrollTop() + $(window).height() > $(document).height() - 100) {
-      loading = true;
-      $('#loading').show();
-      $.getJSON('{{ url_for("main.leaderboard") }}?period={{ period }}&category={{ category }}&q={{ q }}&page=' + (currentPage+1) + '&format=json', function(data) {
-        data.stats.forEach(item => {
-          const trClass = item.is_current ? 'table-primary' : '';
-          const badgeClass = item.avg_score >= 90 ? 'badge-success' : item.avg_score >= 70 ? 'badge-warning' : 'badge-danger';
-          const avgScoreRounded = parseFloat(item.avg_score).toFixed(1); // Ensures X.X format
-          const row = `
-            <tr class="${trClass}">
-              <td>${item.rank}</td>
-              <td class="user-cell" data-toggle="popover" data-trigger="hover" data-html="true" data-user-id="${item.user.id}">${item.username}</td>
-              <td>${item.completed}/${totalModules}</td>
-              <td><span class="badge ${badgeClass}">${avgScoreRounded}%</span></td>
-              <td><span data-toggle="tooltip" title="${item.badges} badge(s)">🏅${item.badges}</span></td>
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">Ranking Console</p>
+      <h1 class="ta-route-title">Classement des utilisateurs</h1>
+      <p class="ta-route-subtitle">
+        Vue comparative des progrès, scores moyens et badges sur la période sélectionnée.
+      </p>
+    </div>
+    <div class="ta-route-meta">
+      <span class="ta-pill-badge ta-pill-badge--teal">{{ period_labels.get(period, 'Global') }}</span>
+      <span class="ta-pill-badge ta-pill-badge--blue">{{ category_labels.get(category, 'Toutes catégories') }}</span>
+      <span class="ta-pill-badge ta-pill-badge--slate">{{ stats|length }} utilisateurs</span>
+    </div>
+  </header>
+
+  <div class="ta-stat-strip">
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Période</p>
+      <p class="ta-stat-value">{{ period_labels.get(period, 'Global') }}</p>
+    </div>
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Modules suivis</p>
+      <p class="ta-stat-value">{{ total_modules }}</p>
+    </div>
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Page courante</p>
+      <p class="ta-stat-value">{{ page }}/{{ pages }}</p>
+    </div>
+  </div>
+
+  <article class="ta-surface-card ta-toolbar">
+    <div class="ta-surface-card-header">
+      <div>
+        <p class="ta-surface-kicker">Filtres</p>
+        <h2 class="ta-surface-title">Affiner le classement</h2>
+      </div>
+    </div>
+    <form method="get" class="ta-filter-form">
+      <div class="ta-filter-grid">
+        <div class="ta-field-shell">
+          <label for="leaderboard-search">Recherche utilisateur</label>
+          <div class="ta-input-shell">
+            <i class="fas fa-search" aria-hidden="true"></i>
+            <input id="leaderboard-search" type="text" name="q" value="{{ q }}" placeholder="Nom ou email">
+          </div>
+        </div>
+
+        <div class="ta-field-shell">
+          <label for="leaderboard-period">Période</label>
+          <div class="ta-select-shell">
+            <select id="leaderboard-period" name="period">
+              <option value="all" {% if period == 'all' %}selected{% endif %}>Global</option>
+              <option value="monthly" {% if period == 'monthly' %}selected{% endif %}>30 jours</option>
+              <option value="weekly" {% if period == 'weekly' %}selected{% endif %}>7 jours</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ta-field-shell">
+          <label for="leaderboard-category">Catégorie</label>
+          <div class="ta-select-shell">
+            <select id="leaderboard-category" name="category">
+              <option value="all" {% if category == 'all' %}selected{% endif %}>Toutes catégories</option>
+              <option value="password" {% if category == 'password' %}selected{% endif %}>Mots de passe</option>
+              <option value="phishing" {% if category == 'phishing' %}selected{% endif %}>Phishing</option>
+              <option value="network" {% if category == 'network' %}selected{% endif %}>Réseau</option>
+              <option value="vulnerability" {% if category == 'vulnerability' %}selected{% endif %}>Vulnérabilités</option>
+              <option value="data" {% if category == 'data' %}selected{% endif %}>Données</option>
+              <option value="mobile" {% if category == 'mobile' %}selected{% endif %}>Mobile</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Appliquer</button>
+      </div>
+    </form>
+  </article>
+
+  <article class="ta-surface-card">
+    {% if stats %}
+      <div class="table-responsive">
+        <table class="ta-route-table ta-ranking-table">
+          <thead>
+            <tr>
+              <th>Rang</th>
+              <th>Utilisateur</th>
+              <th>Modules</th>
+              <th>Score moyen</th>
+              <th>Badges</th>
             </tr>
-          `;
-          $('table tbody').append(row);
-          // Initialize tooltips on dynamically appended rows
-          $('[data-toggle="tooltip"]').tooltip();
-        });
-        currentPage++;
-        loading = false;
-        if (currentPage >= totalPages) $('#loading').remove();
-        $('#loading').hide();
-      });
-    }
-  });
-  // Initialize user preview popovers
-  $('body').popover({
-    selector: '.user-cell',
-    trigger: 'hover',
-    html: true,
-    content: 'Loading...'
-  });
-  $(document).on('mouseenter', '.user-cell', function(){
-    var cell = $(this);
-    var uid = cell.data('user-id');
-    $.get('/user/preview/' + uid, function(html){
-      cell.attr('data-content', html).popover('show');
-    });
-  });
-</script>
+          </thead>
+          <tbody>
+            {% for item in stats %}
+              {% set is_current = item.user.id == current_user.id %}
+              <tr class="{% if is_current %}is-current{% endif %}">
+                <td>
+                  {% if item.rank == 1 %}
+                    <span class="ta-pill-badge ta-pill-badge--amber">#1</span>
+                  {% elif item.rank == 2 %}
+                    <span class="ta-pill-badge ta-pill-badge--slate">#2</span>
+                  {% elif item.rank == 3 %}
+                    <span class="ta-pill-badge ta-pill-badge--red">#3</span>
+                  {% else %}
+                    <span class="ta-pill-badge ta-pill-badge--slate">#{{ item.rank }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="ta-ranking-user">
+                    <span class="ta-avatar">
+                      {% if item.user.profile_picture %}
+                        <img src="{{ url_for('static', filename='profile_pics/' + item.user.profile_picture) }}" alt="Avatar">
+                      {% else %}
+                        {{ (item.user.firstname or item.user.email.split('@')[0])[0]|upper }}
+                      {% endif %}
+                    </span>
+                    <div class="ta-list-row-copy">
+                      <p class="ta-list-row-title">
+                        {{ item.user.firstname or item.user.email.split('@')[0] }}
+                        {% if is_current %}
+                          <span class="ta-pill-badge ta-pill-badge--teal">Vous</span>
+                        {% endif %}
+                      </p>
+                      <p class="ta-list-row-meta">{{ item.user.email }}</p>
+                    </div>
+                  </div>
+                </td>
+                <td>{{ item.completed }}/{{ total_modules }}</td>
+                <td>
+                  <span class="ta-pill-badge {% if item.avg_score >= 90 %}ta-pill-badge--teal{% elif item.avg_score >= 70 %}ta-pill-badge--amber{% else %}ta-pill-badge--red{% endif %}">
+                    {{ item.avg_score|round(1) }}%
+                  </span>
+                </td>
+                <td><span class="ta-pill-badge ta-pill-badge--blue">{{ item.badges }} badge{% if item.badges != 1 %}s{% endif %}</span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="ta-empty-state">
+        <i class="fas fa-trophy" aria-hidden="true"></i>
+        <h3>Aucun utilisateur à afficher.</h3>
+        <p>Le classement se remplira dès que des parcours seront complétés sur la période sélectionnée.</p>
+      </div>
+    {% endif %}
+  </article>
+
+  {% if pages > 1 %}
+    <nav aria-label="Pagination du classement">
+      <div class="ta-pagination">
+        {% if page > 1 %}
+          <a class="ta-pagination-link" href="?period={{ period }}&category={{ category }}&q={{ q }}&page={{ page - 1 }}">Précédent</a>
+        {% endif %}
+        {% for p in range(1, pages + 1) %}
+          {% if p == page %}
+            <span class="ta-pagination-current">{{ p }}</span>
+          {% else %}
+            <a class="ta-pagination-link" href="?period={{ period }}&category={{ category }}&q={{ q }}&page={{ p }}">{{ p }}</a>
+          {% endif %}
+        {% endfor %}
+        {% if page < pages %}
+          <a class="ta-pagination-link" href="?period={{ period }}&category={{ category }}&q={{ q }}&page={{ page + 1 }}">Suivant</a>
+        {% endif %}
+      </div>
+    </nav>
+  {% endif %}
+</section>
 {% endblock %}

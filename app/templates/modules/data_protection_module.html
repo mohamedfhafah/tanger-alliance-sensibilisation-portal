@@ -355,7 +355,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-data-protection" onclick="markSectionComplete('intro', 'types')">
+                                        <button class="btn btn-data-protection" onclick="window.moduleManager.markSectionComplete('intro', 'data-types', this)">
                                             <i class="fas fa-arrow-right mr-2"></i>Commencer l'apprentissage
                                         </button>
                                     </div>
@@ -443,7 +443,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-data-protection" onclick="markSectionComplete('types', 'classification')">
+                                        <button class="btn btn-data-protection" onclick="window.moduleManager.markSectionComplete('data-types', 'classification', this)">
                                             <i class="fas fa-arrow-right mr-2"></i>Apprendre la classification
                                         </button>
                                     </div>
@@ -546,7 +546,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-data-protection" onclick="markSectionComplete('classification', 'protection')">
+                                        <button class="btn btn-data-protection" onclick="window.moduleManager.markSectionComplete('classification', 'protection', this)">
                                             <i class="fas fa-arrow-right mr-2"></i>Apprendre les mesures de protection
                                         </button>
                                     </div>
@@ -638,7 +638,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-data-protection" onclick="markSectionComplete('protection', 'compliance')">
+                                        <button class="btn btn-data-protection" onclick="window.moduleManager.markSectionComplete('protection', 'compliance', this)">
                                             <i class="fas fa-arrow-right mr-2"></i>Découvrir la conformité réglementaire
                                         </button>
                                     </div>
@@ -732,7 +732,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-data-protection" onclick="markSectionComplete('compliance', 'simulator')">
+                                        <button class="btn btn-data-protection" onclick="window.moduleManager.markSectionComplete('compliance', 'simulator', this)">
                                             <i class="fas fa-arrow-right mr-2"></i>Tester vos connaissances
                                         </button>
                                     </div>
@@ -846,25 +846,25 @@
                                                         Redémarrer tous les serveurs
                                                     </label>
                                                 </div>
-                                                <button class="btn btn-primary mt-3" onclick="checkQuizAnswer()">Vérifier la réponse</button>
+                                                <button class="btn btn-primary mt-3" onclick="checkQuizAnswer(this)">Vérifier la réponse</button>
                                                 <div id="quizResult" class="mt-3"></div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Bouton Quiz Principal -->
-                                    <div class="text-center mt-4">
+                                    <div class="text-center mt-4" id="quizButtonContainer">
                                         {{ render_quiz_button(module) }}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Barre de progression -->
-                        <div class="progress mt-4" style="height: 10px;">
-                            <div class="progress-bar progress-bar-data" id="moduleProgress" role="progressbar" style="width: 16.67%" aria-valuenow="16.67" aria-valuemin="0" aria-valuemax="100"></div>
+                        <!-- Barre de progression gérée par ModuleManager -->
+                         <div class="progress mt-4" style="height: 25px;">
+                            <div class="progress-bar" id="moduleProgressBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
                         </div>
-                        <p class="text-center mt-2"><span id="progressText">Section 1 sur 6 complétée</span></p>
+                        <p class="text-center mt-2"><span id="moduleProgressText"></span></p>
                     </div>
                 </div>
             </div>
@@ -875,14 +875,17 @@
 
 {% block scripts %}
 {{ super() }}
+<script src="{{ url_for('static', filename='js/modules-common.js') }}"></script>
 <script>
-    let completedSections = ['intro'];
     let currentStep = 0;
     let simulationSteps = [];
-    
-    function initializeModule() {
-        console.log('Module de protection des données initialisé');
-        updateProgress();
+
+    function initializeDataProtectionModule() {
+        console.log('Module de protection des données initialisé avec ModuleManager');
+        // Initialisation du ModuleManager
+        // Le nom du module doit correspondre à celui défini dans le backend/routes
+        window.moduleManager = new ModuleManager('data_protection', 6); 
+        window.moduleManager.initialize();
     }
     
     function classifyData() {
@@ -1023,7 +1026,7 @@
         result.className = 'alert alert-warning';
     }
     
-    function checkQuizAnswer() {
+    function checkQuizAnswer(button) {
         const selected = document.querySelector('input[name="quizQuestion"]:checked');
         const result = document.getElementById('quizResult');
         
@@ -1039,6 +1042,9 @@
                     <p>L'isolation immédiate des systèmes compromis est la première priorité pour limiter les dégâts.</p>
                 </div>
             `;
+            // Utiliser ModuleManager pour marquer la section (ou le quiz) comme complété
+            // Assurez-vous que 'quiz' est un ID de section valide ou ajustez selon la logique de ModuleManager
+            window.moduleManager.markSectionComplete('quiz', null, button); 
         } else {
             result.innerHTML = `
                 <div class="alert alert-danger">
@@ -1049,72 +1055,13 @@
         }
     }
     
-    function markSectionComplete(currentSection, nextSection) {
-        if (!completedSections.includes(currentSection)) {
-            completedSections.push(currentSection);
-        }
-        
-        // Ajouter le badge de completion à l'onglet actuel
-        const currentTab = $(`#${currentSection}-tab`);
-        if (currentTab.length && !currentTab.find('.completed-badge').length) {
-            const badge = $('<span class="completed-badge"><i class="fas fa-check-circle"></i> Terminé</span>');
-            currentTab.append(badge);
-        }
-        
-        // Activer l'onglet suivant
-        if (nextSection) {
-            $(`#${nextSection}-tab`).removeClass('disabled').tab('show');
-        }
-        
-        // Marquer le bouton comme terminé
-        if (event && event.target) {
-            event.target.disabled = true;
-            event.target.innerHTML = '<i class="fas fa-check-double"></i> Terminé';
-            event.target.classList.remove('btn-data-protection');
-            event.target.classList.add('btn-success');
-        }
-        
-        updateProgress();
-    }
-    
-    function updateProgress() {
-        const totalSections = 6;
-        const progress = (completedSections.length / totalSections) * 100;
-        
-        document.getElementById('moduleProgress').style.width = progress + '%';
-        document.getElementById('progressText').textContent = `Section ${completedSections.length} sur ${totalSections} complétée${completedSections.length > 1 ? 's' : ''}`;
-        
-        if (progress === 100) {
-            showSuccessMessage('🎉 Félicitations ! Vous avez terminé le module de protection des données sensibles.');
-        }
-    }
-    
-    function showSuccessMessage(message) {
-        const alert = document.createElement('div');
-        alert.className = 'alert alert-success alert-dismissible fade show';
-        alert.innerHTML = `
-            ${message}
-            <button type="button" class="close" data-dismiss="alert">
-                <span>&times;</span>
-            </button>
-        `;
-        document.querySelector('.card-body').insertBefore(alert, document.querySelector('.nav-tabs'));
-    }
-    
-    // Fonction globale pour marquer les sections comme terminées
-    window.markSectionComplete = markSectionComplete;
-    
+    // La gestion de markSectionComplete, updateProgress, et showSuccessMessage est maintenant gérée par ModuleManager
+    // La fonction globale window.markSectionComplete est déjà définie dans modules-common.js
+
     // Initialisation au chargement de la page
     document.addEventListener('DOMContentLoaded', function() {
-        initializeModule();
-        
-        // Désactiver les onglets non accessibles au début
-        $('#dataProtectionTabs .nav-link:not(.active)').addClass('disabled');
-        
-        // Activer le premier onglet si aucun n'est actif
-        if ($('#dataProtectionTabs .nav-link.active').length === 0) {
-            $('#dataProtectionTabs .nav-link:first').tab('show');
-        }
+        initializeDataProtectionModule();
+        // La gestion de l'état initial des onglets est gérée par ModuleManager
     });
 </script>
 {% endblock %}

@@ -6,8 +6,9 @@
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     <div class="input-group mb-3">
+        {{ form.email.label(class="tanger-nav-sr-only") }}
         {% if form.email.errors %}
-            {{ form.email(class="form-control is-invalid", placeholder="Adresse Email") }}
+            {{ form.email(class="form-control is-invalid", placeholder="Adresse Email", autocomplete="email", spellcheck="false", aria_label="Adresse Email") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-envelope"></span>
@@ -19,7 +20,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.email(class="form-control", placeholder="Adresse Email") }}
+            {{ form.email(class="form-control", placeholder="Adresse Email", autocomplete="email", spellcheck="false", aria_label="Adresse Email") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-envelope"></span>
@@ -29,8 +30,9 @@
     </div>
     
     <div class="input-group mb-3">
+        {{ form.firstname.label(class="tanger-nav-sr-only") }}
         {% if form.firstname.errors %}
-            {{ form.firstname(class="form-control is-invalid", placeholder="Prénom") }}
+            {{ form.firstname(class="form-control is-invalid", placeholder="Prénom", autocomplete="given-name", aria_label="Prénom") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-user"></span>
@@ -42,7 +44,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.firstname(class="form-control", placeholder="Prénom") }}
+            {{ form.firstname(class="form-control", placeholder="Prénom", autocomplete="given-name", aria_label="Prénom") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-user"></span>
@@ -52,8 +54,9 @@
     </div>
     
     <div class="input-group mb-3">
+        {{ form.lastname.label(class="tanger-nav-sr-only") }}
         {% if form.lastname.errors %}
-            {{ form.lastname(class="form-control is-invalid", placeholder="Nom") }}
+            {{ form.lastname(class="form-control is-invalid", placeholder="Nom", autocomplete="family-name", aria_label="Nom") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-user"></span>
@@ -65,7 +68,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.lastname(class="form-control", placeholder="Nom") }}
+            {{ form.lastname(class="form-control", placeholder="Nom", autocomplete="family-name", aria_label="Nom") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-user"></span>
@@ -74,21 +77,22 @@
         {% endif %}
     </div>
     <div class="form-group mb-3">
-        {{ form.department.label(class="form-label sr-only") }} 
+        {{ form.department.label(class="tanger-nav-sr-only") }} 
         {% if form.department.errors %}
-            {{ form.department(class="form-select is-invalid", placeholder="Département") }}
+            {{ form.department(class="form-select is-invalid", aria_label="Département") }}
             <div class="invalid-feedback">
                 {% for error in form.department.errors %}
                     <span>{{ error }}</span>
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.department(class="form-select", placeholder="Département") }}
+            {{ form.department(class="form-select", aria_label="Département") }}
         {% endif %}
     </div>
     <div class="input-group mb-3">
+        {{ form.password.label(class="tanger-nav-sr-only") }}
         {% if form.password.errors %}
-            {{ form.password(class="form-control is-invalid", placeholder="Mot de passe") }}
+            {{ form.password(class="form-control is-invalid", placeholder="Mot de passe", autocomplete="new-password", aria_label="Mot de passe") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -100,7 +104,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.password(class="form-control", placeholder="Mot de passe") }}
+            {{ form.password(class="form-control", placeholder="Mot de passe", autocomplete="new-password", aria_label="Mot de passe") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -109,8 +113,9 @@
         {% endif %}
     </div>
     <div class="input-group mb-3">
+        {{ form.confirm_password.label(class="tanger-nav-sr-only") }}
         {% if form.confirm_password.errors %}
-            {{ form.confirm_password(class="form-control is-invalid", placeholder="Confirmer le mot de passe") }}
+            {{ form.confirm_password(class="form-control is-invalid", placeholder="Confirmer le mot de passe", autocomplete="new-password", aria_label="Confirmer le mot de passe") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -122,7 +127,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.confirm_password(class="form-control", placeholder="Confirmer le mot de passe") }}
+            {{ form.confirm_password(class="form-control", placeholder="Confirmer le mot de passe", autocomplete="new-password", aria_label="Confirmer le mot de passe") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -130,8 +135,8 @@
             </div>
         {% endif %}
     </div>
-    <div class="row">
-      <div class="col-8">
+    <div class="row auth-form-actions">
+      <div class="col-8 auth-form-meta">
         <div class="icheck-primary">
           {{ form.agree_terms(id="agreeTerms") if form.agree_terms else '' }}
           <label for="agreeTerms">
@@ -140,7 +145,7 @@
         </div>
       </div>
       <!-- /.col -->
-      <div class="col-4">
+      <div class="col-4 auth-form-submit">
         {{ form.submit(class="btn btn-primary btn-block") }}
       </div>
       <!-- /.col -->

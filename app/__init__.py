@@ -27,7 +27,7 @@ from config import config
 db = SQLAlchemy()
 login_manager = LoginManager()
 bcrypt = Bcrypt()
-admin = Admin(template_mode='bootstrap4', url='/flask-admin')
+admin = Admin(url='/flask-admin')
 mail = Mail()
 csrf = CSRFProtect()
 migrate = Migrate()

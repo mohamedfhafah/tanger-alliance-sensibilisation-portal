@@ -1,0 +1,16 @@
+/* Admin bridge stylesheet kept intentionally small.
+   It prevents 404s on legacy admin views and adds a consistent spacing rhythm
+   on top of modern-design-system.css, which is loaded globally. */
+
+.content-wrapper > .container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.card + .card {
+  margin-top: 24px;
+}
+
+.table-responsive + .table-responsive {
+  margin-top: 24px;
+}

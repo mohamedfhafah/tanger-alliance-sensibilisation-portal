@@ -2,6 +2,7 @@
 function setThemeOnly(themeName) {
   localStorage.setItem('theme', themeName);
   document.documentElement.setAttribute('data-theme', themeName);
+  document.dispatchEvent(new CustomEvent('theme:changed', { detail: { theme: themeName } }));
 }
 
 // Fonction pour définir le thème et mettre à jour l'interface utilisateur

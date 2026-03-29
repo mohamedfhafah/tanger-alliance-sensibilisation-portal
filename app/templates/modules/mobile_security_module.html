@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from 'macros/quiz_macros.html' import render_quiz_button %}
 
+
 {% block title %}Sécurité Mobile - Portail Sécurité{% endblock %}
 
 {% block styles %}
@@ -107,6 +108,18 @@
                         </div>
                     </div>
                     <div class="card-body">
+                {% set sidebar_items = [
+                    {'id':'intro','label':'Introduction','icon':'fas fa-info-circle'},
+                    {'id':'securite-base','label':'Sécurité de Base','icon':'fas fa-shield-alt'},
+                    {'id':'mises-a-jour','label':'Mises à jour','icon':'fas fa-sync'},
+                    {'id':'menaces','label':'Menaces','icon':'fas fa-exclamation-triangle'},
+                    {'id':'checklist','label':'Check-list','icon':'fas fa-list-check'},
+                    {'id':'conclusion','label':'Conclusion','icon':'fas fa-flag-checkered'}
+                ] %}
+                
+                    
+                </div>
+                
                         <ul class="nav nav-tabs" id="mobileTabs" role="tablist">
                             <li class="nav-item">
                                 <a class="nav-link active" id="intro-tab" data-toggle="tab" href="#intro" role="tab" aria-controls="intro" aria-selected="true">1. Introduction</a>
@@ -341,6 +354,8 @@
                         </div>
                     </div>
                 </div>
+                
+                
                 
                 <div class="text-center mt-4">
                     {{ render_quiz_button(module, progress) }}

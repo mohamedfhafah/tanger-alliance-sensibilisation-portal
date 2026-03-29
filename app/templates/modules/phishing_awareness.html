@@ -243,7 +243,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('intro','types', {{ module.id }})">
+                                        <button class="btn btn-danger btn-lg" onclick="window.moduleManager.markSectionComplete('intro', 'types')">
                                             <i class="fas fa-arrow-right mr-2"></i>Découvrir les types d'attaques
                                         </button>
                                     </div>
@@ -338,7 +338,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('types','detection', {{ module.id }})">
+                                        <button class="btn btn-danger btn-lg" onclick="window.moduleManager.markSectionComplete('types', 'detection')">
                                             <i class="fas fa-arrow-right mr-2"></i>Apprendre à détecter les attaques
                                         </button>
                                     </div>
@@ -424,7 +424,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('detection','prevention', {{ module.id }})">
+                                        <button class="btn btn-danger btn-lg" onclick="window.moduleManager.markSectionComplete('detection', 'prevention')">
                                             <i class="fas fa-arrow-right mr-2"></i>Apprendre les mesures de prévention
                                         </button>
                                     </div>
@@ -529,7 +529,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('prevention','response', {{ module.id }})">
+                                        <button class="btn btn-danger btn-lg" onclick="window.moduleManager.markSectionComplete('prevention', 'response')">
                                             <i class="fas fa-arrow-right mr-2"></i>Apprendre à réagir en cas d'incident
                                         </button>
                                     </div>
@@ -633,7 +633,7 @@
                                     </div>
 
                                     <div class="text-center mt-4">
-                                        <button class="btn btn-danger btn-lg" onclick="markSectionComplete('response','simulator', {{ module.id }})">
+                                        <button class="btn btn-danger btn-lg" onclick="window.moduleManager.markSectionComplete('response', 'simulator')">
                                             <i class="fas fa-arrow-right mr-2"></i>Tester vos connaissances
                                         </button>
                                     </div>
@@ -690,7 +690,7 @@
                                     </div>
 
                                     <div class="text-center mb-4">
-                                        <button class="btn btn-primary" onclick="checkQuizAnswers()">Vérifier ma réponse</button>
+                                        <button class="btn btn-primary" onclick="checkQuizAnswers(this)">Vérifier ma réponse</button>
                                     </div>
 
                                     <div id="quiz-results" style="display: none;"></div>
@@ -739,43 +739,36 @@
 <script>
 // Fonction pour initialiser le module en s'assurant que tout est chargé
 function initializePhishingModule() {
-    // Vérifier que jQuery est disponible
-    if (typeof $ === 'undefined') {
-        console.warn('jQuery not available, retrying in 100ms...');
-        setTimeout(initializePhishingModule, 100);
-        return;
-    }
-    
-    // Vérifier que ModuleManager est disponible
-    if (typeof ModuleManager === 'undefined') {
-        console.warn('ModuleManager not available, retrying in 100ms...');
-        setTimeout(initializePhishingModule, 100);
-        return;
-    }
-    
-    // Utiliser jQuery ready pour s'assurer que le DOM est prêt
-    $(document).ready(function() {
-        try {
-            window.moduleManager = new ModuleManager({{ module.id if module else 2 }}, 6, 'phishing');
-            console.log('ModuleManager initialized for phishing awareness');
-        } catch (error) {
-            console.error('Error initializing ModuleManager:', error);
+    let attempts = 0;
+    const maxAttempts = 10;
+    const intervalTime = 500; // ms
+    const sectionIds = ['intro', 'types', 'detection', 'prevention', 'response', 'simulator', 'phishing-quiz'];
+
+    function tryInitializeModuleManager() {
+        if (window.ModuleManager) {
+            console.log('ModuleManager trouvé, initialisation pour Phishing Awareness.');
+            window.moduleManager = new ModuleManager('phishing_awareness', sectionIds.length, sectionIds);
+            // Assurer que les onglets sont initialisés après ModuleManager pour que les badges de complétion s'affichent correctement
+            initializeTabs();
+            // Gestion des éléments suspects cliquables
+            document.querySelectorAll('.suspicious-element').forEach(element => {
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const title = this.getAttribute('title');
+                    showSuspiciousElementInfo(title, this);
+                });
+            });
+        } else {
+            attempts++;
+            if (attempts < maxAttempts) {
+                console.warn(`ModuleManager non trouvé. Tentative ${attempts}/${maxAttempts}. Nouvel essai dans ${intervalTime}ms.`);
+                setTimeout(tryInitializeModuleManager, intervalTime);
+            } else {
+                console.error('Erreur critique : ModuleManager non initialisé après plusieurs tentatives. Le suivi de la progression pourrait ne pas fonctionner.');
+            }
         }
-    });
-    
-    console.log('Module de sensibilisation au phishing initialisé');
-    
-    // Gestion des éléments suspects cliquables
-    document.querySelectorAll('.suspicious-element').forEach(element => {
-        element.addEventListener('click', function(e) {
-            e.preventDefault();
-            const title = this.getAttribute('title');
-            showSuspiciousElementInfo(title, this);
-        });
-    });
-    
-    // Initialiser les onglets
-    initializeTabs();
+    }
+    tryInitializeModuleManager();
 }
 
 // Fonction pour afficher les informations sur les éléments suspects
@@ -817,7 +810,7 @@ function initializeTabs() {
 }
 
 // Fonction pour vérifier les réponses du quiz
-function checkQuizAnswers() {
+function checkQuizAnswers(button) {
     const q1 = document.querySelector('input[name="q1"]:checked');
     const resultsDiv = document.getElementById('quiz-results');
     
@@ -835,7 +828,7 @@ function checkQuizAnswers() {
         
         // Marquer la section comme terminée si la réponse est correcte
         if (window.moduleManager) {
-            window.moduleManager.markSectionComplete('phishing-quiz');
+            window.moduleManager.markSectionComplete('phishing-quiz', null, button);
         }
     } else if (q1.value === 'b') {
         feedback += '<div class="alert alert-warning"><i class="fas fa-exclamation-triangle mr-2"></i>Bonne intuition ! Cet email pourrait effectivement être suspect, mais il faut vérifier.</div>';
@@ -852,6 +845,10 @@ function checkQuizAnswers() {
     `;
     
     resultsDiv.style.display = 'block';
+    if (button) {
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Quiz terminé';
+    }
 }
 
 // Fonction pour afficher un message de succès
@@ -875,15 +872,6 @@ function showSuccessMessage(message) {
             notification.parentNode.removeChild(notification);
         }
     }, 3000);
-}
-
-// Fonction globale pour marquer une section comme terminée
-function markSectionComplete(sectionId, nextSectionId, moduleId) {
-    if (window.moduleManager) {
-        window.moduleManager.markSectionComplete(sectionId, nextSectionId);
-    } else {
-        console.error('ModuleManager non initialisé');
-    }
 }
 
 // Démarrer l'initialisation

@@ -1,135 +1,106 @@
 {% extends "base.html" %}
 
 {% block title %}À propos - Tanger Alliance Security{% endblock %}
+{% block header_wrapper %}{% endblock %}
 
 {% block page_title %}À Propos de Nous{% endblock %}
 
 {% block breadcrumb_active %}À Propos{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-12 mb-4">
-        <div class="card card-aside-primary shadow-sm mb-4">
-            <div class="card-header text-primary">
-                <h3 class="mb-0">À propos du Portail de Sensibilisation à la Sécurité</h3>
-            </div>
-            <div class="card-body">
-                <p class="lead">Une initiative de Tanger Alliance pour renforcer la sécurité de l'information à travers l'éducation et la formation.</p>
-            </div>
+<section class="ta-route-shell">
+    <header class="ta-route-header">
+        <div class="ta-route-header-copy">
+            <p class="ta-route-eyebrow">About The Platform</p>
+            <h1 class="ta-route-title">À propos du portail de sensibilisation</h1>
+            <p class="ta-route-subtitle">
+                Une plateforme conçue pour renforcer la sécurité de l'information dans les environnements portuaires, logistiques et administratifs.
+            </p>
         </div>
-    </div>
-</div>
+    </header>
 
-<div class="row mb-4">
-    <div class="col-md-8">
-        <div class="card card-aside-primary shadow-sm mb-4">
-            <div class="card-header text-primary">
-                <h3 class="mb-0">Notre mission</h3>
+    <div class="ta-route-grid ta-route-grid--sidebar">
+        <article class="ta-surface-card">
+            <div class="ta-surface-card-header">
+                <div>
+                    <p class="ta-surface-kicker">Mission</p>
+                    <h2 class="ta-surface-title">Former, simuler et mesurer la résilience opérationnelle</h2>
+                </div>
             </div>
-            <div class="card-body">
-                <p>Le Portail de Sensibilisation à la Sécurité de Tanger Alliance a été créé avec une mission claire : renforcer la sécurité de l'information au sein de notre organisation par l'éducation et la formation continue de tous les employés.</p>
-                
-                <p>Dans le contexte portuaire et logistique, la sécurité des données est d'une importance primordiale. Tanger Alliance, en tant qu'acteur majeur du secteur, est responsable de la protection d'informations sensibles concernant :</p>
-                
+
+            <div class="ta-copy-stack">
+                <p>Le Portail de Sensibilisation à la Sécurité de Tanger Alliance a été créé avec une mission claire : renforcer la sécurité de l'information par l'éducation continue de tous les employés.</p>
+                <p>Dans le contexte portuaire et logistique, la protection des données et des systèmes critiques concerne directement :</p>
                 <ul>
-                    <li>Les opérations portuaires et logistiques</li>
-                    <li>Les données des clients et partenaires commerciaux</li>
-                    <li>Les systèmes d'information critiques</li>
-                    <li>Les informations financières et administratives</li>
+                    <li>Les opérations portuaires et logistiques.</li>
+                    <li>Les données des clients et partenaires commerciaux.</li>
+                    <li>Les systèmes d'information critiques.</li>
+                    <li>Les informations financières et administratives.</li>
                 </ul>
-                
-                <p>Ce portail vise à transformer chaque employé en un maillon fort de notre chaîne de sécurité, en fournissant des connaissances pratiques, des formations interactives et des outils de simulation pour développer les compétences nécessaires face aux menaces actuelles.</p>
+                <p>Le portail vise à transformer chaque employé en maillon fort de la chaîne de sécurité grâce à des parcours interactifs, des simulations et un suivi continu.</p>
             </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-        <div class="card card-aside-primary shadow-sm mb-4">
-            <div class="card-header text-primary">
-                <h3 class="mb-0">Nos objectifs</h3>
-            </div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Réduire les incidents de sécurité de 50%</li>
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Former 100% des employés aux bonnes pratiques</li>
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Améliorer la détection des tentatives de phishing</li>
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Garantir le respect des politiques de sécurité</li>
-                    <li class="list-group-item"><i class="fas fa-check-circle text-success me-2"></i>Créer une culture de sécurité proactive</li>
-                </ul>
-            </div>
-        </div>
-        
-        <div class="card card-aside-primary shadow-sm mb-4">
-            <div class="card-header text-primary">
-                <h3 class="mb-0">Contact</h3>
-            </div>
-            <div class="card-body">
-                <p>Pour toute question ou suggestion concernant le portail de sécurité :</p>
-                <ul class="list-unstyled">
-                    <li><i class="fas fa-envelope me-2"></i>security@tangeralliance.com</li>
-                    <li><i class="fas fa-phone me-2"></i>+212 539 XXX XXX</li>
-                    <li><i class="fas fa-user-shield me-2"></i>Équipe Sécurité IT</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+        </article>
 
-<div class="row">
-    <div class="col-12">
-        <div class="card card-aside-primary shadow-sm mb-4">
-            <div class="card-header text-primary">
-                <h3 class="mb-0">Notre approche</h3>
+        <aside class="ta-route-grid">
+            <div class="ta-note-panel">
+                <h3>Nos objectifs</h3>
+                <div class="ta-list-stack">
+                    <div class="ta-list-row"><div class="ta-list-row-copy"><p class="ta-list-row-meta">Réduire les incidents de sécurité de 50%.</p></div></div>
+                    <div class="ta-list-row"><div class="ta-list-row-copy"><p class="ta-list-row-meta">Former 100% des employés aux bonnes pratiques.</p></div></div>
+                    <div class="ta-list-row"><div class="ta-list-row-copy"><p class="ta-list-row-meta">Améliorer la détection des tentatives de phishing.</p></div></div>
+                    <div class="ta-list-row"><div class="ta-list-row-copy"><p class="ta-list-row-meta">Garantir le respect des politiques de sécurité.</p></div></div>
+                    <div class="ta-list-row"><div class="ta-list-row-copy"><p class="ta-list-row-meta">Créer une culture de sécurité proactive.</p></div></div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4 text-center mb-4">
-                        <div class="p-3">
-                            <i class="fas fa-graduation-cap fa-3x text-primary mb-3"></i>
-                            <h4>Formation interactive</h4>
-                            <p>Des modules d'apprentissage interactifs adaptés aux différents rôles et niveaux de connaissance.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-center mb-4">
-                        <div class="p-3">
-                            <i class="fas fa-fish fa-3x text-primary mb-3"></i>
-                            <h4>Simulations réalistes</h4>
-                            <p>Des simulations de phishing et autres menaces pour développer des réflexes de sécurité efficaces.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-center mb-4">
-                        <div class="p-3">
-                            <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
-                            <h4>Suivi et évaluation</h4>
-                            <p>Un système de suivi complet pour mesurer les progrès et identifier les domaines à améliorer.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4 text-center">
-                        <div class="p-3">
-                            <i class="fas fa-certificate fa-3x text-primary mb-3"></i>
-                            <h4>Certification</h4>
-                            <p>Des certificats pour valider les compétences acquises et valoriser l'engagement en faveur de la sécurité.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-center">
-                        <div class="p-3">
-                            <i class="fas fa-users fa-3x text-primary mb-3"></i>
-                            <h4>Approche collaborative</h4>
-                            <p>Une plateforme qui encourage le partage d'expériences et l'apprentissage collectif.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 text-center">
-                        <div class="p-3">
-                            <i class="fas fa-sync-alt fa-3x text-primary mb-3"></i>
-                            <h4>Contenu actualisé</h4>
-                            <p>Des mises à jour régulières pour rester en phase avec l'évolution des menaces et des technologies.</p>
-                        </div>
-                    </div>
-                </div>
+            <div class="ta-note-panel">
+                <h3>Contact</h3>
+                <p>security@tangeralliance.com</p>
+                <p>+212 539 XXX XXX</p>
+                <p>Équipe Sécurité IT</p>
+            </div>
+        </aside>
+    </div>
+
+    <article class="ta-surface-card">
+        <div class="ta-surface-card-header">
+            <div>
+                <p class="ta-surface-kicker">Approach</p>
+                <h2 class="ta-surface-title">Notre approche</h2>
             </div>
         </div>
-    </div>
-</div>
+
+        <div class="ta-card-grid">
+            <div class="ta-detail-card">
+                <span class="ta-icon-chip"><i class="fas fa-graduation-cap" aria-hidden="true"></i></span>
+                <h3>Formation interactive</h3>
+                <p>Des modules adaptés aux rôles, aux niveaux de maturité et aux situations de terrain.</p>
+            </div>
+            <div class="ta-detail-card">
+                <span class="ta-icon-chip"><i class="fas fa-fish" aria-hidden="true"></i></span>
+                <h3>Simulations réalistes</h3>
+                <p>Des scénarios crédibles pour ancrer les bons réflexes face aux menaces les plus fréquentes.</p>
+            </div>
+            <div class="ta-detail-card">
+                <span class="ta-icon-chip"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
+                <h3>Suivi et évaluation</h3>
+                <p>Des indicateurs lisibles pour mesurer la progression et cibler les renforcements prioritaires.</p>
+            </div>
+            <div class="ta-detail-card">
+                <span class="ta-icon-chip"><i class="fas fa-certificate" aria-hidden="true"></i></span>
+                <h3>Certification</h3>
+                <p>Des validations visibles pour reconnaître l'engagement des équipes en matière de sécurité.</p>
+            </div>
+            <div class="ta-detail-card">
+                <span class="ta-icon-chip"><i class="fas fa-users" aria-hidden="true"></i></span>
+                <h3>Approche collaborative</h3>
+                <p>Une plateforme pensée pour encourager le partage d'expérience et l'apprentissage collectif.</p>
+            </div>
+            <div class="ta-detail-card">
+                <span class="ta-icon-chip"><i class="fas fa-sync-alt" aria-hidden="true"></i></span>
+                <h3>Contenu actualisé</h3>
+                <p>Des mises à jour régulières pour rester aligné sur l'évolution des menaces et des usages.</p>
+            </div>
+        </div>
+    </article>
+</section>
 {% endblock %}

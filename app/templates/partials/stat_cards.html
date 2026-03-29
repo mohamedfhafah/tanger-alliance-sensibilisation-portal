@@ -1,70 +1,69 @@
 {% macro render_stat_cards(stats) %}
-<div class="row">
-  <div class="col-lg-3 col-6">
-    <!-- small box -->
-    <div class="small-box bg-info">
-      <div class="inner">
-        <h3>{{ stats.modules_completed }}</h3>
-        <p>Modules Complétés</p>
+<section class="ta-kpi-grid">
+  <article class="ta-kpi-card ta-kpi-card--cyan fade-in-up">
+    <div class="ta-kpi-card-top">
+      <div>
+        <p class="ta-kpi-eyebrow">Execution</p>
+        <h3 class="ta-kpi-value">{{ stats.modules_completed }}</h3>
       </div>
-      <div class="icon">
-        <i class="fas fa-graduation-cap"></i>
-      </div>
-      <a href="{{ url_for('modules.index') }}" class="small-box-footer">
-        Voir les modules <i class="fas fa-arrow-circle-right"></i>
-      </a>
+      <span class="ta-kpi-icon"><i class="fas fa-graduation-cap" aria-hidden="true"></i></span>
     </div>
-  </div>
-  <!-- ./col -->
-  <div class="col-lg-3 col-6">
-    <!-- small box -->
-    <div class="small-box bg-success">
-      <div class="inner">
-        <h3>{{ stats.avg_score|round(1) }}<sup style="font-size: 20px">%</sup></h3>
-        <p>Score Moyen</p>
+    <p class="ta-kpi-label">Modules complétés</p>
+    <p class="ta-kpi-meta">Parcours terminés et validés dans votre cycle de sensibilisation.</p>
+    <a href="{{ url_for('modules.index') }}" class="ta-kpi-link">
+      Voir les modules
+      <i class="fas fa-arrow-right" aria-hidden="true"></i>
+    </a>
+  </article>
+
+  <article class="ta-kpi-card ta-kpi-card--emerald fade-in-up">
+    <div class="ta-kpi-card-top">
+      <div>
+        <p class="ta-kpi-eyebrow">Readiness</p>
+        <h3 class="ta-kpi-value">{{ stats.avg_score|round(1) }}<span>%</span></h3>
       </div>
-      <div class="icon">
-        <i class="fas fa-chart-line"></i>
-      </div>
-      <a href="{{ url_for('main.profile') }}" class="small-box-footer">
-        Voir profil <i class="fas fa-arrow-circle-right"></i>
-      </a>
+      <span class="ta-kpi-icon"><i class="fas fa-chart-line" aria-hidden="true"></i></span>
     </div>
-  </div>
-  <!-- ./col -->
-  <div class="col-lg-3 col-6">
-    <!-- small box -->
-    <div class="small-box bg-warning">
-      <div class="inner">
-        <h3>{{ stats.phishing_awareness|round(1) }}</h3>
-        <p>Score Phishing</p>
+    <p class="ta-kpi-label">Score moyen</p>
+    <p class="ta-kpi-meta">Vue synthétique de la compréhension globale et de la rétention des réflexes clés.</p>
+    <a href="{{ url_for('main.profile') }}" class="ta-kpi-link">
+      Voir le profil
+      <i class="fas fa-arrow-right" aria-hidden="true"></i>
+    </a>
+  </article>
+
+  <article class="ta-kpi-card ta-kpi-card--amber fade-in-up">
+    <div class="ta-kpi-card-top">
+      <div>
+        <p class="ta-kpi-eyebrow">Threat Focus</p>
+        <h3 class="ta-kpi-value">{{ stats.phishing_awareness|round(1) }}<span>%</span></h3>
       </div>
-      <div class="icon">
-        <i class="fas fa-fish"></i>
-      </div>
-      <a href="#" class="small-box-footer">
-        En savoir plus <i class="fas fa-arrow-circle-right"></i>
-      </a>
+      <span class="ta-kpi-icon"><i class="fas fa-fish" aria-hidden="true"></i></span>
     </div>
-  </div>
-  <!-- ./col -->
-  <div class="col-lg-3 col-6">
-    <!-- small box -->
-    <div class="small-box bg-danger">
-      <div class="inner">
-        <h3>{{ stats.security_rank }}</h3>
-        <p>Rang Sécurité</p>
+    <p class="ta-kpi-label">Score phishing</p>
+    <p class="ta-kpi-meta">Capacité actuelle à repérer, qualifier et signaler les campagnes trompeuses.</p>
+    <a href="{{ url_for('security.resources') }}" class="ta-kpi-link">
+      Ressources associées
+      <i class="fas fa-arrow-right" aria-hidden="true"></i>
+    </a>
+  </article>
+
+  <article class="ta-kpi-card ta-kpi-card--rose fade-in-up">
+    <div class="ta-kpi-card-top">
+      <div>
+        <p class="ta-kpi-eyebrow">Positioning</p>
+        <h3 class="ta-kpi-value ta-kpi-value--text">{{ stats.security_rank }}</h3>
       </div>
-      <div class="icon">
-        <i class="fas fa-shield-alt"></i>
-      </div>
-      <a href="{{ url_for('main.leaderboard') }}" class="small-box-footer">
-        Détails <i class="fas fa-arrow-circle-right"></i>
-      </a>
+      <span class="ta-kpi-icon"><i class="fas fa-shield-alt" aria-hidden="true"></i></span>
     </div>
-  </div>
-  <!-- ./col -->
-</div>
+    <p class="ta-kpi-label">Rang sécurité</p>
+    <p class="ta-kpi-meta">Niveau d’engagement et de maturité observé par rapport au reste de la plateforme.</p>
+    <a href="{{ url_for('main.leaderboard') }}" class="ta-kpi-link">
+      Voir le classement
+      <i class="fas fa-arrow-right" aria-hidden="true"></i>
+    </a>
+  </article>
+</section>
 {% endmacro %}
 
 {% macro render_activity_cards(activities) %}

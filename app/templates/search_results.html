@@ -1,56 +1,116 @@
 {% extends "base.html" %}
+
 {% block title %}Résultats de la recherche{% endblock %}
+{% block header_wrapper %}{% endblock %}
+
 {% block content %}
-<style>
-  .result-card { border-radius: .75rem; }
-  .hover-shadow { transition: transform .3s, box-shadow .3s; }
-  .hover-shadow:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-  .result-icon { font-size: 1.25rem; margin-right: .5rem; }
-</style>
-<div class="container my-5">
-  {% if not modules and not simulations %}
-    <div class="text-center py-5 w-100">
-      <i class="fas fa-search-minus fa-3x text-muted mb-3"></i>
-      <p class="h5 text-muted">Aucun résultat pour "{{ query }}". Essayez un autre mot-clé.</p>
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">Search Command</p>
+      <h1 class="ta-route-title">Résultats de la recherche</h1>
+      <p class="ta-route-subtitle">
+        {% if query %}
+          Vue consolidée des modules et simulations correspondant à “{{ query }}”.
+        {% else %}
+          Utilisez la recherche globale pour retrouver rapidement un module, une simulation ou une ressource.
+        {% endif %}
+      </p>
+    </div>
+    <div class="ta-route-meta">
+      <span class="ta-pill-badge ta-pill-badge--teal">{{ modules|length }} modules</span>
+      <span class="ta-pill-badge ta-pill-badge--blue">{{ simulations|length }} simulations</span>
+    </div>
+  </header>
+
+  {% if not query %}
+    <div class="ta-surface-card">
+      <div class="ta-empty-state">
+        <i class="fas fa-search" aria-hidden="true"></i>
+        <h3>Démarrez avec un mot-clé précis.</h3>
+        <p>
+          Recherchez par risque, thématique ou capacité: <em>phishing</em>, <em>mots de passe</em>,
+          <em>simulation</em>, <em>conformité</em> ou <em>SecOps</em>.
+        </p>
+      </div>
+    </div>
+  {% elif not modules and not simulations %}
+    <div class="ta-surface-card">
+      <div class="ta-empty-state">
+        <i class="fas fa-search-minus" aria-hidden="true"></i>
+        <h3>Aucun résultat exploitable.</h3>
+        <p>
+          Aucun module ni simulation ne correspond à “{{ query }}”. Essayez un terme plus large
+          ou revenez vers le tableau de bord pour naviguer par catégorie.
+        </p>
+        <div class="ta-inline-actions">
+          <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Retour au tableau de bord</a>
+          <a href="{{ url_for('modules.index') }}" class="btn btn-outline-primary">Voir les modules</a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="ta-card-grid ta-card-grid--two">
+      <article class="ta-surface-card">
+        <div class="ta-surface-card-header">
+          <div>
+            <p class="ta-surface-kicker">Modules</p>
+            <h2 class="ta-surface-title">Parcours de formation</h2>
+          </div>
+          <span class="ta-pill-badge ta-pill-badge--slate">{{ modules|length }}</span>
+        </div>
+        <div class="ta-list-stack">
+          {% if modules %}
+            {% for module in modules %}
+              <a href="{{ url_for('modules.view', module_id=module.id) }}" class="ta-result-card">
+                <div class="ta-result-card-head">
+                  <span class="ta-icon-chip"><i class="fas fa-book-open" aria-hidden="true"></i></span>
+                  <div class="ta-result-card-copy">
+                    <h3>{{ module.title }}</h3>
+                    <p>{{ module.description }}</p>
+                  </div>
+                </div>
+              </a>
+            {% endfor %}
+          {% else %}
+            <div class="ta-note-panel">
+              <h3>Aucun module trouvé</h3>
+              <p>La recherche ne remonte aucun module de formation pour ce mot-clé.</p>
+            </div>
+          {% endif %}
+        </div>
+      </article>
+
+      <article class="ta-surface-card">
+        <div class="ta-surface-card-header">
+          <div>
+            <p class="ta-surface-kicker">Simulations</p>
+            <h2 class="ta-surface-title">Scénarios d’entraînement</h2>
+          </div>
+          <span class="ta-pill-badge ta-pill-badge--slate">{{ simulations|length }}</span>
+        </div>
+        <div class="ta-list-stack">
+          {% if simulations %}
+            {% for sim in simulations %}
+              <a href="{{ url_for('main.simulation_detail', slug=sim['slug']) }}" class="ta-result-card">
+                <div class="ta-result-card-head">
+                  <span class="ta-icon-chip"><i class="fas fa-flask" aria-hidden="true"></i></span>
+                  <div class="ta-result-card-copy">
+                    <h3>{{ sim['title'] }}</h3>
+                    <p>{{ sim.get('description', '') }}</p>
+                  </div>
+                </div>
+              </a>
+            {% endfor %}
+          {% else %}
+            <div class="ta-note-panel">
+              <h3>Aucune simulation trouvée</h3>
+              <p>Essayez un mot-clé lié à un scénario opérationnel ou à une campagne de phishing.</p>
+            </div>
+          {% endif %}
+        </div>
+      </article>
     </div>
   {% endif %}
-  <div class="row">
-    <!-- Modules -->
-    <div class="col-md-6">
-      <h4 class="mb-3">Modules</h4>
-      {% if modules %}
-        {% for module in modules %}
-          <a href="{{ url_for('modules.view', module_id=module.id) }}" class="text-decoration-none">
-            <div class="card result-card hover-shadow mb-3 shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-book result-icon text-primary"></i>{{ module.title }}</h5>
-                <p class="card-text">{{ module.description }}</p>
-              </div>
-            </div>
-          </a>
-        {% endfor %}
-      {% else %}
-        <p>Aucun module trouvé.</p>
-      {% endif %}
-    </div>
-    <!-- Simulations -->
-    <div class="col-md-6">
-      <h4 class="mb-3">Simulations</h4>
-      {% if simulations %}
-        {% for sim in simulations %}
-          <a href="{{ url_for('main.simulation_detail', slug=sim['slug']) }}" class="text-decoration-none">
-            <div class="card result-card hover-shadow mb-3 shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-flask result-icon text-success"></i>{{ sim['title'] }}</h5>
-                <p class="card-text">{{ sim.get('description', '') }}</p>
-              </div>
-            </div>
-          </a>
-        {% endfor %}
-      {% else %}
-        <p>Aucune simulation trouvée.</p>
-      {% endif %}
-    </div>
-  </div>
-</div>
+</section>
 {% endblock %}

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}Tableau de Bord - Tanger Alliance Security{% endblock %}
+{% block header_wrapper %}{% endblock %}
 
 {% block page_title %}Tableau de Bord{% endblock %}
 
@@ -16,16 +17,34 @@
 {% from "partials/simulation_details.html" import render_simulation_details %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h2 class="card-title">Bienvenue, {{ current_user.email }}</h2>
-                <p class="card-text">Votre tableau de bord personnel pour suivre votre progression et accéder aux modules de formation.</p>
-            </div>
+<section class="dashboard-hero">
+    <div class="dashboard-hero-copy">
+        <div>
+            <p class="ta-page-kicker">Operational Dashboard</p>
+            <h2>Bienvenue, {{ current_user.firstname or current_user.username or current_user.email }}</h2>
+            <p>Suivez votre progression, accédez aux formations prioritaires et gardez une vision claire de votre posture de sensibilisation.</p>
+        </div>
+        <div class="hero-actions">
+            <a href="{{ url_for('modules.index') }}" class="btn btn-primary">Continuer les modules</a>
+            <a href="{{ url_for('main.simulations') }}" class="btn btn-outline-primary">Lancer une simulation</a>
         </div>
     </div>
-</div>
+
+    <div class="dashboard-hero-stats">
+        <div class="dashboard-hero-stat">
+            <span>Modules complétés</span>
+            <strong>{{ user_stats.modules_completed|default(0) }}</strong>
+        </div>
+        <div class="dashboard-hero-stat">
+            <span>Score moyen</span>
+            <strong>{{ user_stats.avg_score|default(0)|round|int }}%</strong>
+        </div>
+        <div class="dashboard-hero-stat">
+            <span>Classement sécurité</span>
+            <strong>{{ user_stats.security_rank|default('Débutant') }}</strong>
+        </div>
+    </div>
+</section>
 
 <!-- Stat Cards -->
 {{ render_stat_cards({
@@ -35,7 +54,7 @@
     'security_rank': user_stats.security_rank|default('Débutant')
 }) }}
 
-<div class="row mb-4">
+<div class="row mb-4 dashboard-layout-row">
     <div class="col-md-8">
         <!-- Module Progress -->
         {{ render_module_progress(modules, user_progress) }}
@@ -44,7 +63,7 @@
         {{ render_module_completion_chart(user_progress, modules) }}
         
         <!-- Simulation Progress Chart -->
-        <div class="card card-primary card-outline mt-4">
+        <div class="card card-primary card-outline mt-4 dashboard-panel">
           <div class="card-header text-primary">
             <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Progression par simulation</h4>
           </div>
@@ -61,7 +80,7 @@
         {{ render_simulation_stats(simulation_stats) }}
         
         <!-- Recent Activities -->
-        <div class="card card-aside-primary shadow-sm mb-4">
+        <div class="card card-aside-primary shadow-sm mb-4 dashboard-panel dashboard-activity-panel">
           <div class="card-header text-primary d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><i class="fas fa-history me-2"></i> Activité récente</h4>
             <div class="card-tools">
@@ -69,11 +88,15 @@
             </div>
           </div>
           <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
+            <ul class="list-group list-group-flush dashboard-activity-feed">
               {% for act in recent_activities[:5] %}
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <span class="fw-bold">{{ act.module_name }}</span> - {{ act.action }}<br>
+              <li class="list-group-item dashboard-activity-item d-flex justify-content-between align-items-center">
+                <div class="ta-activity-icon">
+                  <i class="fas fa-bolt" aria-hidden="true"></i>
+                </div>
+                <div class="dashboard-activity-copy">
+                  <span class="dashboard-activity-label">{{ act.module_name }}</span>
+                  <span class="dashboard-activity-text">{{ act.action }}</span>
                   <small class="text-muted">{{ act.timestamp.strftime('%d/%m/%Y %H:%M') }}</small>
                 </div>
                 {% if act.score is not none %}<span class="badge bg-primary rounded-pill">{{ act.score|round(1) }}%</span>{% endif %}
@@ -88,9 +111,9 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row dashboard-layout-row">
     <div class="col-md-8">
-        <div class="card card-aside-primary shadow-sm mb-4">
+        <div class="card card-aside-primary shadow-sm mb-4 dashboard-panel dashboard-module-panel">
             <div class="card-header text-primary d-flex justify-content-between align-items-center">
                 <h4 class="mb-0 fw-bold"><i class="fas fa-graduation-cap me-3"></i>Parcours de Cybersécurité</h4>
                 <div class="card-tools">
@@ -103,7 +126,7 @@
                 <p class="text-muted mb-3">Découvrez nos modules de formation interactifs qui vous permettront d'améliorer vos compétences en cybersécurité et de protéger les actifs numériques de Tanger Alliance.</p>
             </div>
             <div class="card-body p-0">
-                <div class="list-group list-group-flush">
+                <div class="list-group list-group-flush dashboard-module-list">
                     {% for module in modules %}
                     {% set progress = user_progress.get(module.id, None) %}
                     {% set score = progress.score if progress and progress.score is not none else 0 %}
@@ -127,6 +150,7 @@
                     {% else %}
                         {% set icon_class = 'fas fa-shield-virus text-primary' %}
                     {% endif %}
+                    {% set display_description = module.description|default('')|replace('lllooolll', '')|striptags|trim|truncate(132, True) %}
                     
                     {% if progress and progress.completed %}
                         {% set status_class = 'border-success' %}
@@ -142,14 +166,14 @@
                         {% set status_bg = 'bg-secondary' %}
                     {% endif %}
                     
-                    <a href="{{ url_for('modules.view', module_id=module.id) }}" class="list-group-item list-group-item-action border-left-0 border-right-0 {{ status_class }} border-left-4 border-0 ps-0 py-3">
+                    <a href="{{ url_for('modules.view', module_id=module.id) }}" class="list-group-item list-group-item-action dashboard-module-entry border-left-0 border-right-0 {{ status_class }} border-left-4 border-0 ps-0 py-3">
                         <div class="d-flex w-100 align-items-center">
                             <div class="module-icon p-3 me-4 rounded-circle {{ status_bg }}">
                                 <i class="{{ icon_class }} fa-lg text-white"></i>
                             </div>
                             <div class="flex-grow-1 ms-2">
                                 <h5 class="mb-1">{{ module.title }}</h5>
-                                <p class="mb-1 text-muted">{{ module.description }}</p>
+                                <p class="mb-1 text-muted">{{ display_description }}</p>
                                 
                                 <div class="mt-3">
                                     <div class="progress mb-2" style="height: 10px;">
@@ -180,7 +204,7 @@
     <div class="col-md-4">
         <!-- Section des certificats supprimée -->
         
-        <div class="card card-primary card-outline shadow-sm mb-4">
+        <div class="card card-primary card-outline shadow-sm mb-4 dashboard-panel dashboard-badges-panel">
             <div class="card-header text-primary d-flex justify-content-between align-items-center">
                 <h4 class="mb-0"><i class="fas fa-award me-2"></i>Badges</h4>
                 <div class="card-tools">
@@ -191,7 +215,7 @@
             </div>
             <div class="card-body p-3">
                 {% if user_badges %}
-                    <div class="badges-container row g-4 justify-content-center">
+                    <div class="badges-container row g-4 justify-content-center dashboard-badges-grid">
                         {% for badge in user_badges %}
                         <div class="col-6 col-sm-6 col-md-6 col-lg-6">
                             <div class="badge-item text-center p-3 h-100 d-flex flex-column align-items-center justify-content-center" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ badge.description }}">
@@ -217,7 +241,7 @@
             </div>
         </div>
         
-        <div class="card card-primary card-outline shadow-sm mb-4">
+        <div class="card card-primary card-outline shadow-sm mb-4 dashboard-panel dashboard-simulation-panel">
             <div class="card-header text-primary">
                 <h4 class="mb-0">Simulation de phishing</h4>
             </div>
@@ -256,18 +280,70 @@
 
 {% block scripts %}
 {{ render_charts_script() }}
+<script src="{{ url_for('static', filename='js/dashboard-enhanced.js') }}"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('simulationChart').getContext('2d');
-    // Jinja2 JSON embedded safely and parsed to avoid lint errors
+    const canvas = document.getElementById('simulationChart');
+    if (!canvas || !window.Chart) {
+      return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    const rootStyle = getComputedStyle(document.documentElement);
+    const primary = rootStyle.getPropertyValue('--color-primary').trim() || '#38bdf8';
+    const secondary = rootStyle.getPropertyValue('--color-secondary').trim() || '#2dd4bf';
+    const border = rootStyle.getPropertyValue('--color-border').trim() || 'rgba(148, 163, 184, 0.18)';
+    const text = rootStyle.getPropertyValue('--color-text').trim() || '#f5fbff';
+    const tooltipSurface = rootStyle.getPropertyValue('--color-surface-elevated').trim() || '#122443';
     const stats = JSON.parse('{{ simulations_stats|tojson }}');
     const labels = [];
     const data = [];
     Object.values(stats).forEach(s => { labels.push(s.title); data.push(s.rate); });
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+    gradient.addColorStop(0, `${primary}dd`);
+    gradient.addColorStop(1, `${secondary}88`);
+
     new Chart(ctx, {
       type: 'bar',
-      data: { labels: labels, datasets: [{ label: '% de réussite', data: data, backgroundColor: '#17a2b8' }] },
-      options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '% de réussite',
+          data: data,
+          backgroundColor: gradient,
+          borderRadius: 12,
+          borderSkipped: false,
+          maxBarThickness: 44
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: tooltipSurface,
+            titleColor: text,
+            bodyColor: text,
+            borderColor: border,
+            borderWidth: 1,
+            cornerRadius: 14
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: function(value) { return value + '%'; }
+            }
+          }
+        }
+      }
     });
   });
 </script>

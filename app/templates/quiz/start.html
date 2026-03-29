@@ -1,41 +1,61 @@
 {% extends "base.html" %}
 
 {% block title %}Démarrer le Quiz - {{ quiz.title }}{% endblock %}
+{% block header_wrapper %}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="mb-0">{{ quiz.title }}</h3>
-                </div>
-                <div class="card-body">
-                    {% if quiz.description %}
-                    <p class="card-text">{{ quiz.description }}</p>
-                    {% endif %}
-                    
-                    <div class="alert alert-info">
-                        <h5>Instructions:</h5>
-                        <ul>
-                            <li>Ce quiz contient {{ quiz.questions|length }} questions</li>
-                            <li>Lisez attentivement chaque question avant de répondre</li>
-                            <li>Vous pouvez naviguer entre les questions</li>
-                            <li>Cliquez sur "Terminer le quiz" pour soumettre vos réponses</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="text-center">
-                        <a href="{{ url_for('quiz.view_question', quiz_id=quiz.id, question_num=1) }}" class="btn btn-primary btn-lg">
-                            Commencer le Quiz
-                        </a>
-                        <a href="{{ url_for('main.module_detail', module_id=module.id) }}" class="btn btn-secondary btn-lg ml-2">
-                            Retour au Module
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">Quiz Session</p>
+      <h1 class="ta-route-title">{{ quiz.title }}</h1>
+      <p class="ta-route-subtitle">
+        {% if quiz.description %}
+          {{ quiz.description }}
+        {% else %}
+          Lancez le quiz et validez votre niveau de maîtrise sur ce scénario de risque.
+        {% endif %}
+      </p>
     </div>
-</div>
+    <div class="ta-route-meta">
+      <span class="ta-pill-badge ta-pill-badge--teal">{{ questions|length }} questions</span>
+      <span class="ta-pill-badge ta-pill-badge--amber">Seuil {{ quiz.passing_score or 70 }}%</span>
+      <span class="ta-pill-badge ta-pill-badge--blue">{{ module.title }}</span>
+    </div>
+  </header>
+
+  <div class="ta-route-grid ta-route-grid--sidebar">
+    <article class="ta-surface-card">
+      <div class="ta-surface-card-header">
+        <div>
+          <p class="ta-surface-kicker">Brief</p>
+          <h2 class="ta-surface-title">Consignes de passage</h2>
+        </div>
+      </div>
+      <div class="ta-copy-stack">
+        <ul>
+          <li>Le quiz contient <strong>{{ questions|length }}</strong> questions présentées dans une interface unifiée.</li>
+          <li>Lisez chaque proposition attentivement avant validation.</li>
+          <li>Le score minimum attendu est de <strong>{{ quiz.passing_score or 70 }}%</strong>.</li>
+          <li>Vous pourrez revoir les explications après soumission.</li>
+        </ul>
+      </div>
+      <div class="ta-inline-actions">
+        <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">Commencer le quiz</a>
+        <a href="{{ url_for('modules.view', module_id=module.id) }}" class="btn btn-outline-primary">Retour au module</a>
+      </div>
+    </article>
+
+    <aside class="ta-route-grid">
+      <div class="ta-note-panel">
+        <h3>Cadre d’évaluation</h3>
+        <p>Le quiz mesure la compréhension opérationnelle du module, pas seulement la mémorisation.</p>
+      </div>
+      <div class="ta-note-panel">
+        <h3>Préparation recommandée</h3>
+        <p>Relisez les points critiques du module avant de lancer la session si vous visez une validation directe.</p>
+      </div>
+    </aside>
+  </div>
+</section>
 {% endblock %}

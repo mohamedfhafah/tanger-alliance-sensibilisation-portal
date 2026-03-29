@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Phishing{% endblock %}
+{% block header_wrapper %}{% endblock %}
+
+{% block content %}
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">Phishing Operations</p>
+      <h1 class="ta-route-title">Dashboard des campagnes de phishing</h1>
+      <p class="ta-route-subtitle">
+        Suivi consolidé des campagnes, de l’exposition des utilisateurs et des signaux de vulnérabilité observés.
+      </p>
+    </div>
+    <div class="ta-route-meta">
+      <span class="ta-pill-badge ta-pill-badge--teal">{{ total_campaigns }} campagnes</span>
+      <span class="ta-pill-badge ta-pill-badge--amber">{{ active_campaigns }} actives</span>
+    </div>
+  </header>
+
+  <div class="ta-stat-strip">
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Campagnes</p>
+      <p class="ta-stat-value">{{ total_campaigns }}</p>
+    </div>
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Actives</p>
+      <p class="ta-stat-value">{{ active_campaigns }}</p>
+    </div>
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Signalements</p>
+      <p class="ta-stat-value">{{ recent_stats.reported or 0 }}</p>
+    </div>
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Clics</p>
+      <p class="ta-stat-value">{{ recent_stats.clicked or 0 }}</p>
+    </div>
+  </div>
+
+  <div class="ta-route-grid ta-route-grid--sidebar">
+    <article class="ta-surface-card">
+      <div class="ta-surface-card-header">
+        <div>
+          <p class="ta-surface-kicker">Vulnerability watch</p>
+          <h2 class="ta-surface-title">Utilisateurs les plus exposés</h2>
+        </div>
+      </div>
+      {% if vulnerable_users %}
+        <div class="table-responsive">
+          <table class="ta-route-table">
+            <thead>
+              <tr>
+                <th>Utilisateur</th>
+                <th>Département</th>
+                <th>Simulations</th>
+                <th>Clics</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in vulnerable_users %}
+                <tr>
+                  <td>{{ user.firstname }} {{ user.lastname }}</td>
+                  <td>{{ user.department or 'N/A' }}</td>
+                  <td>{{ user.total_simulations }}</td>
+                  <td><span class="ta-pill-badge ta-pill-badge--red">{{ user.total_clicks }}</span></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="ta-empty-state">
+          <i class="fas fa-shield-check" aria-hidden="true"></i>
+          <h3>Aucun utilisateur exposé</h3>
+          <p>Les dernières campagnes ne montrent pas encore de clics exploitables sur la période observée.</p>
+        </div>
+      {% endif %}
+    </article>
+
+    <aside class="ta-route-grid">
+      <div class="ta-note-panel">
+        <h3>Campagnes récentes</h3>
+        <div class="ta-list-stack">
+          {% for campaign in recent_campaigns %}
+            <div class="ta-list-row">
+              <div class="ta-list-row-copy">
+                <p class="ta-list-row-title">{{ campaign.name }}</p>
+                <p class="ta-list-row-meta">{{ campaign.created_at.strftime('%d/%m/%Y') if campaign.created_at else 'N/A' }}</p>
+              </div>
+              <span class="ta-pill-badge {% if campaign.status == 'active' %}ta-pill-badge--teal{% else %}ta-pill-badge--slate{% endif %}">
+                {{ campaign.status|title }}
+              </span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="ta-note-panel">
+        <h3>Actions</h3>
+        <div class="ta-inline-actions">
+          <a href="{{ url_for('phishing.campaigns') }}" class="btn btn-primary">Voir les campagnes</a>
+          <a href="{{ url_for('phishing.new_campaign') }}" class="btn btn-outline-primary">Créer une campagne</a>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

@@ -1,6 +1,7 @@
-{% extends 'admin/master.html' %}
+{% extends 'admin/base.html' %}
 
-{% block body %}
+{% block content %}
+<div class="test" style="border: 1px solid green;"></div>
 <div class="container-fluid">
     <div class="row">
         <div class="col-12">
@@ -19,7 +20,7 @@
                         <h5><i class="fas fa-users text-primary"></i> Rapports Utilisateurs</h5>
                     </div>
                     <p class="card-text">Statistiques détaillées sur les utilisateurs, départements et rôles.</p>
-                    <a href="{{ url_for('reports.users_report') }}" class="btn btn-primary">
+                    <a href="{{ url_for('admin_portal.users_report') }}" class="btn btn-primary">
                         <i class="fas fa-eye"></i> Voir le Rapport
                     </a>
                 </div>
@@ -33,7 +34,7 @@
                         <h5><i class="fas fa-chart-line text-success"></i> Rapports de Progression</h5>
                     </div>
                     <p class="card-text">Analyse de la progression des utilisateurs dans les modules de formation.</p>
-                    <a href="{{ url_for('reports.progress_report') }}" class="btn btn-success">
+                    <a href="{{ url_for('admin_portal.progress_report') }}" class="btn btn-success">
                         <i class="fas fa-eye"></i> Voir le Rapport
                     </a>
                 </div>

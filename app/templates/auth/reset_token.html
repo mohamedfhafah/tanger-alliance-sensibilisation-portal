@@ -10,8 +10,9 @@
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     <div class="input-group mb-3">
+        {{ form.password.label(class="tanger-nav-sr-only") }}
         {% if form.password.errors %}
-            {{ form.password(class="form-control is-invalid", placeholder="Nouveau mot de passe") }}
+            {{ form.password(class="form-control is-invalid", placeholder="Nouveau mot de passe", autocomplete="new-password", aria_label="Nouveau mot de passe") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -23,7 +24,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.password(class="form-control", placeholder="Nouveau mot de passe") }}
+            {{ form.password(class="form-control", placeholder="Nouveau mot de passe", autocomplete="new-password", aria_label="Nouveau mot de passe") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -32,8 +33,9 @@
         {% endif %}
     </div>
     <div class="input-group mb-3">
+        {{ form.confirm_password.label(class="tanger-nav-sr-only") }}
         {% if form.confirm_password.errors %}
-            {{ form.confirm_password(class="form-control is-invalid", placeholder="Confirmer le nouveau mot de passe") }}
+            {{ form.confirm_password(class="form-control is-invalid", placeholder="Confirmer le nouveau mot de passe", autocomplete="new-password", aria_label="Confirmer le nouveau mot de passe") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -45,7 +47,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.confirm_password(class="form-control", placeholder="Confirmer le nouveau mot de passe") }}
+            {{ form.confirm_password(class="form-control", placeholder="Confirmer le nouveau mot de passe", autocomplete="new-password", aria_label="Confirmer le nouveau mot de passe") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-lock"></span>
@@ -53,8 +55,8 @@
             </div>
         {% endif %}
     </div>
-    <div class="row">
-      <div class="col-12">
+    <div class="row auth-form-actions">
+      <div class="col-12 auth-form-submit">
         {{ form.submit(class="btn btn-primary btn-block") }}
       </div>
       <!-- /.col -->
@@ -67,4 +69,3 @@
   <a href="{{ url_for('auth.login') }}">Se connecter</a>
 </p>
 {% endblock %}
-

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block header_wrapper %}{% endblock %}
+
+{% block content %}
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">Campaign Detail</p>
+      <h1 class="ta-route-title">{{ campaign.name }}</h1>
+      <p class="ta-route-subtitle">{{ campaign.description or 'Campagne de simulation de phishing pour entraîner les équipes et mesurer les réflexes.' }}</p>
+    </div>
+    <div class="ta-route-meta">
+      <span class="ta-pill-badge {% if campaign.status == 'active' %}ta-pill-badge--teal{% else %}ta-pill-badge--slate{% endif %}">
+        {{ campaign.status|title }}
+      </span>
+      <span class="ta-pill-badge ta-pill-badge--blue">{{ simulations|length }} simulation{% if simulations|length > 1 %}s{% endif %}</span>
+    </div>
+  </header>
+
+  <div class="ta-stat-strip">
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Créée le</p>
+      <p class="ta-stat-value">{{ campaign.created_at.strftime('%d/%m/%Y') if campaign.created_at else 'N/A' }}</p>
+    </div>
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Début</p>
+      <p class="ta-stat-value">{{ campaign.start_date.strftime('%d/%m/%Y') if campaign.start_date else 'N/A' }}</p>
+    </div>
+    <div class="ta-stat-tile">
+      <p class="ta-stat-label">Fin</p>
+      <p class="ta-stat-value">{{ campaign.end_date.strftime('%d/%m/%Y') if campaign.end_date else 'N/A' }}</p>
+    </div>
+  </div>
+
+  <div class="ta-route-grid ta-route-grid--sidebar">
+    <article class="ta-surface-card">
+      <div class="ta-surface-card-header">
+        <div>
+          <p class="ta-surface-kicker">Target matrix</p>
+          <h2 class="ta-surface-title">Cibles et statut individuel</h2>
+        </div>
+      </div>
+      {% if targets %}
+        <div class="table-responsive">
+          <table class="ta-route-table">
+            <thead>
+              <tr>
+                <th>Utilisateur</th>
+                <th>Simulation</th>
+                <th>Ouvert</th>
+                <th>Cliqué</th>
+                <th>Signalé</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for target, user, simulation in targets %}
+                <tr>
+                  <td>{{ user.firstname or user.email }}</td>
+                  <td>{{ simulation.title }}</td>
+                  <td>{{ 'Oui' if target.opened else 'Non' }}</td>
+                  <td>{{ 'Oui' if target.clicked else 'Non' }}</td>
+                  <td>{{ 'Oui' if target.reported else 'Non' }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="ta-empty-state">
+          <i class="fas fa-users-slash" aria-hidden="true"></i>
+          <h3>Aucune cible enregistrée</h3>
+          <p>Cette campagne n’a pas encore de destinataires exploitables.</p>
+        </div>
+      {% endif %}
+    </article>
+
+    <aside class="ta-route-grid">
+      <div class="ta-note-panel">
+        <h3>Simulations associées</h3>
+        <div class="ta-list-stack">
+          {% for simulation in simulations %}
+            <div class="ta-list-row">
+              <div class="ta-list-row-copy">
+                <p class="ta-list-row-title">{{ simulation.title }}</p>
+                <p class="ta-list-row-meta">{{ simulation.description or 'Simulation rattachée à cette campagne.' }}</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="ta-note-panel">
+        <h3>Statistiques par département</h3>
+        <div class="ta-list-stack">
+          {% for stat in dept_stats %}
+            <div class="ta-list-row">
+              <div class="ta-list-row-copy">
+                <p class="ta-list-row-title">{{ stat.department or 'N/A' }}</p>
+                <p class="ta-list-row-meta">{{ stat.total }} cibles • {{ stat.clicked or 0 }} clics • {{ stat.reported or 0 }} signalements</p>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

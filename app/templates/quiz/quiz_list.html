@@ -1,17 +1,7 @@
 {% extends "base.html" %}
+{% block header_wrapper %}{% endblock %}
 
 {% block body_class %} quiz-page{% endblock %}
-
-{% block head_extra %}
-<style>
-body { 
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important; 
-}
-.wrapper, .content-wrapper { 
-    background: transparent !important; 
-}
-</style>
-{% endblock %}
 
 {% block page_title %}
   <h1>Quiz - Niveaux de Difficulté</h1>
@@ -22,438 +12,103 @@ body {
   <li class="breadcrumb-item active">Quiz</li>
 {% endblock %}
 
-{% block styles %}
-<style>
-/* Modern Quiz List Design System */
-:root {
-    --primary-gradient: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%);
-    --success-gradient: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    --warning-gradient: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-    --danger-gradient: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
-    --info-gradient: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-    
-    --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    --card-shadow-hover: 0 1rem 3rem rgba(0, 0, 0, 0.175);
-    --border-radius: 0.75rem;
-    --border-radius-lg: 1rem;
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    
-    --spacing-xs: 0.25rem;
-    --spacing-sm: 0.5rem;
-    --spacing-md: 1rem;
-    --spacing-lg: 1.5rem;
-    --spacing-xl: 2rem;
-    --spacing-xxl: 3rem;
-}
-
-.container-fluid {
-    padding: var(--spacing-xl) var(--spacing-md);
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    min-height: 100vh;
-}
-
-.card {
-    border: none;
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--card-shadow);
-    overflow: hidden;
-    background: white;
-}
-
-.card-header {
-    background: var(--primary-gradient);
-    border: none;
-    padding: var(--spacing-xl);
-    color: white;
-}
-
-.card-header h3 {
-    margin: 0;
-    font-weight: 600;
-    font-size: 1.5rem;
-}
-
-.card-tools .badge {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--border-radius);
-    font-weight: 500;
-}
-
-.card-body {
-    padding: var(--spacing-xl);
-}
-
-/* Module Cards */
-.module-card {
-    border: none;
-    border-radius: var(--border-radius);
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-    transition: var(--transition);
-    overflow: hidden;
-    background: white;
-}
-
-.module-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--card-shadow);
-}
-
-.module-card .card-header {
-    background: var(--primary-gradient);
-    border: none;
-    padding: var(--spacing-lg);
-    color: white;
-    position: relative;
-}
-
-.module-card .card-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: rgba(255, 255, 255, 0.3);
-}
-
-.module-card .card-title {
-    margin: 0;
-    font-weight: 600;
-    font-size: 1.1rem;
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-}
-
-.module-card .card-body {
-    padding: 0;
-}
-
-/* Quiz Level Items */
-.quiz-level-item {
-    border-bottom: 1px solid #f8f9fa;
-    transition: var(--transition);
-    position: relative;
-}
-
-.quiz-level-item:last-child {
-    border-bottom: none;
-}
-
-.quiz-level-item:hover {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-
-.quiz-level-item.completed {
-    background: linear-gradient(135deg, rgba(40, 167, 69, 0.05) 0%, rgba(40, 167, 69, 0.02) 100%);
-}
-
-.quiz-level-item.locked {
-    background: linear-gradient(135deg, rgba(108, 117, 125, 0.05) 0%, rgba(108, 117, 125, 0.02) 100%);
-    opacity: 0.7;
-}
-
-.quiz-level-item .d-flex {
-    padding: var(--spacing-lg);
-}
-
-/* Level Badges */
-.level-badge {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--border-radius);
-    font-weight: 600;
-    font-size: 0.85rem;
-    min-width: 120px;
-    justify-content: center;
-}
-
-.level-beginner {
-    background: var(--success-gradient);
-    color: white;
-    box-shadow: 0 0.125rem 0.25rem rgba(40, 167, 69, 0.3);
-}
-
-.level-intermediate {
-    background: var(--warning-gradient);
-    color: #212529;
-    box-shadow: 0 0.125rem 0.25rem rgba(255, 193, 7, 0.3);
-}
-
-.level-advanced {
-    background: var(--danger-gradient);
-    color: white;
-    box-shadow: 0 0.125rem 0.25rem rgba(220, 53, 69, 0.3);
-}
-
-/* Quiz Info */
-.quiz-info {
-    flex: 1;
-    margin-left: var(--spacing-md);
-}
-
-.quiz-title {
-    font-weight: 600;
-    color: #495057;
-    text-decoration: none;
-    font-size: 1rem;
-    line-height: 1.4;
-}
-
-.quiz-title:hover {
-    color: #0d6efd;
-    text-decoration: none;
-}
-
-.quiz-meta {
-    margin-top: var(--spacing-sm);
-    font-size: 0.85rem;
-    color: #6c757d;
-}
-
-.quiz-meta i {
-    margin-right: var(--spacing-xs);
-    width: 12px;
-    text-align: center;
-}
-
-/* Quiz Status */
-.quiz-status {
-    text-align: center;
-    min-width: 100px;
-}
-
-.badge {
-    border-radius: var(--border-radius);
-    padding: var(--spacing-sm) var(--spacing-md);
-    font-weight: 500;
-    font-size: 0.75rem;
-}
-
-.badge-success {
-    background: var(--success-gradient);
-    color: white;
-}
-
-.badge-warning {
-    background: var(--warning-gradient);
-    color: #212529;
-}
-
-.badge-secondary {
-    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-    color: white;
-}
-
-/* Progress Indicators */
-.quiz-level-item::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background-color: #dee2e6;
-    transition: var(--transition);
-}
-
-.quiz-level-item.completed::before {
-    background: var(--success-gradient);
-    box-shadow: 0 0 8px rgba(40, 167, 69, 0.3);
-}
-
-.quiz-level-item.unlocked:not(.completed)::before {
-    background: var(--primary-gradient);
-    box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
-}
-
-.quiz-level-item.locked::before {
-    background-color: #6c757d;
-}
-
-/* Animations */
-@keyframes pulse-success {
-    0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
-}
-
-.quiz-level-item.completed:hover::before {
-    animation: pulse-success 1.5s ease-out infinite;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .container-fluid {
-        padding: var(--spacing-lg) var(--spacing-sm);
-    }
-    
-    .quiz-level-item .d-flex {
-        flex-direction: column;
-        text-align: center;
-        gap: var(--spacing-md);
-    }
-    
-    .level-badge {
-        margin: 0 auto;
-    }
-    
-    .quiz-info {
-        margin-left: 0;
-    }
-    
-    .quiz-status {
-        margin-top: var(--spacing-md);
-        min-width: auto;
-    }
-}
-
-@media (max-width: 576px) {
-    .col-lg-6.col-xl-4 {
-        margin-bottom: var(--spacing-xl);
-    }
-    
-    .module-card .card-header {
-        padding: var(--spacing-md);
-    }
-    
-    .module-card .card-title {
-        font-size: 1rem;
-    }
-    
-    .quiz-level-item .d-flex {
-        padding: var(--spacing-md);
-    }
-}
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="container-fluid quiz-page-container quiz-system-override">
-  <div class="row">
-    <div class="col-12">
-      <div class="card quiz-main-card">
-        <div class="card-header">
-          <h3 class="card-title">Quiz par Module et Niveau de Difficulté</h3>
-          <div class="card-tools">
-            <span class="badge badge-info">{{ modules_data|length }} modules disponibles</span>
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">Quiz Progression</p>
+      <h1 class="ta-route-title">Quiz par module et niveau de difficulté</h1>
+      <p class="ta-route-subtitle">
+        Chaque module rassemble ses validations, avec une lecture claire des prérequis, du score attendu et de l’état actuel.
+      </p>
+    </div>
+    <div class="ta-route-meta">
+      <span class="ta-pill-badge ta-pill-badge--blue">{{ modules_data|length }} module{{ 's' if modules_data|length != 1 else '' }}</span>
+    </div>
+  </header>
+
+  {% if modules_data %}
+    <div class="ta-card-grid ta-card-grid--two">
+      {% for module_data in modules_data %}
+        <article class="ta-quiz-module-card">
+          <div class="ta-quiz-module-head">
+            <div>
+              <p class="ta-surface-kicker">Module</p>
+              <h2 class="ta-quiz-module-title">{{ module_data.module.title }}</h2>
+            </div>
+            <span class="ta-pill-badge ta-pill-badge--slate">{{ module_data.quizzes|length }} quiz</span>
           </div>
-        </div>
-        <div class="card-body">
-          {% if modules_data %}
-            <div class="row">
-              {% for module_data in modules_data %}
-                <div class="col-lg-6 col-xl-4 mb-4">
-                  <div class="card h-100 quiz-module-card">
-                    <div class="card-header bg-gradient-primary text-white">
-                      <h5 class="card-title mb-0">
-                        <i class="fas fa-book mr-2"></i>{{ module_data.module.title }}
-                      </h5>
-                      <small class="text-light">{{ module_data.quizzes|length }} quiz disponibles</small>
+
+          <div class="ta-quiz-level-list">
+            {% for quiz in module_data.quizzes %}
+              <div class="ta-quiz-level-row {{ 'is-completed' if quiz.user_progress and quiz.user_progress.completed else '' }}">
+                <div class="ta-quiz-level-top">
+                  <div class="ta-quiz-level-copy">
+                    <div class="ta-inline-actions">
+                      {% if quiz.difficulty_level == 'beginner' %}
+                        <span class="ta-pill-badge ta-pill-badge--teal">Débutant</span>
+                      {% elif quiz.difficulty_level == 'intermediate' %}
+                        <span class="ta-pill-badge ta-pill-badge--amber">Intermédiaire</span>
+                      {% elif quiz.difficulty_level == 'advanced' %}
+                        <span class="ta-pill-badge ta-pill-badge--red">Avancé</span>
+                      {% else %}
+                        <span class="ta-pill-badge ta-pill-badge--blue">Quiz</span>
+                      {% endif %}
                     </div>
-                    <div class="card-body p-0">
-                      <div class="quiz-levels">
-                        {% for quiz in module_data.quizzes %}
-                          <div class="quiz-level-item {{ 'unlocked' if quiz.is_unlocked else 'locked' }} 
-                                      {{ 'completed' if quiz.user_progress and quiz.user_progress.completed else '' }}">
-                            <div class="d-flex align-items-center p-3 border-bottom">
-                              <div class="quiz-level-indicator mr-3">
-                                {% if quiz.difficulty_level == 'beginner' %}
-                                  <div class="quiz-level-badge quiz-level-beginner">
-                                    <i class="fas fa-star"></i>
-                                    <span>Débutant</span>
-                                  </div>
-                                {% elif quiz.difficulty_level == 'intermediate' %}
-                                  <div class="quiz-level-badge quiz-level-intermediate">
-                                    <i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                    <span>Intermédiaire</span>
-                                  </div>
-                                {% elif quiz.difficulty_level == 'advanced' %}
-                                  <div class="quiz-level-badge quiz-level-advanced">
-                                    <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                                    <span>Avancé</span>
-                                  </div>
-                                {% endif %}
-                              </div>
-                              
-                              <div class="quiz-info flex-grow-1">
-                                <h6 class="mb-1 quiz-title">{{ quiz.title }}</h6>
-                                <p class="mb-1 text-muted small">{{ quiz.description }}</p>
-                                <div class="quiz-meta">
-                                  <small class="text-muted">
-                                    Score minimum: {{ quiz.passing_score }}%
-                                    {% if quiz.user_progress and quiz.user_progress.score %}
-                                      | Votre score: {{ quiz.user_progress.score|round(1) }}%
-                                    {% endif %}
-                                  </small>
-                                </div>
-                              </div>
-                              
-                              <div class="quiz-status">
-                                {% if quiz.is_unlocked %}
-                                  {% if quiz.user_progress and quiz.user_progress.completed %}
-                                    {% if quiz.user_progress.score >= quiz.passing_score %}
-                                      <span class="badge quiz-badge quiz-badge-success">
-                                        <i class="fas fa-check-circle"></i> Réussi
-                                      </span>
-                                      <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.id, retaking='true') }}" 
-                                         class="btn btn-outline-primary btn-sm mt-1">
-                                        <i class="fas fa-redo"></i> Refaire
-                                      </a>
-                                    {% else %}
-                                      <span class="badge quiz-badge quiz-badge-warning">
-                                        <i class="fas fa-exclamation-triangle"></i> À reprendre
-                                      </span>
-                                      <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.id, retaking='true') }}" 
-                                         class="btn btn-warning btn-sm mt-1">
-                                        <i class="fas fa-redo"></i> Reprendre
-                                      </a>
-                                    {% endif %}
-                                  {% else %}
-                                    <span class="badge quiz-badge badge-info">
-                                      <i class="fas fa-unlock"></i> Disponible
-                                    </span>
-                                    <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.id) }}" 
-                                       class="btn btn-primary btn-sm mt-1">
-                                      <i class="fas fa-play"></i> Commencer
-                                    </a>
-                                  {% endif %}
-                                {% else %}
-                                  <span class="badge quiz-badge quiz-badge-secondary">
-                                    <i class="fas fa-lock"></i> Verrouillé
-                                  </span>
-                                  {% if quiz.prerequisite_quiz_id %}
-                                    <small class="text-muted d-block mt-1">
-                                      Complétez le quiz précédent
-                                    </small>
-                                  {% endif %}
-                                {% endif %}
-                              </div>
-                            </div>
-                          </div>
-                        {% endfor %}
-                      </div>
-                    </div>
+                    <h4>{{ quiz.title }}</h4>
+                    <p>{{ quiz.description }}</p>
+                    <small>
+                      Score minimum: {{ quiz.passing_score }}%
+                      {% if quiz.user_progress and quiz.user_progress.score %}
+                        | Votre score: {{ quiz.user_progress.score|round(1) }}%
+                      {% endif %}
+                    </small>
+                  </div>
+
+                  <div class="ta-quiz-level-actions">
+                    {% if quiz.is_unlocked %}
+                      {% if quiz.user_progress and quiz.user_progress.completed %}
+                        {% if quiz.user_progress.score >= quiz.passing_score %}
+                          <span class="ta-pill-badge ta-pill-badge--teal">Réussi</span>
+                          <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.id, retaking='true') }}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-redo mr-1" aria-hidden="true"></i> Refaire
+                          </a>
+                        {% else %}
+                          <span class="ta-pill-badge ta-pill-badge--amber">À reprendre</span>
+                          <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.id, retaking='true') }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-redo mr-1" aria-hidden="true"></i> Reprendre
+                          </a>
+                        {% endif %}
+                      {% else %}
+                        <span class="ta-pill-badge ta-pill-badge--blue">Disponible</span>
+                        <a href="{{ url_for('quiz.view_quiz', quiz_id=quiz.id) }}" class="btn btn-primary btn-sm">
+                          <i class="fas fa-play mr-1" aria-hidden="true"></i> Commencer
+                        </a>
+                      {% endif %}
+                    {% else %}
+                      <span class="ta-pill-badge ta-pill-badge--slate">Verrouillé</span>
+                    {% endif %}
                   </div>
                 </div>
-              {% endfor %}
-            </div>
-          {% else %}
-            <div class="alert alert-info text-center">
-              <i class="fas fa-info-circle fa-2x mb-3"></i>
-              <h5>Aucun quiz disponible</h5>
-              <p>Il n'y a actuellement aucun quiz disponible. Revenez plus tard!</p>
-            </div>
-          {% endif %}
-        </div>
+
+                {% if not quiz.is_unlocked and quiz.prerequisite_quiz_id %}
+                  <small>Complétez le quiz précédent pour déverrouiller cette étape.</small>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info ta-alert" role="alert">
+      <div class="ta-alert-copy">
+        <i class="fas fa-circle-info" aria-hidden="true"></i>
+        <span>Aucun quiz n’est actuellement disponible. Revenez plus tard.</span>
       </div>
     </div>
-  </div>
-</div>
+  {% endif %}
+</section>
 
 <!-- Quiz Info Modal -->
 <div class="modal fade" id="quizInfoModal" tabindex="-1" role="dialog">

@@ -1,0 +1,81 @@
+{# Jinja macros for reusable module card and sidebar menu #}
+
+{% macro module_card(module, user_progress, overview=True) %}
+  {% set progress = user_progress.get(module.id) if user_progress is mapping else None %}
+  {% set progress_value = 100 if progress and progress.completed else (progress.score|round|int if progress and progress.score is not none else 0) %}
+  {% if progress and progress.completed %}
+    {% set status_class = 'completed' %}
+    {% set status_text = 'Complété' %}
+    {% set action_text = 'Revoir le module' %}
+  {% elif progress %}
+    {% set status_class = 'started' %}
+    {% set status_text = 'En cours' %}
+    {% set action_text = 'Continuer le module' %}
+  {% else %}
+    {% set status_class = 'pending' %}
+    {% set status_text = 'À démarrer' %}
+    {% set action_text = 'Commencer le module' %}
+  {% endif %}
+  {% set display_description = module.description|default('')|replace('lllooolll', '')|striptags|trim|truncate(128, True) %}
+
+  <div class="col-12 col-md-6 col-xl-4">
+    <article class="ta-module-card fade-in-up">
+      <div class="ta-module-card-top">
+        <div class="ta-module-icon">
+          <i class="{{ module.icon_class or 'fas fa-book' }}" aria-hidden="true"></i>
+        </div>
+        <span class="ta-module-status {{ status_class }}">{{ status_text }}</span>
+      </div>
+
+      <div class="ta-module-card-copy">
+        <span class="ta-module-order">Module {{ module.order }}</span>
+        <h3>{{ module.title }}</h3>
+        <p>{{ display_description }}</p>
+      </div>
+
+      <div class="ta-module-progress">
+        <div class="ta-module-progress-meta">
+          <span>Progression</span>
+          <span>{{ progress_value }}%</span>
+        </div>
+        <div class="progress">
+          <div
+            class="progress-bar"
+            role="progressbar"
+            style="width: {{ progress_value }}%;"
+            aria-valuenow="{{ progress_value }}"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          ></div>
+        </div>
+      </div>
+
+      <div class="ta-module-footer">
+        <div class="card-meta">
+          <i class="far fa-clock" aria-hidden="true"></i>
+          {{ module.estimated_time or '30' }} min
+        </div>
+        {% if module.content %}
+          <span class="premium-badge">Interactif</span>
+        {% endif %}
+      </div>
+
+      <a href="{{ url_for('modules.view', module_id=module.id) }}" class="btn btn-primary btn-block">
+        {{ action_text }}
+        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+      </a>
+    </article>
+  </div>
+{% endmacro %}
+
+{% macro sidebar_menu(items, active_id) %}
+  <ul class="nav flex-column module-sidebar">
+    {% for item in items %}
+    <li class="nav-item">
+      <a class="nav-link d-flex align-items-center {% if item.id == active_id %}active{% endif %}" href="#{{ item.id }}">
+        {% if item.icon %}<i class="{{ item.icon }} me-2" aria-hidden="true"></i>{% endif %}{{ item.label }}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+{% endmacro %}

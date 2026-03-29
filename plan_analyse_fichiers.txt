@@ -1,0 +1,65 @@
+# Plan d'Analyse Exhaustive du Projet de Portail de Sécurité
+
+Ce document liste tous les fichiers essentiels à analyser pour une compréhension complète de l'application. L'analyse doit être menée par couches logiques.
+
+---
+### 1. Configuration et Point d'Entrée
+*Objectif : Comprendre comment l'application est configurée, initialisée et lancée.*
+
+- `config.py` : Contient les configurations pour les différents environnements (développement, production) et les clés secrètes.
+- `app/__init__.py` : Le cœur de l'application. C'est ici que l'instance Flask est créée et que toutes les extensions (SQLAlchemy, Bcrypt, LoginManager, Mail, Admin) sont initialisées et connectées.
+- `run.py` (ou la commande `flask run`) : Le script qui lance le serveur de développement.
+
+---
+### 2. Modèles de Données (La structure de l'information)
+*Objectif : Comprendre la structure de la base de données et les relations entre les différentes entités.*
+
+- `app/models/user.py` : Définit la table des utilisateurs, leurs rôles, et les relations avec les badges et la progression.
+- `app/models/module.py` : Définit les tables pour les modules, les quiz, les questions, les choix de réponse, et le suivi de la progression.
+- `app/models/badge.py` : Définit la table des badges et la table d'association pour lier les badges aux utilisateurs.
+
+---
+### 3. Routes (La logique de l'application)
+*Objectif : Comprendre comment l'application répond aux requêtes des utilisateurs et quelles logiques sont exécutées.*
+
+- `app/routes/auth.py` : Gère l'inscription, la connexion, la déconnexion et la réinitialisation de mot de passe.
+- `app/routes/main.py` : Gère les pages principales comme l'accueil, le tableau de bord et le profil utilisateur.
+- `app/routes/modules.py` : Gère toute la logique de formation : affichage des modules, démarrage, gestion des quiz, attribution des badges.
+- `app/routes/admin.py` : Contient les routes spécifiques pour les fonctionnalités d'administration.
+
+---
+### 4. Templates (L'interface utilisateur)
+*Objectif : Comprendre ce que l'utilisateur voit et comment l'information est présentée.*
+
+#### 4.1 Structure de Base et Composants Réutilisables
+- `app/templates/base.html` : Le template de base hérité par toutes les autres pages.
+- `app/templates/auth_base.html` : Le template de base pour les pages d'authentification.
+- `app/templates/macros/` : Contient les macros Jinja pour les composants réutilisables (cartes de module, boutons de quiz, etc.), ce qui permet de ne pas répéter le code HTML.
+
+#### 4.2 Pages Principales
+- `app/templates/dashboard.html` : La page du tableau de bord.
+- `app/templates/profile.html` : La page de profil utilisateur.
+- `app/templates/modules_overview.html` : La page du catalogue des modules.
+
+#### 4.3 Pages d'Authentification
+- `app/templates/auth/login.html`
+- `app/templates/auth/register.html`
+- `app/templates/auth/reset_request.html`
+- `app/templates/auth/reset_token.html`
+
+#### 4.4 Pages de Contenu de Formation
+- `app/templates/modules/` : Ce dossier contient tous les templates pour le contenu spécifique des modules et des quiz.
+  - `quiz.html` : La page où l'utilisateur passe un quiz.
+  - `results.html` : La page affichant les résultats détaillés d'un quiz.
+  - `network_security_module.html` : Contenu du module sur la sécurité réseau.
+  - `mobile_security_module.html` : Contenu du module sur la sécurité mobile.
+  - `phishing_simulation.html` : Le module interactif de simulation de phishing.
+  - `report_phishing.html` : La page permettant de signaler un phishing.
+
+---
+### 5. Fichiers Statiques et Utilitaires
+*Objectif : Comprendre les éléments de style, les scripts côté client et les fonctions de support.*
+
+- `app/static/` : Contient les fichiers CSS, JavaScript et les images.
+- `app/utils.py` : Contient les fonctions utilitaires, comme la sauvegarde des images de profil.
+- `seed.py` (si présent) : Script pour peupler la base de données avec des données initiales (modules, quiz, etc.).

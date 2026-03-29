@@ -1,75 +1,108 @@
 {% extends "base.html" %}
+{% block header_wrapper %}{% endblock %}
 {% block content %}
-<div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800">{{ title }}</h1>
-    
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Alertes de sécurité récentes</h6>
-                </div>
-                <div class="card-body">
-                    {% if alerts %}
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Titre</th>
-                                        <th>Description</th>
-                                        <th>Niveau</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for alert in alerts %}
-                                    <tr>
-                                        <td>{{ alert.date }}</td>
-                                        <td>{{ alert.title }}</td>
-                                        <td>{{ alert.description }}</td>
-                                        <td>
-                                            {% if alert.severity == 'high' %}
-                                                <span class="badge badge-danger">Élevé</span>
-                                            {% elif alert.severity == 'medium' %}
-                                                <span class="badge badge-warning">Moyen</span>
-                                            {% else %}
-                                                <span class="badge badge-info">Information</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="alert alert-info">
-                            Aucune alerte de sécurité à afficher.
-                        </div>
-                    {% endif %}
+<section class="ta-route-shell">
+    <header class="ta-route-header">
+        <div class="ta-route-header-copy">
+            <p class="ta-route-eyebrow">Security Monitoring</p>
+            <h1 class="ta-route-title">{{ title }}</h1>
+            <p class="ta-route-subtitle">
+                Lecture continue des signaux sécurité, des notifications prioritaires et des actions terrain à engager.
+            </p>
+        </div>
+        <div class="ta-route-meta">
+            <span class="ta-pill-badge ta-pill-badge--teal">{{ alerts|length }} alerte{{ 's' if alerts|length != 1 else '' }}</span>
+        </div>
+    </header>
+
+    <div class="ta-route-grid">
+        <article class="ta-surface-card">
+            <div class="ta-surface-card-header">
+                <div>
+                    <p class="ta-surface-kicker">Recent Alerts</p>
+                    <h2 class="ta-surface-title">Alertes de sécurité récentes</h2>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Actions recommandées</h6>
+
+            {% if alerts %}
+                <div class="table-responsive">
+                    <table class="ta-route-table" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Titre</th>
+                                <th>Description</th>
+                                <th>Niveau</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for alert in alerts %}
+                            <tr>
+                                <td>{{ alert.date }}</td>
+                                <td>{{ alert.title }}</td>
+                                <td>{{ alert.description }}</td>
+                                <td>
+                                    {% if alert.severity == 'high' %}
+                                        <span class="ta-pill-badge ta-pill-badge--red">Élevé</span>
+                                    {% elif alert.severity == 'medium' %}
+                                        <span class="ta-pill-badge ta-pill-badge--amber">Moyen</span>
+                                    {% else %}
+                                        <span class="ta-pill-badge ta-pill-badge--blue">Information</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card-body">
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle mr-2"></i> Consultez régulièrement cette page pour rester informé des alertes de sécurité.
+            {% else %}
+                <div class="alert alert-info ta-alert" role="alert">
+                    <div class="ta-alert-copy">
+                        <i class="fas fa-circle-info" aria-hidden="true"></i>
+                        <span>Aucune alerte de sécurité à afficher pour le moment.</span>
                     </div>
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle mr-2"></i> Suivez les modules de formation pour améliorer vos connaissances en sécurité.
-                    </div>
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle mr-2"></i> Signalez tout incident de sécurité via la page dédiée.
-                    </div>
+                </div>
+            {% endif %}
+        </article>
+
+        <article class="ta-surface-card ta-surface-card--compact">
+            <div class="ta-surface-card-header">
+                <div>
+                    <p class="ta-surface-kicker">Recommended Actions</p>
+                    <h2 class="ta-surface-title">Actions recommandées</h2>
                 </div>
             </div>
-        </div>
+
+            <div class="ta-list-stack">
+                <div class="ta-list-row">
+                    <div class="ta-list-row-copy">
+                        <h3 class="ta-list-row-title">Surveiller les nouvelles alertes</h3>
+                        <p class="ta-list-row-meta">Consultez régulièrement cette page pour maintenir une lecture à jour des signaux sécurité.</p>
+                    </div>
+                    <span class="ta-pill-badge ta-pill-badge--teal">Continu</span>
+                </div>
+                <div class="ta-list-row">
+                    <div class="ta-list-row-copy">
+                        <h3 class="ta-list-row-title">Renforcer les compétences des équipes</h3>
+                        <p class="ta-list-row-meta">Activez les modules prioritaires afin d'améliorer la détection, la qualification et la remontée d'incidents.</p>
+                    </div>
+                    <a href="{{ url_for('modules.index') }}" class="ta-inline-link">
+                        Voir les modules
+                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+                <div class="ta-list-row">
+                    <div class="ta-list-row-copy">
+                        <h3 class="ta-list-row-title">Escalader les incidents critiques</h3>
+                        <p class="ta-list-row-meta">Utilisez le formulaire de signalement dès qu'un événement suspect présente un impact opérationnel ou réglementaire.</p>
+                    </div>
+                    <a href="{{ url_for('security.report_incident') }}" class="ta-inline-link">
+                        Signaler un incident
+                        <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </article>
     </div>
-</div>
+</section>
 {% endblock %}

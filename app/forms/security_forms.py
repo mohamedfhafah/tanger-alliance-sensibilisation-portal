@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SubmitField, SelectField, DateField, SelectMultipleField
+from wtforms import BooleanField, StringField, TextAreaField, SubmitField, SelectField, DateField, SelectMultipleField
 from wtforms.validators import DataRequired, Email, Optional
 
 class PhishingReportForm(FlaskForm):
@@ -26,30 +26,26 @@ class PhishingCampaignForm(FlaskForm):
     name = StringField('Nom de la campagne', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[Optional()])
     template = SelectField('Template d\'email', choices=[
-        ('shipping_manifest', 'Faux manifeste d\'expédition'),
-        ('customs_notification', 'Notification douanes frauduleuse'),
-        ('port_security_alert', 'Alerte sécurité système'),
-        ('ceo_fraud', 'Email de PDG frauduleux'),
-        ('generic_phishing', 'Template générique')
+        ('fake_shipping_manifest', 'Faux manifeste d\'expédition'),
+        ('fake_customs_notification', 'Notification douanes frauduleuse'),
+        ('fake_portnet_security_alert', 'Alerte sécurité système')
     ], validators=[DataRequired()])
-    
+
+    simulation_title = StringField('Titre de la simulation', validators=[DataRequired()])
+    simulation_description = TextAreaField('Description de la simulation', validators=[Optional()])
+    start_date = DateField('Date de début', validators=[Optional()])
+    end_date = DateField('Date de fin', validators=[Optional()])
+
+    target_all = BooleanField('Cibler tous les utilisateurs')
+    target_departments = SelectMultipleField('Départements', choices=[], validators=[Optional()])
+    target_users = SelectMultipleField('Utilisateurs spécifiques', choices=[], validators=[Optional()])
+
+    # Legacy fields kept for backward compatibility with older route logic.
     target_selection = SelectField('Ciblage', choices=[
         ('all_users', 'Tous les utilisateurs'),
         ('by_department', 'Par département'),
         ('specific_users', 'Utilisateurs spécifiques')
-    ], validators=[DataRequired()])
-    
-    department = SelectField('Département', choices=[
-        ('', 'Sélectionner un département'),
-        ('Logistique', 'Logistique'),
-        ('Douanes', 'Douanes'),
-        ('Sécurité', 'Sécurité'),
-        ('IT', 'IT'),
-        ('RH', 'Ressources Humaines'),
-        ('Commercial', 'Commercial'),
-        ('Finance', 'Finance'),
-        ('Direction', 'Direction')
     ], validators=[Optional()])
-    
-    start_date = DateField('Date de début', validators=[Optional()])
+    department = SelectField('Département', choices=[], validators=[Optional()])
+
     submit = SubmitField('Créer la campagne')

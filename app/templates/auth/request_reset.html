@@ -10,8 +10,9 @@
 <form method="POST" action="">
     {{ form.hidden_tag() }}
     <div class="input-group mb-3">
+        {{ form.email.label(class="tanger-nav-sr-only") }}
         {% if form.email.errors %}
-            {{ form.email(class="form-control is-invalid", placeholder="Adresse Email") }}
+            {{ form.email(class="form-control is-invalid", placeholder="Adresse Email", autocomplete="email", spellcheck="false", aria_label="Adresse Email") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-envelope"></span>
@@ -23,7 +24,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            {{ form.email(class="form-control", placeholder="Adresse Email") }}
+            {{ form.email(class="form-control", placeholder="Adresse Email", autocomplete="email", spellcheck="false", aria_label="Adresse Email") }}
             <div class="input-group-append">
                 <div class="input-group-text">
                   <span class="fas fa-envelope"></span>
@@ -31,8 +32,8 @@
             </div>
         {% endif %}
     </div>
-    <div class="row">
-      <div class="col-12">
+    <div class="row auth-form-actions">
+      <div class="col-12 auth-form-submit">
         {{ form.submit(class="btn btn-primary btn-block") }}
       </div>
       <!-- /.col -->
@@ -48,4 +49,3 @@
     <a href="{{ url_for('auth.register') }}" class="text-center">Créer un nouveau compte</a>
 </p>
 {% endblock %}
-

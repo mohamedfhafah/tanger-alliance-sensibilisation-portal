@@ -116,7 +116,7 @@
                             
                             {% if module %}
                             <div>
-                                <a href="{{ url_for('main.view_module', module_id=module.id) }}" 
+                                <a href="{{ url_for('modules.view', module_id=module.id) }}" 
                                    class="btn btn-outline-info" target="_blank">
                                     <i class="fas fa-eye"></i> Aperçu
                                 </a>
@@ -145,14 +145,14 @@
                             <strong>Score requis:</strong> {{ module.quiz.passing_score }}%<br>
                             <strong>Questions:</strong> {{ module.quiz.questions|length }}
                         </div>
-                        <a href="{{ url_for('admin_portal.edit_quiz', module_id=module.id) }}" class="btn btn-primary">
+                        <a href="{{ url_for('admin_portal.manage_quiz', module_id=module.id) }}" class="btn btn-primary">
                             <i class="fas fa-edit"></i> Modifier le quiz
                         </a>
                     {% else %}
                         <div class="alert alert-warning">
                             Aucun quiz associé à ce module.
                         </div>
-                        <a href="{{ url_for('admin_portal.create_quiz', module_id=module.id) }}" class="btn btn-success">
+                        <a href="{{ url_for('admin_portal.manage_quiz', module_id=module.id) }}" class="btn btn-success">
                             <i class="fas fa-plus"></i> Créer un quiz
                         </a>
                     {% endif %}

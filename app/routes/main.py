@@ -576,6 +576,9 @@ def quiz():
 @main.route('/modules/<int:module_id>')
 @login_required
 def view_module(module_id):
+    """Deprecated: This route now simply redirects to the central modules.view route
+    to avoid duplicate rendering logic."""
+    return redirect(url_for('modules.view', module_id=module_id))
     module = Module.query.get_or_404(module_id)
     if not module.is_active:
         flash('Ce module n\'est pas actuellement disponible.', 'warning')
@@ -698,6 +701,45 @@ def profile():
     
     # Statistiques de l'utilisateur
     completed_modules = UserProgress.query.filter_by(user_id=current_user.id, completed=True).count()
+    total_modules = Module.query.count()
+    avg_score_query = db.session.query(func.avg(UserProgress.score)).filter_by(user_id=current_user.id, completed=True).scalar()
+    average_score = round(avg_score_query or 0, 2)
+
+    # Badges de l'utilisateur
+    badges = current_user.badges.all() if hasattr(current_user, 'badges') else []
+
+    # Activité récente (5 derniers modules complétés)
+    recent_activity = db.session.query(UserProgress, Module).join(
+        Module, UserProgress.module_id == Module.id
+    ).filter(
+        UserProgress.user_id == current_user.id,
+        UserProgress.completed == True
+    ).order_by(
+        UserProgress.completed_at.desc()
+    ).limit(5).all()
+
+    # Données pour le graphique de performance
+    from sqlalchemy.orm import joinedload
+    
+    # Jointure explicite avec Module pour éviter les requêtes N+1
+    chart_progress = db.session.query(UserProgress, Module).join(
+        Module, UserProgress.module_id == Module.id
+    ).filter(
+        UserProgress.user_id == current_user.id,
+        UserProgress.completed == True
+    ).order_by(
+        UserProgress.completed_at.asc()
+    ).all()
+    
+    # Extraire les données nécessaires
+    chart_labels = [module.title for _, module in chart_progress]
+    chart_data = [progress.score for progress, _ in chart_progress]
+
+    return render_template('profile.html', title='Profil', form=form, 
+                           completed_modules=completed_modules, total_modules=total_modules, 
+                           average_score=average_score, badges=badges, 
+                           recent_activity=recent_activity, chart_labels=chart_labels, 
+                           chart_data=chart_data)
 
 @main.route('/profile/change_password', methods=['POST'])
 @login_required

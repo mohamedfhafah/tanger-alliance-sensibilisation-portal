@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block header_wrapper %}{% endblock %}
+
+{% block content %}
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">Admin Quiz</p>
+      <h1 class="ta-route-title">{{ title }}</h1>
+      <p class="ta-route-subtitle">Ajustez le cadre du quiz et gérez la liste des questions déjà rattachées au module {{ module.title }}.</p>
+    </div>
+    <div class="ta-route-meta">
+      <a href="{{ url_for('admin_portal.modules') }}" class="btn btn-outline-primary">Retour aux modules</a>
+    </div>
+  </header>
+
+  <div class="ta-route-grid ta-route-grid--sidebar">
+    <article class="ta-surface-card">
+      <div class="ta-surface-card-header">
+        <div>
+          <p class="ta-surface-kicker">Quiz settings</p>
+          <h2 class="ta-surface-title">Paramètres du quiz</h2>
+        </div>
+      </div>
+      <form method="POST" class="ta-form-stack">
+        {{ form.hidden_tag() }}
+        {% for field in form if field.type != 'CSRFTokenField' and field.name != 'submit' %}
+          <div class="ta-form-field">
+            {{ field.label }}
+            {{ field(class="form-control") }}
+            {% if field.errors %}
+              <div class="invalid-feedback d-block">
+                {% for error in field.errors %}
+                  <span>{{ error }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <div class="ta-inline-actions">
+          <button type="submit" class="btn btn-primary">Sauvegarder</button>
+          <a href="{{ url_for('admin_portal.create_question') }}" class="btn btn-outline-primary">Nouvelle question</a>
+        </div>
+      </form>
+    </article>
+
+    <aside class="ta-route-grid">
+      <div class="ta-note-panel">
+        <h3>Questions existantes</h3>
+        {% if questions %}
+          <div class="ta-list-stack">
+            {% for question in questions %}
+              <div class="ta-list-row">
+                <div class="ta-list-row-copy">
+                  <p class="ta-list-row-title">{{ question.content }}</p>
+                  <p class="ta-list-row-meta">{{ question.choices|length if question.choices is defined else 0 }} choix</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="ta-form-note">Aucune question n’est encore liée à ce quiz.</p>
+        {% endif %}
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

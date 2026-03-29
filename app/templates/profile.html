@@ -1,46 +1,21 @@
 {% extends "base.html" %}
-
-{% block page_title %}
-  <h1>Mon Profil</h1>
-{% endblock %}
-
-{% block breadcrumb %}
-  <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Accueil</a></li>
-  <li class="breadcrumb-item active">Profil</li>
-{% endblock %}
+{% block header_wrapper %}{% endblock %}
 
 {% block content %}
-<style>
-  /* Profile Info Card Style */
-  .card.card-primary {
-    border: none;
-    border-radius: 0.75rem;
-    overflow: hidden;
-  }
-  .card.card-primary .card-header {
-    background: linear-gradient(90deg, #17a2b8, #0062cc);
-    color: #fff;
-    border: none;
-  }
-  .card.card-primary .card-body {
-    padding: 2rem;
-  }
-  .form-control {
-    border-radius: .5rem;
-  }
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-  .btn-primary {
-    border-radius: .5rem;
-    padding: .75rem 1.5rem;
-  }
-  /* Adjust row spacing */
-  .row.mb-4, .row.mt-4 {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-  }
-</style>
+<section class="ta-route-shell">
+  <header class="ta-route-header">
+    <div class="ta-route-header-copy">
+      <p class="ta-route-eyebrow">User Profile</p>
+      <h1 class="ta-route-title">Profil, progression et preuves d’engagement.</h1>
+      <p class="ta-route-subtitle">
+        Suivez votre niveau de sensibilisation, mettez à jour vos informations et consultez vos badges, simulations et activités récentes.
+      </p>
+    </div>
+    <div class="ta-route-meta">
+      <span class="ta-pill-badge ta-pill-badge--teal">{{ completed_modules }}/{{ total_modules }} modules</span>
+      <span class="ta-pill-badge ta-pill-badge--blue">{{ average_score if average_score else 'N/A' }}{% if average_score %}%{% endif %} score moyen</span>
+    </div>
+  </header>
 <div class="container-fluid">
   <!-- Global Security Progress -->
   <div class="row mb-4">
@@ -89,7 +64,7 @@
               <div class="form-group mt-2">
                 {{ form.profile_picture.label(class="form-control-label") }}
                 {{ form.profile_picture(class="form-control-file") }}
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Mettre à jour la photo</button>
                 {% if form.profile_picture.errors %}
                   <div class="invalid-feedback d-block">
                     {% for error in form.profile_picture.errors %}
@@ -345,46 +320,7 @@
   <!-- /.Certificate Download -->
 
 </div>
-<style>
-  /* Amélioration de l'UI/UX */
-  .card {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-  .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
-  }
-  .btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-  }
-  .badge-image {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  .badge-image:hover {
-    transform: scale(1.1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  }
-  .progress-bar {
-    transition: width 0.6s ease;
-  }
-  .form-control {
-    margin-bottom: 1rem;
-  }
-  .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-  .timeline-item {
-    margin-bottom: 1.5rem;
-  }
-</style>
+</section>
 {% endblock content %}
 
 {% block scripts %}

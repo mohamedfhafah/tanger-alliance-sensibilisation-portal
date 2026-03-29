@@ -1,9 +1,11 @@
 """
 Script pour initialiser la base de données avec des données d'exemple
 """
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app import db, create_app
 from app.models.user import User
-from app.models.module import Module, Quiz, Question, Choice
+from app.models.module import Module, Quiz, Question, Choice, QuizProgress
 from app.models.badge import Badge
 from datetime import datetime, timezone
 
@@ -703,11 +705,16 @@ def create_mobile_security_quiz(module_id):
 def create_network_security_quiz(module_id):
     """Crée le quiz pour le module de sécurité réseau"""
     
-    # Vérifier si le quiz existe déjà
+    # Supprimer l'ancien quiz s'il existe (questions, choix, progresses)
     existing_quiz = Quiz.query.filter_by(module_id=module_id).first()
     if existing_quiz:
-        print(f"Quiz pour le module {module_id} (Sécurité réseau) existe déjà.")
-        return
+        # Supprimer les progrès liés pour éviter la contrainte étrangère
+        QuizProgress.query.filter_by(quiz_id=existing_quiz.id).delete()
+        # Supprimer questions et choix liés (cascade peut déjà être actif mais on assure)
+        Question.query.filter_by(quiz_id=existing_quiz.id).delete()
+        db.session.delete(existing_quiz)
+        db.session.commit()
+        print(f"Ancien quiz Sécurité réseau (id={existing_quiz.id}) supprimé.")
     
     quiz = Quiz(
         module_id=module_id,
@@ -767,6 +774,56 @@ def create_network_security_quiz(module_id):
                 {"content": "Laisser le réseau ouvert", "is_correct": False},
                 {"content": "Utiliser WPA3 avec un mot de passe fort", "is_correct": True},
                 {"content": "Cacher le nom du réseau seulement", "is_correct": False}
+            ]
+        },
+        {
+            "content": "Quel protocole est utilisé pour sécuriser l'échange de clés dans IPSec ?",
+            "explanation": "IKE (Internet Key Exchange) établit les associations de sécurité et négocie les clés dans IPSec.",
+            "choices": [
+                {"content": "IKE", "is_correct": True},
+                {"content": "BGP", "is_correct": False},
+                {"content": "SNMP", "is_correct": False},
+                {"content": "FTP", "is_correct": False}
+            ]
+        },
+        {
+            "content": "Quel mécanisme détecte automatiquement les intrusions en analysant le trafic réseau en temps réel ?",
+            "explanation": "Un IDS (Intrusion Detection System) surveille et analyse le trafic pour détecter des activités malveillantes.",
+            "choices": [
+                {"content": "NAT", "is_correct": False},
+                {"content": "IDS", "is_correct": True},
+                {"content": "DHCP", "is_correct": False},
+                {"content": "DNS", "is_correct": False}
+            ]
+        },
+        {
+            "content": "Quelle attaque exploite la technique \"Man-in-the-Middle\" pour intercepter les communications chiffrées ?",
+            "explanation": "Le spoofing ARP peut permettre à un attaquant de s'interposer et d'intercepter le trafic entre deux hôtes.",
+            "choices": [
+                {"content": "ARP spoofing", "is_correct": True},
+                {"content": "SQL injection", "is_correct": False},
+                {"content": "XSS", "is_correct": False},
+                {"content": "Buffer overflow", "is_correct": False}
+            ]
+        },
+        {
+            "content": "Quelle est la meilleure pratique pour segmenter le réseau et limiter la propagation des attaques ?",
+            "explanation": "La segmentation par VLAN/sous-réseaux limite la portée d'un éventuel incident.",
+            "choices": [
+                {"content": "Mettre tous les hôtes dans le même VLAN", "is_correct": False},
+                {"content": "Utiliser des VLAN séparés selon le niveau de sensibilité", "is_correct": True},
+                {"content": "Désactiver le routage inter-VLAN", "is_correct": False},
+                {"content": "Désactiver les pare-feu", "is_correct": False}
+            ]
+        },
+        {
+            "content": "Quel outil open-source est couramment utilisé pour analyser les paquets réseau ?",
+            "explanation": "Wireshark est un analyseur de paquets graphique largement utilisé.",
+            "choices": [
+                {"content": "Wireshark", "is_correct": True},
+                {"content": "GIMP", "is_correct": False},
+                {"content": "Metasploit", "is_correct": False},
+                {"content": "Nmap", "is_correct": False}
             ]
         }
     ]

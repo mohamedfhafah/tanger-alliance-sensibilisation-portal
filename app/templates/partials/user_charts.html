@@ -11,7 +11,7 @@ est rendu par Flask.
 #}
 
 {% macro render_module_completion_chart(user_progress, modules) %}
-<div class="card card-primary card-outline">
+<div class="card dashboard-panel card-primary card-outline">
   <div class="card-header text-primary">
     <h3 class="card-title">
       <i class="fas fa-chart-pie mr-1"></i>
@@ -62,14 +62,11 @@ est rendu par Flask.
 window.moduleChartLabels = {{ module_labels|tojson|safe }};
 window.moduleChartData = {{ module_data|tojson|safe }};
 window.moduleChartCompletionStatus = {{ completion_status|tojson|safe }};
-console.log("DEBUG - Labels:", window.moduleChartLabels);
-console.log("DEBUG - Scores:", window.moduleChartData);
-console.log("DEBUG - Complétés:", window.moduleChartCompletionStatus);
 </script>
 {% endmacro %}
 
 {% macro render_overall_progress_chart(user_progress, modules) %}
-<div class="card card-primary card-outline">
+<div class="card dashboard-panel card-primary card-outline">
   <div class="card-header text-primary">
     <h3 class="card-title">
       <i class="fas fa-chart-line mr-1"></i>
@@ -108,16 +105,6 @@ console.log("DEBUG - Complétés:", window.moduleChartCompletionStatus);
 window.totalModulesCount = {{ total_modules|tojson|safe }};
 window.completedModulesCount = {{ ns_global.completed_modules|tojson|safe }};
 window.percentageCompleteValue = {{ percentage_complete|tojson|safe }};
-
-// Logs de débogage détaillés
-console.log("DEBUG - Total modules:", window.totalModulesCount);
-console.log("DEBUG - Modules complétés:", window.completedModulesCount);
-console.log("DEBUG - Pourcentage de progression:", window.percentageCompleteValue + "%");
-
-// Vérification de la cohérence entre calculs backend et frontend
-const calculatedPercentage = Math.round((window.completedModulesCount / window.totalModulesCount) * 100) || 0;
-console.log("DEBUG - Pourcentage calculé côté client:", calculatedPercentage + "%");
-console.log("DEBUG - Différence entre pourcentages:", calculatedPercentage !== window.percentageCompleteValue ? "OUI" : "NON");
 </script>
 {% endmacro %}
 
@@ -129,7 +116,6 @@ console.log("DEBUG - Différence entre pourcentages:", calculatedPercentage !== 
 // Enregistrement du plugin Chart.js DataLabels
 if (Chart && typeof Chart.register === 'function') {
     Chart.register(ChartDataLabels);
-    console.log('Plugin DataLabels enregistré avec Chart.js');
 }
 </script>
 <script src="{{ url_for('static', filename='js/dashboard-charts.js') }}"></script>

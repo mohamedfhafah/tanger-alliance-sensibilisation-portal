@@ -1,70 +1,66 @@
 {% extends "base.html" %}
+{% block header_wrapper %}{% endblock %}
 {% block content %}
-<div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800">{{ title }}</h1>
-    
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Signaler un incident de sécurité</h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ url_for('security.report_incident') }}">
-                        {{ csrf_token() }}
-                        <div class="form-group">
-                            <label for="incident_type">Type d'incident <span class="text-danger">*</span></label>
-                            <select class="form-control" id="incident_type" name="incident_type" required>
-                                <option value="">Sélectionnez un type d'incident</option>
-                                {% for value, label in incident_types %}
-                                <option value="{{ value }}">{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="description">Description détaillée <span class="text-danger">*</span></label>
-                            <textarea class="form-control" id="description" name="description" rows="5" placeholder="Décrivez l'incident avec le plus de détails possible..." required></textarea>
-                            <small class="form-text text-muted">
-                                Incluez toutes les informations pertinentes comme la date, l'heure, les personnes impliquées, les systèmes concernés, etc.
-                            </small>
-                        </div>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-paper-plane mr-2"></i>Soumettre
-                        </button>
-                    </form>
+<section class="ta-route-shell">
+    <header class="ta-route-header">
+        <div class="ta-route-header-copy">
+            <p class="ta-route-eyebrow">Incident Intake</p>
+            <h1 class="ta-route-title">{{ title }}</h1>
+            <p class="ta-route-subtitle">
+                Canal de remontée structuré pour qualifier rapidement les événements et réduire le temps de réaction des équipes sécurité.
+            </p>
+        </div>
+    </header>
+
+    <div class="ta-route-grid ta-route-grid--sidebar">
+        <article class="ta-surface-card">
+            <div class="ta-surface-card-header">
+                <div>
+                    <p class="ta-surface-kicker">Incident Form</p>
+                    <h2 class="ta-surface-title">Signaler un incident de sécurité</h2>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-lg-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Informations importantes</h6>
+
+            <form method="POST" action="{{ url_for('security.report_incident') }}" class="ta-form-stack">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="ta-form-field">
+                    <label for="incident_type">Type d'incident <span class="text-danger">*</span></label>
+                    <select class="form-control" id="incident_type" name="incident_type" required>
+                        <option value="">Sélectionnez un type d'incident</option>
+                        {% for value, label in incident_types %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <h5><i class="fas fa-shield-alt text-primary mr-2"></i>Pourquoi signaler?</h5>
-                        <p class="mb-0">
-                            Le signalement rapide des incidents permet à l'équipe de sécurité d'agir promptement et de limiter les impacts potentiels.
-                        </p>
-                    </div>
-                    <hr>
-                    <div class="mb-3">
-                        <h5><i class="fas fa-user-secret text-primary mr-2"></i>Confidentialité</h5>
-                        <p class="mb-0">
-                            Les signalements sont traités de manière confidentielle. Votre identité ne sera révélée qu'aux personnes qui ont besoin de la connaître.
-                        </p>
-                    </div>
-                    <hr>
-                    <div>
-                        <h5><i class="fas fa-clock text-primary mr-2"></i>Délai de traitement</h5>
-                        <p class="mb-0">
-                            Les incidents sont classés par priorité. Les incidents critiques sont traités immédiatement.
-                        </p>
-                    </div>
+                <div class="ta-form-field">
+                    <label for="description">Description détaillée <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="description" name="description" rows="6" placeholder="Décrivez l'incident avec le plus de détails possible..." required></textarea>
+                    <p class="ta-form-note">
+                        Incluez la date, l'heure, les systèmes concernés, les personnes impliquées et tout élément utile à la qualification.
+                    </p>
                 </div>
+                <div class="ta-inline-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane mr-2" aria-hidden="true"></i>Soumettre
+                    </button>
+                </div>
+            </form>
+        </article>
+
+        <aside class="ta-route-grid">
+            <div class="ta-note-panel">
+                <h3>Pourquoi signaler&nbsp;?</h3>
+                <p>Le signalement rapide permet à l'équipe sécurité de contenir l'incident, d'engager les bons relais et de limiter l'impact opérationnel.</p>
             </div>
-        </div>
+            <div class="ta-note-panel">
+                <h3>Confidentialité</h3>
+                <p>Les signalements sont traités de manière confidentielle et partagés uniquement avec les personnes impliquées dans la gestion de l'incident.</p>
+            </div>
+            <div class="ta-note-panel">
+                <h3>Délai de traitement</h3>
+                <p>Les incidents sont priorisés selon leur impact. Les situations critiques sont escaladées immédiatement.</p>
+            </div>
+        </aside>
     </div>
-</div>
+</section>
 {% endblock %}

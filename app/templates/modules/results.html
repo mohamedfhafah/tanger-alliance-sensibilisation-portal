@@ -1,142 +1,450 @@
 {% extends "base.html" %}
 
+{% block styles %}
+{{ super() }}
+<style>
+    .result-card {
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+    
+    .result-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+    
+    .result-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .result-body {
+        padding: 2rem;
+    }
+    
+    .score-display {
+        font-size: 4rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+    
+    .score-label {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+    }
+    
+    .progress {
+        height: 12px;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        background-color: #e9ecef;
+        overflow: visible;
+    }
+    
+    .progress-bar {
+        position: relative;
+        border-radius: 6px;
+        transition: width 1.5s ease-in-out;
+    }
+    
+    .progress-bar::after {
+        content: '';
+        position: absolute;
+        top: -4px;
+        right: -8px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: inherit;
+        border: 3px solid #fff;
+        box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+    }
+    
+    .result-message {
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        background-color: #f8f9fa;
+        border-left: 4px solid;
+    }
+    
+    .result-message h5 {
+        margin-top: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .result-message p {
+        margin-bottom: 0;
+        color: #495057;
+    }
+    
+    .question-card {
+        border: 1px solid rgba(0,0,0,0.08);
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .question-card:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .question-header {
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .question-title {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #343a40;
+    }
+    
+    .question-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    .status-correct {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .status-incorrect {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .question-body {
+        padding: 1.5rem;
+        background-color: #fff;
+    }
+    
+    .answer-section {
+        margin-bottom: 1.5rem;
+    }
+    
+    .answer-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .answer-text {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        background-color: #f8f9fa;
+        border-left: 3px solid;
+    }
+    
+    .answer-correct {
+        border-left-color: #28a745;
+        background-color: #e8f5e9;
+    }
+    
+    .answer-incorrect {
+        border-left-color: #dc3545;
+        background-color: #ffebee;
+    }
+    
+    .feedback-text {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-top: 1rem;
+        font-style: italic;
+    }
+    
+    .feedback-correct {
+        background-color: #e8f5e9;
+        color: #1b5e20;
+    }
+    
+    .feedback-incorrect {
+        background-color: #ffebee;
+        color: #b71c1c;
+    }
+    
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .btn-retake {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        font-weight: 500;
+        padding: 0.6rem 1.5rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+    
+    .btn-retake:hover {
+        background-color: #e9ecef;
+        transform: translateY(-2px);
+    }
+    
+    .btn-next {
+        background-color: #007bff;
+        color: white;
+        font-weight: 500;
+        padding: 0.6rem 1.5rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+    
+    .btn-next:hover {
+        background-color: #0069d9;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+        .result-body {
+            padding: 1.5rem 1rem;
+        }
+        
+        .score-display {
+            font-size: 3rem;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<section class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1>Résultats du Quiz</h1>
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Tableau de bord</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url_for('modules.view', module_id=module.id) }}">{{ module.title }}</a></li>
-                    <li class="breadcrumb-item active">Résultats</li>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb bg-transparent p-0">
+                    <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}" class="text-decoration-none">
+                        <i class="fas fa-home"></i> Tableau de bord</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('modules.view', module_id=module.id) }}" class="text-decoration-none">{{ module.title }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Résultats</li>
                 </ol>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="content">
-    <div class="container-fluid">
-        <!-- Carte de score -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card {% if score >= 80 %}card-success{% elif score >= 60 %}card-warning{% else %}card-danger{% endif %}">
-                    <div class="card-header">
-                        <h3 class="card-title">Votre score</h3>
+            </nav>
+            
+            <div class="result-card bg-white mb-4">
+                <div class="result-header bg-white">
+                    <h2 class="h4 font-weight-bold mb-0">Résultats du quiz</h2>
+                    <p class="text-muted mb-0">Module: {{ module.title }}</p>
+                </div>
+                
+                <div class="result-body text-center">
+                    <div class="mb-4">
+                        <div class="score-display {% if score >= 80 %}text-success{% elif score >= 60 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ score|round|int }}%
+                        </div>
+                        <div class="score-label">
+                            Votre score final
+                        </div>
+                        
+                        <div class="progress">
+                            <div class="progress-bar {% if score >= 80 %}bg-success{% elif score >= 60 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ score|round|int }}%" 
+                                 aria-valuenow="{{ score|round|int }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">0%</small>
+                            <small class="text-muted">100%</small>
+                        </div>
                     </div>
-                    <div class="card-body text-center">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="info-box bg-gradient-info">
-                                    <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Score</span>
-                                        <span class="info-box-number">{{ score }} / 100</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box bg-gradient-primary">
-                                    <span class="info-box-icon"><i class="fas fa-percent"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Pourcentage</span>
-                                        <span class="info-box-number">{{ score|round|int }}%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box {% if score >= 80 %}bg-gradient-success{% elif score >= 60 %}bg-gradient-warning{% else %}bg-gradient-danger{% endif %}">
-                                    <span class="info-box-icon"><i class="fas fa-trophy"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Résultat</span>
-                                        <span class="info-box-number">
-                                            {% if score >= 80 %}
-                                                Excellent!
-                                            {% elif score >= 60 %}
-                                                Bon travail
-                                            {% else %}
-                                                À améliorer
-                                            {% endif %}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4">
-                            {% if score >= 80 %}
-                                <div class="alert alert-success">
-                                    <h5><i class="icon fas fa-check"></i> Félicitations!</h5>
-                                    <p>Vous avez démontré une excellente compréhension du module {{ module.title }}. Continuez à appliquer ces connaissances dans votre travail quotidien.</p>
-                                </div>
-                            {% elif score >= 60 %}
-                                <div class="alert alert-warning">
-                                    <h5><i class="icon fas fa-exclamation-triangle"></i> Bon travail!</h5>
-                                    <p>Vous avez de bonnes bases sur le sujet, mais il y a encore place à l'amélioration. Revoyez les points ci-dessous pour renforcer vos connaissances.</p>
-                                </div>
-                            {% else %}
-                                <div class="alert alert-danger">
-                                    <h5><i class="icon fas fa-ban"></i> Attention!</h5>
-                                    <p>Vous avez eu des difficultés sur plusieurs points. Nous vous recommandons vivement de revoir le module et de vous entraîner davantage.</p>
-                                </div>
-                            {% endif %}
-                        </div>
+                    
+                    <div class="result-message {% if score >= 80 %}border-success{% elif score >= 60 %}border-warning{% else %}border-danger{% endif %}" style="border-left: 4px solid;">
+                        {% if score >= 80 %}
+                            <h5 class="text-success">
+                                <i class="fas fa-check-circle"></i> Félicitations !
+                            </h5>
+                            <p class="mb-0">Vous avez démontré une excellente compréhension du module <strong>{{ module.title }}</strong>. Continuez à appliquer ces connaissances dans votre travail quotidien.</p>
+                        {% elif score >= 60 %}
+                            <h5 class="text-warning">
+                                <i class="fas fa-exclamation-triangle"></i> Bon travail !
+                            </h5>
+                            <p class="mb-0">Vous avez de bonnes bases sur le sujet, mais il y a encore place à l'amélioration. Consultez les corrections ci-dessous pour renforcer vos connaissances.</p>
+                        {% else %}
+                            <h5 class="text-danger">
+                                <i class="fas fa-exclamation-circle"></i> Attention !
+                            </h5>
+                            <p class="mb-0">Vous avez eu des difficultés sur plusieurs points. Nous vous recommandons de revoir le module et de vous entraîner davantage.</p>
+                        {% endif %}
                     </div>
                 </div>
+                
+                <div class="action-buttons">
+                    <a href="{{ url_for('modules.retake_quiz', module_id=module.id) }}" class="btn btn-retake">
+                        <i class="fas fa-redo-alt mr-2"></i>Refaire le quiz
+                    </a>
+                    <a href="{{ url_for('modules.view', module_id=module.id) }}" class="btn btn-next">
+                        <i class="fas fa-arrow-right mr-2"></i>Retour au module
+                    </a>
+                </div>
             </div>
-        </div>
-
-        <!-- Explications et corrections -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card card-primary">
-                    <div class="card-header">
-                        <h3 class="card-title">Détails des réponses</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="timeline">
+            
+            <div class="result-card bg-white">
+                <div class="result-header">
+                    <h2 class="h4 font-weight-bold mb-0">Détail des réponses</h2>
+                    <p class="text-muted mb-0">Consultez les corrections pour chaque question</p>
+                </div>
+                
+                <div class="result-body">
                             {% if feedback %}
                                 {% for item in feedback %}
-                                <div>
-                                    <i class="fas fa-question-circle bg-blue"></i>
-                                    <div class="timeline-item">
-                                        <h3 class="timeline-header">Question {{ loop.index }}</h3>
-                                        <div class="timeline-body">
-                                            <p><strong>Votre réponse :</strong> {{ item.user_answer }}</p>
-                                            <p><strong>Réponse correcte :</strong> {{ item.correct_answer }}</p>
-                                            <p><strong>Commentaire :</strong> {{ item.feedback }}</p>
+                                <div class="question-card mb-4">
+                                    <div class="question-header" data-toggle="collapse" data-target="#answer-details-{{ loop.index }}" aria-expanded="true">
+                                        <h5 class="question-title mb-0">Question {{ loop.index }}</h5>
+                                        <span class="question-status {% if item.is_correct %}status-correct">
+                                            <i class="fas fa-check-circle mr-1"></i> Correcte
+                                        {% else %}status-incorrect">
+                                            <i class="fas fa-times-circle mr-1"></i> Incorrecte
+                                        {% endif %}
+                                        </span>
+                                    </div>
+                                    
+                                    <div id="answer-details-{{ loop.index }}" class="collapse show">
+                                        <div class="question-body">
+                                            <p class="font-weight-bold text-dark">{{ item.question }}</p>
+                                            
+                                            <div class="answer-section">
+                                                <span class="answer-label">Votre réponse :</span>
+                                                <div class="answer-text {% if item.is_correct %}answer-correct">
+                                                    <i class="fas fa-check-circle text-success mr-2"></i>
+                                                {% else %}answer-incorrect">
+                                                    <i class="fas fa-times-circle text-danger mr-2"></i>
+                                                {% endif %}
+                                                    {{ item.user_answer }}
+                                                </div>
+                                            </div>
+                                            
+                                            {% if not item.is_correct %}
+                                            <div class="answer-section">
+                                                <span class="answer-label">Réponse correcte :</span>
+                                                <div class="answer-text answer-correct">
+                                                    <i class="fas fa-check-circle text-success mr-2"></i>
+                                                    {{ item.correct_answer }}
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            <div class="feedback-text {% if item.is_correct %}feedback-correct{% else %}feedback-incorrect{% endif %}">
+                                                <i class="fas fa-info-circle mr-2"></i>
+                                                {{ item.feedback }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 {% endfor %}
                             {% else %}
-                                <div class="alert alert-info">
-                                    <i class="fas fa-info-circle mr-2"></i> Aucun détail de réponse disponible pour ce quiz.
+                                <div class="text-center py-5">
+                                    <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Aucun détail de réponse disponible pour le moment.</p>
                                 </div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Boutons d'action -->
-        <div class="row mb-4">
-            <div class="col-12 text-center">
-                <form action="{{ url_for('modules.retake_quiz', module_id=module.id) }}" method="POST" style="display: inline-block; margin-right: 10px;">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="btn btn-info">
-                        <i class="fas fa-redo mr-1"></i>Refaire le quiz
-                    </button>
-                </form>
-                <a href="{{ url_for('modules.view', module_id=module.id) }}" class="btn btn-primary">
-                    <i class="fas fa-book mr-1"></i>Revoir le module
-                </a>
+                
+                <!-- Section des statistiques -->
+                <div class="result-card bg-white mt-4">
+                    <div class="result-header">
+                        <h2 class="h4 font-weight-bold mb-0">Statistiques du quiz</h2>
+                        <p class="text-muted mb-0">Vos performances en détail</p>
+                    </div>
+                    <div class="result-body">
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-4 mb-md-0">
+                                <div class="h2 font-weight-bold text-primary">{{ score|round|int }}%</div>
+                                <div class="text-muted">Score final</div>
+                            </div>
+                            <div class="col-md-4 mb-4 mb-md-0">
+                                <div class="h2 font-weight-bold text-success">
+                                    {{ feedback|selectattr('is_correct')|list|length }}/{{ feedback|length }}
+                                </div>
+                                <div class="text-muted">Réponses correctes</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="h2 font-weight-bold text-info">
+                                    {{ ((feedback|selectattr('is_correct')|list|length / feedback|length) * 100)|round|int }}%
+                                </div>
+                                <div class="text-muted">Taux de réussite</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{{ url_for('modules.view', module_id=module.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left mr-2"></i>Retour au module
+                    </a>
+                    <form action="{{ url_for('modules.retake_quiz', module_id=module.id) }}" method="POST" class="d-inline">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-redo-alt mr-2"></i>Refaire le quiz
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</section>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Initialiser les tooltips
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    
+    // Gérer l'affichage des détails des réponses
+    $('.question-header').click(function() {
+        const icon = $(this).find('i.fas');
+        if (icon.hasClass('fa-chevron-down')) {
+            icon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        } else {
+            icon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        }
+    });
+    
+    // Animation de la barre de progression
+    $(document).ready(function() {
+        $('.progress-bar').each(function() {
+            const width = $(this).attr('aria-valuenow') + '%';
+            $(this).css('width', '0').animate({
+                width: width
+            }, 1500);
+        });
+    });
+</script>
 {% endblock %}

@@ -1,306 +1,271 @@
 {% extends "base.html" %}
 
 {% block title %}{{ title }}{% endblock %}
+{% block header_wrapper %}{% endblock %}
 
 {% block content %}
-<div class="content-wrapper">
-    <!-- Content Header -->
-    <div class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0">{{ title }}</h1>
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Dashboard</a></li>
-                        <li class="breadcrumb-item"><a href="{{ url_for('phishing.campaigns') }}">Campagnes</a></li>
-                        <li class="breadcrumb-item active">{{ title }}</li>
-                    </ol>
+<section class="ta-route-shell">
+    <header class="ta-route-header">
+        <div class="ta-route-header-copy">
+            <p class="ta-route-eyebrow">Phishing Operations</p>
+            <h1 class="ta-route-title">Créer une nouvelle campagne de phishing</h1>
+            <p class="ta-route-subtitle">
+                Préparez le scénario, sélectionnez les équipes exposées et planifiez la fenêtre d’exécution sans quitter le cockpit opérationnel.
+            </p>
+        </div>
+        <div class="ta-route-meta">
+            <span class="ta-pill-badge ta-pill-badge--teal">{{ users|length }} utilisateurs éligibles</span>
+            <span class="ta-pill-badge ta-pill-badge--blue">{{ templates|length }} templates</span>
+        </div>
+    </header>
+
+    <div class="ta-route-grid ta-route-grid--sidebar">
+        <article class="ta-surface-card">
+            <div class="ta-surface-card-header">
+                <div>
+                    <p class="ta-surface-kicker">Campaign setup</p>
+                    <h2 class="ta-surface-title">Paramétrage de la campagne</h2>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Main content -->
-    <section class="content">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Informations de la Campagne</h3>
+            <form method="POST" class="ta-form-stack">
+                {{ form.hidden_tag() }}
+
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="ta-form-field">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control") }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.name.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
                         </div>
-                        <form method="POST" class="card-body">
-                            {{ form.hidden_tag() }}
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {{ form.name.label(class="form-label") }}
-                                        {{ form.name(class="form-control") }}
-                                        {% if form.name.errors %}
-                                            <div class="text-danger">
-                                                {% for error in form.name.errors %}
-                                                    <small>{{ error }}</small>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="ta-form-field">
+                            {{ form.template.label(class="form-label") }}
+                            {{ form.template(class="form-control") }}
+                            {% if form.template.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.template.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {{ form.template.label(class="form-label") }}
-                                        {{ form.template(class="form-control") }}
-                                        {% if form.template.errors %}
-                                            <div class="text-danger">
-                                                {% for error in form.template.errors %}
-                                                    <small>{{ error }}</small>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                {{ form.description.label(class="form-label") }}
-                                {{ form.description(class="form-control", rows="3") }}
-                                {% if form.description.errors %}
-                                    <div class="text-danger">
-                                        {% for error in form.description.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <hr>
-                            <h5>Détails de la Simulation</h5>
-                            
-                            <div class="form-group">
-                                {{ form.simulation_title.label(class="form-label") }}
-                                {{ form.simulation_title(class="form-control") }}
-                                {% if form.simulation_title.errors %}
-                                    <div class="text-danger">
-                                        {% for error in form.simulation_title.errors %}
-                                            <small>{{ error }}</small>
-                                        {% endfor %}
-                                    </div>
-                                {% endif %}
-                            </div>
-
-                            <div class="form-group">
-                                {{ form.simulation_description.label(class="form-label") }}
-                                {{ form.simulation_description(class="form-control", rows="2") }}
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {{ form.start_date.label(class="form-label") }}
-                                        {{ form.start_date(class="form-control") }}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {{ form.end_date.label(class="form-label") }}
-                                        {{ form.end_date(class="form-control") }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <hr>
-                            <h5>Ciblage des Utilisateurs</h5>
-                            
-                            <div class="form-group">
-                                <div class="form-check">
-                                    {{ form.target_all(class="form-check-input") }}
-                                    {{ form.target_all.label(class="form-check-label") }}
-                                </div>
-                            </div>
-
-                            <div class="row" id="targeting-options">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {{ form.target_departments.label(class="form-label") }}
-                                        {{ form.target_departments(class="form-control", multiple=true, style="height: 120px;") }}
-                                        <small class="text-muted">Maintenez Ctrl/Cmd pour sélectionner plusieurs départements</small>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        {{ form.target_users.label(class="form-label") }}
-                                        <select name="target_users" class="form-control select2" multiple="multiple" style="height: 120px;">
-                                            {% for user in users %}
-                                                <option value="{{ user.id }}">{{ user.firstname }} {{ user.lastname }} ({{ user.department }})</option>
-                                            {% endfor %}
-                                        </select>
-                                        <small class="text-muted">Recherchez et sélectionnez des utilisateurs spécifiques</small>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                {{ form.submit(class="btn btn-primary") }}
-                                <a href="{{ url_for('phishing.campaigns') }}" class="btn btn-secondary">Annuler</a>
-                            </div>
-                        </form>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-md-4">
-                    <!-- Template Preview -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Aperçu du Template</h3>
-                        </div>
-                        <div class="card-body">
-                            <div id="template-preview">
-                                <p class="text-muted">Sélectionnez un template pour voir l'aperçu</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Templates Information -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Templates Disponibles</h3>
-                        </div>
-                        <div class="card-body">
-                            {% for key, template in templates.items() %}
-                            <div class="template-info mb-3 p-3 border rounded" data-template="{{ key }}">
-                                <h6>{{ template.name }}</h6>
-                                <p class="text-muted small mb-2">{{ template.description }}</p>
-                                <div class="template-meta">
-                                    <span class="badge badge-{{ 'success' if template.difficulty == 'beginner' else 'warning' if template.difficulty == 'intermediate' else 'danger' }}">
-                                        {{ template.difficulty|title }}
-                                    </span>
-                                    <span class="badge badge-info">{{ template.sector|title }}</span>
-                                </div>
-                            </div>
+                <div class="ta-form-field">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control", rows="3") }}
+                    {% if form.description.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.description.errors %}
+                                <span>{{ error }}</span>
                             {% endfor %}
                         </div>
+                    {% endif %}
+                </div>
+
+                <div class="ta-divider"></div>
+
+                <div class="ta-surface-card-header ta-surface-card-header--inline">
+                    <div>
+                        <p class="ta-surface-kicker">Simulation payload</p>
+                        <h2 class="ta-surface-title">Détails du scénario</h2>
                     </div>
                 </div>
+
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <div class="ta-form-field">
+                            {{ form.simulation_title.label(class="form-label") }}
+                            {{ form.simulation_title(class="form-control") }}
+                            {% if form.simulation_title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.simulation_title.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="ta-form-field">
+                            {{ form.simulation_description.label(class="form-label") }}
+                            {{ form.simulation_description(class="form-control", rows="3") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="ta-form-field">
+                            {{ form.start_date.label(class="form-label") }}
+                            {{ form.start_date(class="form-control") }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="ta-form-field">
+                            {{ form.end_date.label(class="form-label") }}
+                            {{ form.end_date(class="form-control") }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ta-divider"></div>
+
+                <div class="ta-surface-card-header ta-surface-card-header--inline">
+                    <div>
+                        <p class="ta-surface-kicker">Targeting</p>
+                        <h2 class="ta-surface-title">Population ciblée</h2>
+                    </div>
+                </div>
+
+                <div class="ta-form-field">
+                    <div class="form-check">
+                        {{ form.target_all(class="form-check-input") }}
+                        {{ form.target_all.label(class="form-check-label") }}
+                    </div>
+                    <p class="ta-form-note">Activez cette option pour couvrir toutes les équipes non-admins de la plateforme.</p>
+                </div>
+
+                <div id="targeting-options" class="row g-4">
+                    <div class="col-md-6">
+                        <div class="ta-form-field">
+                            {{ form.target_departments.label(class="form-label") }}
+                            {{ form.target_departments(class="form-control", multiple=true, size="8") }}
+                            <p class="ta-form-note">Sélection multiple possible pour cibler plusieurs unités métiers.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="ta-form-field">
+                            {{ form.target_users.label(class="form-label") }}
+                            {{ form.target_users(class="form-control", multiple=true, size="8") }}
+                            <p class="ta-form-note">Utilisez cette liste pour un ciblage fin par individu.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ta-inline-actions">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('phishing.campaigns') }}" class="btn btn-outline-primary">Annuler</a>
+                </div>
+            </form>
+        </article>
+
+        <aside class="ta-route-grid">
+            <div class="ta-note-panel">
+                <h3>Aperçu du template</h3>
+                <div id="template-preview" class="ta-empty-state ta-empty-state--compact">
+                    <i class="fas fa-envelope-open-text" aria-hidden="true"></i>
+                    <h3>Sélectionnez un template</h3>
+                    <p>L’aperçu du message et de son ton opérationnel apparaît ici.</p>
+                </div>
             </div>
-        </div>
-    </section>
-</div>
+
+            <div class="ta-note-panel">
+                <h3>Templates disponibles</h3>
+                <div class="ta-list-stack">
+                    {% for key, template in templates.items() %}
+                        <button type="button" class="ta-list-row template-info" data-template="{{ key }}">
+                            <div class="ta-list-row-copy">
+                                <p class="ta-list-row-title">{{ template.name }}</p>
+                                <p class="ta-list-row-meta">{{ template.description }}</p>
+                            </div>
+                            <div class="d-flex flex-column align-items-end gap-2">
+                                <span class="ta-pill-badge {% if template.difficulty == 'advanced' %}ta-pill-badge--red{% elif template.difficulty == 'intermediate' %}ta-pill-badge--amber{% else %}ta-pill-badge--teal{% endif %}">
+                                    {{ template.difficulty|title }}
+                                </span>
+                                <span class="ta-pill-badge ta-pill-badge--slate">{{ template.sector|replace('_', ' ')|title }}</span>
+                            </div>
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+    </div>
+</section>
 
 <script>
-$(document).ready(function() {
-    // Initialize Select2 for user selection
-    $('.select2').select2({
-        placeholder: 'Rechercher des utilisateurs...',
-        allowClear: true
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    const targetAll = document.getElementById('target_all');
+    const targetingOptions = document.getElementById('targeting-options');
+    const templateSelect = document.getElementById('template');
+    const preview = document.getElementById('template-preview');
+    const simulationTitle = document.getElementById('simulation_title');
+    const templateRows = Array.from(document.querySelectorAll('.template-info'));
 
-    // Handle targeting options visibility
-    $('#target_all').change(function() {
-        if ($(this).is(':checked')) {
-            $('#targeting-options').hide();
-        } else {
-            $('#targeting-options').show();
-        }
-    });
-
-    // Template preview
     const templatePreviews = {
-        'fake_shipping_manifest': `
-            <div class="email-preview">
-                <div class="email-header">
-                    <strong>De:</strong> notifications@maersk.com<br>
-                    <strong>Sujet:</strong> Manifeste d'expédition urgent - Action requise
-                </div>
-                <div class="email-body mt-2">
-                    <p><strong>⚠️ ATTENTION: Manifeste en attente</strong></p>
-                    <p>Votre conteneur nécessite une validation immédiate...</p>
-                </div>
+        fake_shipping_manifest: `
+            <div class="ta-mail-preview">
+                <p class="ta-mail-preview-meta">De: notifications@maersk.com</p>
+                <p class="ta-mail-preview-meta">Sujet: Manifeste d'expédition urgent - action requise</p>
+                <div class="ta-divider"></div>
+                <p><strong>Validation de manifeste en attente</strong></p>
+                <p>Le conteneur doit être confirmé avant diffusion du prochain lot portuaire. Vérifiez le document associé et confirmez la réception.</p>
             </div>
         `,
-        'fake_customs_notification': `
-            <div class="email-preview">
-                <div class="email-header">
-                    <strong>De:</strong> douanes@gov.ma<br>
-                    <strong>Sujet:</strong> Notification douanière - Paiement requis
-                </div>
-                <div class="email-body mt-2">
-                    <p><strong>🏛️ Administration des Douanes</strong></p>
-                    <p>Des frais supplémentaires sont dus pour votre marchandise...</p>
-                </div>
+        fake_customs_notification: `
+            <div class="ta-mail-preview">
+                <p class="ta-mail-preview-meta">De: douanes@gov.ma</p>
+                <p class="ta-mail-preview-meta">Sujet: Notification douanière - paiement requis</p>
+                <div class="ta-divider"></div>
+                <p><strong>Blocage administratif simulé</strong></p>
+                <p>Une régularisation est demandée pour libérer le lot en transit. Le lien ci-dessous prétend mener vers un formulaire officiel.</p>
             </div>
         `,
-        'fake_portnet_security_alert': `
-            <div class="email-preview">
-                <div class="email-header">
-                    <strong>De:</strong> security@portnet.ma<br>
-                    <strong>Sujet:</strong> Alerte sécurité - Mise à jour requise
-                </div>
-                <div class="email-body mt-2">
-                    <p><strong>🔒 ALERTE SÉCURITÉ PORTNET</strong></p>
-                    <p>Votre compte nécessite une mise à jour de sécurité...</p>
-                </div>
+        fake_portnet_security_alert: `
+            <div class="ta-mail-preview">
+                <p class="ta-mail-preview-meta">De: security@portnet.ma</p>
+                <p class="ta-mail-preview-meta">Sujet: Alerte sécurité - mise à jour requise</p>
+                <div class="ta-divider"></div>
+                <p><strong>Alerte de sécurité simulée</strong></p>
+                <p>Le compte opérationnel doit soi-disant être revalidé après un signalement. Le message pousse à cliquer rapidement.</p>
             </div>
         `
     };
 
-    $('#template').change(function() {
-        const selectedTemplate = $(this).val();
-        if (selectedTemplate && templatePreviews[selectedTemplate]) {
-            $('#template-preview').html(templatePreviews[selectedTemplate]);
-        } else {
-            $('#template-preview').html('<p class="text-muted">Sélectionnez un template pour voir l\'aperçu</p>');
+    const templateTitles = {
+        fake_shipping_manifest: 'Simulation - Faux Manifeste Maersk',
+        fake_customs_notification: 'Simulation - Fausse Notification Douanes',
+        fake_portnet_security_alert: 'Simulation - Fausse Alerte PortNet'
+    };
+
+    const updateTargeting = () => {
+        targetingOptions.style.display = targetAll.checked ? 'none' : '';
+    };
+
+    const updateTemplateUI = () => {
+        const selected = templateSelect.value;
+        preview.innerHTML = templatePreviews[selected] || `
+            <div class="ta-empty-state ta-empty-state--compact">
+                <i class="fas fa-envelope-open-text" aria-hidden="true"></i>
+                <h3>Sélectionnez un template</h3>
+                <p>L’aperçu du message et de son ton opérationnel apparaît ici.</p>
+            </div>
+        `;
+
+        templateRows.forEach((row) => {
+            row.classList.toggle('is-selected', row.dataset.template === selected);
+        });
+
+        if (templateTitles[selected] && simulationTitle && !simulationTitle.value.trim()) {
+            simulationTitle.value = templateTitles[selected];
         }
-    });
+    };
 
-    // Highlight selected template info
-    $('#template').change(function() {
-        $('.template-info').removeClass('border-primary');
-        $(`.template-info[data-template="${$(this).val()}"]`).addClass('border-primary');
-    });
+    if (targetAll) {
+        targetAll.addEventListener('change', updateTargeting);
+        updateTargeting();
+    }
 
-    // Auto-populate simulation title based on template
-    $('#template').change(function() {
-        const selectedTemplate = $(this).val();
-        const templateData = {
-            'fake_shipping_manifest': 'Simulation - Faux Manifeste Maersk',
-            'fake_customs_notification': 'Simulation - Fausse Notification Douanes',
-            'fake_portnet_security_alert': 'Simulation - Fausse Alerte PortNet'
-        };
-        
-        if (templateData[selectedTemplate] && !$('#simulation_title').val()) {
-            $('#simulation_title').val(templateData[selectedTemplate]);
-        }
-    });
-
-    // Initialize targeting options visibility
-    $('#target_all').trigger('change');
+    if (templateSelect) {
+        templateSelect.addEventListener('change', updateTemplateUI);
+        updateTemplateUI();
+    }
 });
 </script>
-
-<style>
-.email-preview {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
-    background: #f9f9f9;
-    font-size: 12px;
-}
-
-.email-header {
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
-    margin-bottom: 5px;
-}
-
-.template-info.border-primary {
-    border-color: #007bff !important;
-    background-color: #f8f9ff;
-}
-
-.template-meta .badge {
-    margin-right: 5px;
-}
-</style>
 {% endblock %}
