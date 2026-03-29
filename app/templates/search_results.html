@@ -1,116 +1,263 @@
 {% extends "base.html" %}
 
-{% block title %}Résultats de la recherche{% endblock %}
+{% block title %}Recherche Globale{% endblock %}
 {% block header_wrapper %}{% endblock %}
+
+{% block styles %}
+<style>
+  /* Local search tweaks to adapt the design system */
+  .ta-search-hero {
+    margin-bottom: 2.5rem;
+    position: relative;
+    z-index: 2;
+  }
+  
+  /* Beautiful Glow Effect under the search bar */
+  .ta-glow-wrapper {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .ta-glow-wrapper::before {
+    content: "";
+    position: absolute;
+    top: -20%; left: -10%; right: -10%; bottom: -20%;
+    background: radial-gradient(circle at center, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+    z-index: -1;
+    filter: blur(20px);
+    animation: taPulse 6s ease-in-out infinite;
+  }
+  @keyframes taPulse {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.05); opacity: 1; }
+  }
+
+  .ta-search-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 2px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+  }
+  .ta-search-input-group:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 20%, transparent), 0 15px 35px -10px color-mix(in srgb, var(--color-primary) 20%, transparent);
+    transform: translateY(-2px);
+  }
+  .ta-search-input-group i {
+    color: var(--color-primary);
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    margin-left: 0.5rem;
+  }
+  .ta-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 1.25rem;
+    color: var(--color-text-strong);
+    padding: 0.85rem 0;
+    outline: none;
+    font-family: var(--font-body);
+  }
+  .ta-search-input::placeholder {
+    color: var(--color-text-muted);
+  }
+  .ta-search-btn {
+    border-radius: 999px;
+    padding: 0.85rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  /* Staggered result entrance animations */
+  .ta-unified-feed .ta-result-card {
+    opacity: 0;
+    transform: translateY(15px);
+    animation: taSlideUpFade 0.4s ease forwards;
+  }
+  @keyframes taSlideUpFade {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  /* Stagger up to 10 items easily */
+  .ta-unified-feed .ta-result-card:nth-child(1) { animation-delay: 0.05s; }
+  .ta-unified-feed .ta-result-card:nth-child(2) { animation-delay: 0.10s; }
+  .ta-unified-feed .ta-result-card:nth-child(3) { animation-delay: 0.15s; }
+  .ta-unified-feed .ta-result-card:nth-child(4) { animation-delay: 0.20s; }
+  .ta-unified-feed .ta-result-card:nth-child(5) { animation-delay: 0.25s; }
+  .ta-unified-feed .ta-result-card:nth-child(n+6) { animation-delay: 0.3s; }
+  
+  .ta-unified-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 900px; /* Keep exact reading width */
+    margin: 0 auto;
+  }
+  
+  /* Ranking Highlights */
+  .ta-search-score-badge {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    background: var(--color-surface-soft);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    margin-left: auto;
+    font-weight: 500;
+  }
+  
+  /* Improved Results Card specific for Unified Search */
+  .ta-result-card--search {
+    flex-direction: row;
+    align-items: center;
+  }
+  .ta-result-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  
+  /* Emphasis for matched words */
+  .ta-highlight {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--color-amber);
+    font-weight: 600;
+    padding: 0 0.15rem;
+    border-radius: 2px;
+  }
+</style>
+{% endblock %}
 
 {% block content %}
 <section class="ta-route-shell">
-  <header class="ta-route-header">
-    <div class="ta-route-header-copy">
+  <header class="ta-route-header ta-route-header--centered">
+    <div class="ta-route-header-copy" style="text-align: center; max-width: 700px; margin: 0 auto;">
       <p class="ta-route-eyebrow">Search Command</p>
-      <h1 class="ta-route-title">Résultats de la recherche</h1>
-      <p class="ta-route-subtitle">
-        {% if query %}
-          Vue consolidée des modules et simulations correspondant à “{{ query }}”.
-        {% else %}
-          Utilisez la recherche globale pour retrouver rapidement un module, une simulation ou une ressource.
-        {% endif %}
+      <h1 class="ta-route-title">Recherche globale unifiée</h1>
+      <p class="ta-route-subtitle" style="margin-bottom: 2rem;">
+        Explorez tous les modules, simulations pratiques et tests de connaissances. L'algorithme classera les résultats par pertinence.
       </p>
-    </div>
-    <div class="ta-route-meta">
-      <span class="ta-pill-badge ta-pill-badge--teal">{{ modules|length }} modules</span>
-      <span class="ta-pill-badge ta-pill-badge--blue">{{ simulations|length }} simulations</span>
+      
+      <!-- Big Pro Search Bar -->
+      <div class="ta-glow-wrapper">
+        <form action="{{ url_for('main.search') }}" method="GET" class="ta-search-hero ta-search-wrapper">
+          <div class="ta-search-input-group">
+            <i class="fas fa-search"></i>
+            <input id="page-search-input" type="search" name="q" class="ta-search-input ta-autocomplete-input" placeholder="Ex: phishing, mots de passe, conformité..." value="{{ query }}" autofocus autocomplete="off">
+            <button type="submit" class="btn btn-primary ta-search-btn">Rechercher</button>
+            <div class="ta-autocomplete-dropdown" id="page-autocomplete-dropdown" style="width: calc(100% - 2rem); left: 1rem;"></div>
+          </div>
+        </form>
+      </div>
     </div>
   </header>
 
-  {% if not query %}
-    <div class="ta-surface-card">
-      <div class="ta-empty-state">
-        <i class="fas fa-search" aria-hidden="true"></i>
-        <h3>Démarrez avec un mot-clé précis.</h3>
-        <p>
-          Recherchez par risque, thématique ou capacité: <em>phishing</em>, <em>mots de passe</em>,
-          <em>simulation</em>, <em>conformité</em> ou <em>SecOps</em>.
+  <div style="max-width: 900px; margin: 0 auto;">
+    {% if not query %}
+      <!-- Empty State: Waiting for input -->
+      <div class="ta-surface-card" style="text-align: center; padding: 4rem 2rem; background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-md);">
+        <div class="ta-empty-icon" style="font-size: 3rem; color: var(--color-primary); margin-bottom: 1.5rem; opacity: 0.8;">
+          <i class="fas fa-satellite-dish"></i>
+        </div>
+        <h3 class="ta-surface-title" style="margin-bottom: 0.5rem; font-size: 1.5rem; color: var(--color-text-strong);">Prêt à scanner le catalogue</h3>
+        <p style="color: var(--color-text-muted); max-width: 500px; margin: 0 auto;">
+          Entrez un ou plusieurs mots-clés ci-dessus. Notre nouveau moteur de recherche analysera les titres et descriptions pour vous trouver les meilleurs correspondances.
         </p>
       </div>
-    </div>
-  {% elif not modules and not simulations %}
-    <div class="ta-surface-card">
-      <div class="ta-empty-state">
-        <i class="fas fa-search-minus" aria-hidden="true"></i>
-        <h3>Aucun résultat exploitable.</h3>
-        <p>
-          Aucun module ni simulation ne correspond à “{{ query }}”. Essayez un terme plus large
-          ou revenez vers le tableau de bord pour naviguer par catégorie.
+      
+    {% elif not results %}
+      <!-- Empty State: No results -->
+      <div class="ta-surface-card" style="text-align: center; padding: 4rem 2rem; background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-md);">
+        <div class="ta-empty-icon" style="font-size: 3rem; color: var(--color-rose); margin-bottom: 1.5rem; opacity: 0.8;">
+          <i class="fas fa-search-minus"></i>
+        </div>
+        <h3 class="ta-surface-title" style="margin-bottom: 0.5rem; font-size: 1.5rem; color: var(--color-text-strong);">Aucun signal détecté.</h3>
+        <p style="color: var(--color-text-muted); max-width: 500px; margin: 0 auto; margin-bottom: 2rem;">
+          Aucun document, module ou simulation ne correspond à <strong>“{{ query }}”</strong>. Essayez des termes plus généraux ou vérifiez l'orthographe.
         </p>
-        <div class="ta-inline-actions">
-          <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">Retour au tableau de bord</a>
-          <a href="{{ url_for('modules.index') }}" class="btn btn-outline-primary">Voir les modules</a>
+        <div class="ta-inline-actions" style="justify-content: center;">
+          <a href="{{ url_for('main.dashboard') }}" class="ta-btn ta-btn--outline">Retour au tableau de bord</a>
+          <a href="{{ url_for('modules.index') }}" class="ta-btn ta-btn--primary">Parcourir tout le catalogue</a>
         </div>
       </div>
-    </div>
-  {% else %}
-    <div class="ta-card-grid ta-card-grid--two">
-      <article class="ta-surface-card">
-        <div class="ta-surface-card-header">
-          <div>
-            <p class="ta-surface-kicker">Modules</p>
-            <h2 class="ta-surface-title">Parcours de formation</h2>
-          </div>
-          <span class="ta-pill-badge ta-pill-badge--slate">{{ modules|length }}</span>
-        </div>
-        <div class="ta-list-stack">
-          {% if modules %}
-            {% for module in modules %}
-              <a href="{{ url_for('modules.view', module_id=module.id) }}" class="ta-result-card">
-                <div class="ta-result-card-head">
-                  <span class="ta-icon-chip"><i class="fas fa-book-open" aria-hidden="true"></i></span>
-                  <div class="ta-result-card-copy">
-                    <h3>{{ module.title }}</h3>
-                    <p>{{ module.description }}</p>
-                  </div>
-                </div>
-              </a>
-            {% endfor %}
-          {% else %}
-            <div class="ta-note-panel">
-              <h3>Aucun module trouvé</h3>
-              <p>La recherche ne remonte aucun module de formation pour ce mot-clé.</p>
+      
+    {% else %}
+      <!-- Results Feed -->
+      <div class="ta-route-meta" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="color: var(--color-text-muted); font-weight: 500;">
+          <strong style="color: var(--color-text);">{{ results|length }}</strong> résultat(s) trouvé(s) pour “{{ query }}”
+        </span>
+        <span class="ta-search-score-badge" style="background: transparent; color: var(--color-primary);">Trié par pertinence <i class="fas fa-sort-amount-down ms-1"></i></span>
+      </div>
+      
+      <div class="ta-unified-feed">
+        {% for item in results %}
+          <a href="{{ item.url }}" class="ta-result-card ta-result-card--search" style="background: var(--color-surface); border-color: var(--color-border); color: var(--color-text); box-shadow: var(--shadow-sm);">
+            <span class="ta-icon-chip" style="background: rgba(var(--color-{{ item.color_class }}-rgb, 59, 130, 246), 0.1); color: var(--color-{{ item.color_class }});">
+              <i class="{{ item.icon }}"></i>
+            </span>
+            <div class="ta-result-card-copy" style="flex: 1;">
+              <h3 style="color: var(--color-text-strong); font-weight: 600; margin-bottom: 0.25rem;">{{ item.title }}</h3>
+              <p style="color: var(--color-text); margin-bottom: 0.5rem;">{{ item.description | truncate(120) }}</p>
+              
+              <div class="ta-result-card-meta">
+                <span class="ta-pill-badge ta-pill-badge--{{ item.color_class }}" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">{{ item.type }}</span>
+                {% if loop.index == 1 %}
+                  <span class="ta-pill-badge ta-pill-badge--emerald" style="font-size: 0.7rem; padding: 0.15rem 0.5rem; background: rgba(16, 185, 129, 0.1); color: var(--color-emerald); border: 1px solid rgba(16, 185, 129, 0.2);"><i class="fas fa-star" style="margin-right: 0.25rem;"></i>Meilleur Résultat</span>
+                {% endif %}
+              </div>
             </div>
-          {% endif %}
-        </div>
-      </article>
-
-      <article class="ta-surface-card">
-        <div class="ta-surface-card-header">
-          <div>
-            <p class="ta-surface-kicker">Simulations</p>
-            <h2 class="ta-surface-title">Scénarios d’entraînement</h2>
-          </div>
-          <span class="ta-pill-badge ta-pill-badge--slate">{{ simulations|length }}</span>
-        </div>
-        <div class="ta-list-stack">
-          {% if simulations %}
-            {% for sim in simulations %}
-              <a href="{{ url_for('main.simulation_detail', slug=sim['slug']) }}" class="ta-result-card">
-                <div class="ta-result-card-head">
-                  <span class="ta-icon-chip"><i class="fas fa-flask" aria-hidden="true"></i></span>
-                  <div class="ta-result-card-copy">
-                    <h3>{{ sim['title'] }}</h3>
-                    <p>{{ sim.get('description', '') }}</p>
-                  </div>
-                </div>
-              </a>
-            {% endfor %}
-          {% else %}
-            <div class="ta-note-panel">
-              <h3>Aucune simulation trouvée</h3>
-              <p>Essayez un mot-clé lié à un scénario opérationnel ou à une campagne de phishing.</p>
+            <div class="ta-search-score-badge" title="Score de pertinence algorithmique">
+              Score: {{ item.score }}
             </div>
-          {% endif %}
-        </div>
-      </article>
-    </div>
-  {% endif %}
+          </a>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
 </section>
+
+<!-- Simple client-side highlighter and Autocomplete hook -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  {% if query and results %}
+  // 1. Text Highlighter for query terms
+  const queryTerms = "{{ query }}".toLowerCase().split(/\s+/).filter(t => t.length > 2);
+  if(queryTerms.length > 0) {
+    const cards = document.querySelectorAll('.ta-result-card-copy h3, .ta-result-card-copy p');
+    cards.forEach(el => {
+      let html = el.innerHTML;
+      queryTerms.forEach(term => {
+        const regex = new RegExp(`(?![^<]*>)(${term})`, "gi");
+        html = html.replace(regex, '<span class="ta-highlight">$1</span>');
+      });
+      el.innerHTML = html;
+    });
+  }
+  {% endif %}
+
+  // 2. Bind Live Autocomplete to Page Input with retry polling
+  const hookAutocomplete = setInterval(() => {
+    if (typeof window.initAutocomplete === 'function') {
+      const pageInput = document.getElementById('page-search-input');
+      const pageDropdown = document.getElementById('page-autocomplete-dropdown');
+      if (pageInput && pageDropdown) {
+        window.initAutocomplete(pageInput, pageDropdown);
+      }
+      clearInterval(hookAutocomplete);
+    }
+  }, 50);
+
+  // Failsafe mostly for testing
+  setTimeout(() => clearInterval(hookAutocomplete), 3000);
+});
+</script>
 {% endblock %}

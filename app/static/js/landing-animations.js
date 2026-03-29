@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const animateElements = document.querySelectorAll(
-        '.hero-badge, .hero-title, .hero-subtitle, .hero-actions, .user-pill, .premium-card, .stat-block, .hero-console, .console-metric, .home-mission-panel, .home-kpi-panel, .home-track-card, .home-context-copy, .home-risk-panel'
+        '.hero-badge, .hero-title, .hero-subtitle, .hero-actions, .user-pill, .premium-card, .stat-block, .hero-console, .console-metric, .command-mission, .command-live-panel, .track-card, .analysis-content, .analysis-chart-panel'
     );
 
     if (prefersReducedMotion) {

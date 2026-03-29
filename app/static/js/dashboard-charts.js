@@ -5,18 +5,18 @@ function readDashboardCssVariable(name, fallback) {
 
 function getDashboardTheme() {
     return {
-        primary: readDashboardCssVariable('--color-primary', '#38bdf8'),
-        secondary: readDashboardCssVariable('--color-secondary', '#2dd4bf'),
-        accent: readDashboardCssVariable('--color-accent', '#f59e0b'),
-        success: readDashboardCssVariable('--color-success', '#22c55e'),
-        warning: readDashboardCssVariable('--color-warning', '#f59e0b'),
-        danger: readDashboardCssVariable('--color-danger', '#fb7185'),
-        text: readDashboardCssVariable('--color-text', '#f5fbff'),
-        muted: readDashboardCssVariable('--color-text-muted', '#96a8c4'),
-        faint: readDashboardCssVariable('--color-text-faint', '#70819d'),
-        border: readDashboardCssVariable('--color-border', 'rgba(148, 163, 184, 0.18)'),
-        surface: readDashboardCssVariable('--color-surface-strong', '#122443'),
-        elevated: readDashboardCssVariable('--color-surface-elevated', '#183056')
+        primary: readDashboardCssVariable('--color-primary', '#5b9cf5'),
+        secondary: readDashboardCssVariable('--color-secondary', '#4ec9b0'),
+        accent: readDashboardCssVariable('--color-accent', '#e8a840'),
+        success: readDashboardCssVariable('--color-success', '#3dba6f'),
+        warning: readDashboardCssVariable('--color-warning', '#dfb050'),
+        danger: readDashboardCssVariable('--color-danger', '#e85c5c'),
+        text: readDashboardCssVariable('--color-text', '#eaf0f8'),
+        muted: readDashboardCssVariable('--color-text-muted', '#8c9db5'),
+        faint: readDashboardCssVariable('--color-text-faint', '#6b7d96'),
+        border: readDashboardCssVariable('--color-border', 'rgba(148, 163, 184, 0.12)'),
+        surface: readDashboardCssVariable('--color-surface-strong', '#142236'),
+        elevated: readDashboardCssVariable('--color-surface-elevated', '#1a2a48')
     };
 }
 
@@ -91,15 +91,15 @@ function buildModuleCompletionChart(theme) {
                     data: completion,
                     type: 'line',
                     yAxisID: 'y1',
-                    borderColor: theme.accent,
-                    backgroundColor: theme.accent,
-                    pointBackgroundColor: completion.map((value) => value === 1 ? theme.success : theme.faint),
-                    pointBorderColor: theme.surface,
+                    borderColor: theme.secondary,
+                    backgroundColor: theme.secondary,
+                    pointBackgroundColor: completion.map((value) => value === 1 ? theme.success : theme.primary),
+                    pointBorderColor: '#ffffff',
                     pointBorderWidth: 2,
-                    pointRadius: 5,
-                    pointHoverRadius: 7,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
                     borderWidth: 2,
-                    tension: 0.28
+                    tension: 0.35
                 }
             ]
         },
@@ -145,10 +145,19 @@ function buildModuleCompletionChart(theme) {
                     },
                     ticks: {
                         color: theme.faint,
-                        maxRotation: 24,
+                        maxRotation: 0,
                         minRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 6,
                         font: {
-                            size: 11
+                            size: 12
+                        },
+                        callback: function(value) {
+                            let label = this.getLabelForValue(value) || '';
+                            if (label.length > 15) {
+                                return label.substr(0, 15) + '...';
+                            }
+                            return label;
                         }
                     }
                 },

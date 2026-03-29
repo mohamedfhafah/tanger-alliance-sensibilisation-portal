@@ -26,6 +26,82 @@
     {% block extra_css %}{% endblock %}
     {% block styles %}{% endblock %}
   {% endblock %}
+  
+  <style>
+    /* Global Autocomplete Styles */
+    .ta-autocomplete-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 0.5rem;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-xl);
+      z-index: 1050;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-5px);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .ta-autocomplete-dropdown.show {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .ta-autocomplete-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: var(--color-text);
+      text-decoration: none;
+      border-bottom: 1px solid var(--color-border-soft);
+      transition: background 0.15s;
+    }
+    .ta-autocomplete-item:last-child {
+      border-bottom: none;
+    }
+    .ta-autocomplete-item:hover, .ta-autocomplete-item.active {
+      background: var(--color-surface-soft);
+      text-decoration: none;
+      color: var(--color-text-strong);
+    }
+    .ta-autocomplete-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: var(--radius-sm);
+      color: white;
+    }
+    .ta-autocomplete-content {
+      flex: 1;
+      overflow: hidden;
+    }
+    .ta-autocomplete-title {
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 0.15rem;
+    }
+    .ta-autocomplete-type {
+      font-size: 0.7rem;
+      font-weight: 500;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .ta-search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+  </style>
 </head>
 <body class="ta-body {% block body_class %}{% endblock %}">
 <div class="ta-app-shell">
@@ -34,9 +110,6 @@
   <nav class="tanger-nav-topbar" role="banner" aria-label="Navigation principale">
     <div class="tanger-nav-topbar-content">
       <div class="tanger-nav-topbar-main">
-        <button class="tanger-nav-menu-toggle" aria-label="Afficher ou masquer le menu" aria-expanded="false" aria-controls="main-navigation">
-          <i class="fas fa-bars" aria-hidden="true"></i>
-        </button>
         <a href="{{ url_for('main.home') }}" class="tanger-nav-brand" aria-label="Accueil Tanger Alliance Security">
           <img src="{{ url_for('static', filename='images/tanger-alliance-logo.png') }}" alt="Logo Tanger Alliance" class="tanger-nav-brand-logo">
           <div class="tanger-nav-brand-copy">
@@ -44,10 +117,13 @@
             <span class="tanger-nav-brand-subtitle">Security Awareness Portal</span>
           </div>
         </a>
+        <button class="tanger-nav-menu-toggle" aria-label="Afficher ou masquer le menu" aria-expanded="false" aria-controls="main-navigation">
+          <i class="fas fa-bars" aria-hidden="true"></i>
+        </button>
       </div>
 
       <div class="tanger-nav-actions">
-        <form class="tanger-nav-search" action="{{ url_for('main.search') }}" method="get" role="search">
+        <form class="tanger-nav-search ta-search-wrapper" action="{{ url_for('main.search') }}" method="get" role="search">
           <label for="search-input" class="tanger-nav-sr-only">Rechercher</label>
           <i class="fas fa-search" aria-hidden="true"></i>
           <input
@@ -57,8 +133,10 @@
             placeholder="Rechercher un module ou une ressource…"
             aria-label="Rechercher un module, une ressource ou une simulation"
             autocomplete="off"
+            class="ta-autocomplete-input"
           >
           <span class="tanger-nav-search-shortcut" id="searchShortcutHint" aria-hidden="true">Ctrl K</span>
+          <div class="ta-autocomplete-dropdown" id="global-autocomplete-dropdown"></div>
         </form>
 
         <button class="tanger-nav-dark-mode-toggle" id="darkModeToggle" aria-label="Basculer le thème" title="Basculer le thème">
@@ -130,20 +208,11 @@
   </nav>
 
   <aside class="tanger-nav-sidebar" id="main-navigation" role="navigation" aria-label="Menu principal">
+    <button class="tanger-sidebar-collapse-btn" aria-label="Réduire le menu" title="Basculer le menu">
+      <i class="fas fa-chevron-left" aria-hidden="true"></i>
+    </button>
     <div class="tanger-nav-sidebar-inner">
-      <section class="tanger-nav-user-panel">
-        <p class="tanger-nav-kicker">Niveau de surveillance</p>
-        <h2>Réduire le risque humain.</h2>
-        <p class="tanger-nav-user-panel-text">
-          Modules, simulations et maturité sécurité pour les équipes portuaires, logistiques et SecOps.
-        </p>
-        <div class="tanger-nav-user-panel-tags">
-          <span>Ports</span>
-          <span>Logistique</span>
-          <span>Compliance</span>
-          <span>SecOps</span>
-        </div>
-      </section>
+      
 
       <nav class="tanger-nav-menu" role="menubar">
         <div class="tanger-nav-menu-section" role="group" aria-labelledby="nav-core">
@@ -312,5 +381,90 @@
 <script src="{{ url_for('static', filename='js/modules-common.js') }}"></script>
 <script src="{{ url_for('static', filename='js/tanger-alliance-navigation.js') }}"></script>
 {% block scripts %}{% endblock %}
+
+<!-- Global Autocomplete Engine -->
+<script>
+(function() {
+  function initAutocomplete(inputEl, dropdownEl) {
+    let debounceTimer;
+    let currentIdx = -1;
+
+    document.addEventListener('click', function(e) {
+      if (!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) {
+        dropdownEl.classList.remove('show');
+      }
+    });
+
+    inputEl.addEventListener('keydown', function(e) {
+      const items = dropdownEl.querySelectorAll('.ta-autocomplete-item');
+      if (!dropdownEl.classList.contains('show') || items.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        currentIdx = (currentIdx + 1) % items.length;
+        items.forEach(function(it) { it.classList.remove('active'); });
+        items[currentIdx].classList.add('active');
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        currentIdx = (currentIdx - 1 + items.length) % items.length;
+        items.forEach(function(it) { it.classList.remove('active'); });
+        items[currentIdx].classList.add('active');
+      } else if (e.key === 'Enter' && currentIdx >= 0 && items[currentIdx]) {
+        e.preventDefault();
+        window.location.href = items[currentIdx].href;
+      }
+    });
+
+    inputEl.addEventListener('input', function() {
+      var query = inputEl.value.trim();
+      currentIdx = -1;
+
+      if (query.length < 2) {
+        dropdownEl.classList.remove('show');
+        return;
+      }
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(function() {
+        fetch('/api/search/suggestions?q=' + encodeURIComponent(query))
+          .then(function(res) { return res.json(); })
+          .then(function(data) {
+            if (data.length === 0) {
+              dropdownEl.innerHTML = '<div style="padding:1rem;text-align:center;color:var(--color-text-muted);font-size:0.9rem;">Aucun résultat.</div>';
+            } else {
+              var colorMap = { teal: '#14b8a6', blue: '#3b82f6', amber: '#f59e0b' };
+              dropdownEl.innerHTML = data.map(function(item) {
+                var bg = colorMap[item.color_class] || '#3b82f6';
+                return '<a href="' + item.url + '" class="ta-autocomplete-item">' +
+                  '<div class="ta-autocomplete-icon" style="background:' + bg + ';">' +
+                    '<i class="' + item.icon + '"></i>' +
+                  '</div>' +
+                  '<div class="ta-autocomplete-content">' +
+                    '<div class="ta-autocomplete-title">' + item.title + '</div>' +
+                    '<div class="ta-autocomplete-type" style="color:' + bg + ';">' + item.type + '</div>' +
+                  '</div>' +
+                '</a>';
+              }).join('');
+            }
+            dropdownEl.classList.add('show');
+          })
+          .catch(function(err) { console.error('Autocomplete error:', err); });
+      }, 200);
+    });
+  }
+
+  // Expose globally so page-specific scripts can use it
+  window.initAutocomplete = initAutocomplete;
+
+  // Auto-init the global navbar search
+  document.addEventListener('DOMContentLoaded', function() {
+    var globalInput = document.getElementById('search-input');
+    var globalDropdown = document.getElementById('global-autocomplete-dropdown');
+    if (globalInput && globalDropdown) {
+      initAutocomplete(globalInput, globalDropdown);
+    }
+  });
+})();
+</script>
 </body>
 </html>

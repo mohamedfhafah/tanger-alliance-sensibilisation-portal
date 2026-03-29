@@ -2,13 +2,13 @@ class TangerAllianceNavigation {
     constructor() {
         this.sidebar = document.querySelector('.tanger-nav-sidebar');
         this.mainContent = document.querySelector('.tanger-nav-main-content');
-        this.menuToggle = document.querySelector('.tanger-nav-menu-toggle');
+        this.menuToggles = document.querySelectorAll('.tanger-nav-menu-toggle, .tanger-sidebar-collapse-btn');
         this.overlay = document.querySelector('.tanger-nav-overlay');
         this.expandables = document.querySelectorAll('.tanger-nav-menu-expandable');
         this.searchInput = document.querySelector('.tanger-nav-search input');
         this.mobileBreakpoint = 1080;
 
-        if (!this.sidebar || !this.menuToggle) {
+        if (!this.sidebar || this.menuToggles.length === 0) {
             return;
         }
 
@@ -24,13 +24,15 @@ class TangerAllianceNavigation {
     }
 
     bind() {
-        this.menuToggle.addEventListener('click', (event) => {
-            event.preventDefault();
-            if (window.innerWidth <= this.mobileBreakpoint) {
-                this.toggleMobileMenu();
-            } else {
-                this.toggleSidebarCollapse();
-            }
+        this.menuToggles.forEach(toggle => {
+            toggle.addEventListener('click', (event) => {
+                event.preventDefault();
+                if (window.innerWidth <= this.mobileBreakpoint) {
+                    this.toggleMobileMenu();
+                } else {
+                    this.toggleSidebarCollapse();
+                }
+            });
         });
 
         this.overlay?.addEventListener('click', () => this.closeMobileMenu());
@@ -75,7 +77,7 @@ class TangerAllianceNavigation {
         this.state.mobileOpen = !this.state.mobileOpen;
         this.sidebar.classList.toggle('mobile-open', this.state.mobileOpen);
         this.overlay?.classList.toggle('active', this.state.mobileOpen);
-        this.menuToggle.setAttribute('aria-expanded', this.state.mobileOpen ? 'true' : 'false');
+        this.menuToggles.forEach(t => t.setAttribute('aria-expanded', this.state.mobileOpen ? 'true' : 'false'));
         document.body.style.overflow = this.state.mobileOpen ? 'hidden' : '';
     }
 
@@ -83,7 +85,7 @@ class TangerAllianceNavigation {
         this.state.mobileOpen = false;
         this.sidebar?.classList.remove('mobile-open');
         this.overlay?.classList.remove('active');
-        this.menuToggle?.setAttribute('aria-expanded', 'false');
+        this.menuToggles.forEach(t => t.setAttribute('aria-expanded', 'false'));
         document.body.style.overflow = '';
     }
 

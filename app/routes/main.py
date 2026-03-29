@@ -218,20 +218,164 @@ SIMULATIONS = [
     },
 ]
 
+import re
+
+def rank_search_result(title, description, query_string):
+    """
+    Evaluates a search result and returns a relevance score > 0 if matched.
+    Matches exact phrases heavily, individual tokens moderately.
+    """
+    if not query_string:
+        return 0
+    
+    score = 0
+    title_lower = (title or "").lower()
+    desc_lower = (description or "").lower()
+    query_lower = query_string.lower()
+    
+    # 1. Exact phrase match (Highest priority)
+    if query_lower in title_lower:
+        score += 50
+    if query_lower in desc_lower:
+        score += 20
+        
+    # 2. Tokenized keyword match
+    tokens = [t for t in re.split(r'\s+', query_lower) if len(t) > 2]
+    if not tokens:
+        tokens = [query_lower]
+        
+    matched_all = True
+    for token in tokens:
+        token_matched = False
+        if token in title_lower:
+            score += 10
+            token_matched = True
+        if token in desc_lower:
+            score += 5
+            token_matched = True
+            
+        if not token_matched:
+            matched_all = False
+            
+    # 3. Bonus if all terms are present anywhere in the document
+    if matched_all and len(tokens) > 1:
+        score += 30
+        
+    return score
+
 # -------- Recherche globale --------
 @main.route('/search')
 @login_required
 def search():
+    from app.models.module import Quiz
+    
     query = request.args.get('q', '').strip()
-    modules = []
+    results = []
+    
     if query:
-        modules = Module.query.filter(
-            Module.title.ilike(f'%{query}%') | Module.description.ilike(f'%{query}%')
-        ).all()
-    simulations = []
-    if query:
-        simulations = [s for s in SIMULATIONS if query.lower() in s['title'].lower() or query.lower() in s.get('description', '').lower()]
-    return render_template('search_results.html', title='Recherche', query=query, modules=modules, simulations=simulations)
+        # Load and rank Modules
+        all_modules = Module.query.all()
+        for mod in all_modules:
+            score = rank_search_result(mod.title, mod.description, query)
+            if score > 0:
+                results.append({
+                    'type': 'Module',
+                    'title': mod.title,
+                    'description': mod.description,
+                    'url': url_for('modules.view', module_id=mod.id),
+                    'score': score,
+                    'icon': 'fas fa-book-open',
+                    'color_class': 'teal'
+                })
+                
+        # Load and rank Simulations
+        for sim in SIMULATIONS:
+            score = rank_search_result(sim.get('title'), sim.get('description'), query)
+            if score > 0:
+                results.append({
+                    'type': 'Simulation',
+                    'title': sim.get('title'),
+                    'description': sim.get('description', ''),
+                    'url': url_for('main.simulation_detail', slug=sim.get('slug')),
+                    'score': score,
+                    'icon': 'fas fa-flask',
+                    'color_class': 'blue'
+                })
+                
+        # Load and rank Quizzes
+        all_quizzes = Quiz.query.all()
+        for qz in all_quizzes:
+            score = rank_search_result(qz.title, qz.description, query)
+            if score > 0:
+                results.append({
+                    'type': 'Quiz',
+                    'title': qz.title,
+                    'description': qz.description or "Évaluez vos compétences sur ce sujet.",
+                    'url': f'/quiz/{qz.id}',  # Standard route for viewing an interactive quiz
+                    'score': score,
+                    'icon': 'fas fa-question-circle',
+                    'color_class': 'amber'
+                })
+                
+        # Sort results by score (highest first)
+        results.sort(key=lambda x: x['score'], reverse=True)
+        
+    return render_template('search_results.html', title='Recherche', query=query, results=results)
+
+
+@main.route('/api/search/suggestions')
+@login_required
+def search_suggestions():
+    """Ultra-fast JSON endpoint for typing autocomplete recommendations."""
+    from app.models.module import Quiz
+    
+    query = request.args.get('q', '').strip()
+    if not query or len(query) < 2:
+        return jsonify([])
+        
+    results = []
+    
+    # Modules
+    for mod in Module.query.all():
+        score = rank_search_result(mod.title, mod.description, query)
+        if score > 0:
+            results.append({
+                'type': 'Module',
+                'title': mod.title,
+                'url': url_for('modules.view', module_id=mod.id),
+                'score': score,
+                'icon': 'fas fa-book-open',
+                'color_class': 'teal'
+            })
+            
+    # Simulations
+    for sim in SIMULATIONS:
+        score = rank_search_result(sim.get('title'), sim.get('description'), query)
+        if score > 0:
+            results.append({
+                'type': 'Simulation',
+                'title': sim.get('title'),
+                'url': url_for('main.simulation_detail', slug=sim.get('slug')),
+                'score': score,
+                'icon': 'fas fa-flask',
+                'color_class': 'blue'
+            })
+            
+    # Quizzes
+    for qz in Quiz.query.all():
+        score = rank_search_result(qz.title, qz.description, query)
+        if score > 0:
+            results.append({
+                'type': 'Quiz',
+                'title': qz.title,
+                'url': f'/quiz/{qz.id}',
+                'score': score,
+                'icon': 'fas fa-question-circle',
+                'color_class': 'amber'
+            })
+            
+    results.sort(key=lambda x: x['score'], reverse=True)
+    return jsonify(results[:5])
 
 # -------- Simulations --------
 @main.route('/simulations')

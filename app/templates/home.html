@@ -5,186 +5,183 @@
 {% block header_wrapper %}{% endblock %}
 
 {% block content %}
-<section class="home-command-grid">
-  <div class="home-mission-panel fade-in-up">
-    <div class="home-mission-meta">
-      <span class="home-eyebrow">Mission active</span>
-      <div class="home-sector-line">
-        <span>Tanger Alliance</span>
-        <span>Maritime</span>
-        <span>SecOps</span>
+<section class="home-command-center">
+  <div class="command-mission fade-in-up">
+    <div class="mission-badge">
+      <span class="pulse-dot"></span> Mission Active: Tanger Alliance
+    </div>
+    <h1 class="mission-title">Réduire le <span class="highlight">risque humain</span> sur les opérations portuaires.</h1>
+    <p class="mission-lead">Former les équipes, simuler les attaques phishing et suivre la maturité sécurité depuis un poste de commandement unifié.</p>
+    
+    <div class="mission-actions">
+      {% if current_user.is_authenticated %}
+      <a class="btn-command btn-primary" href="{{ url_for('main.dashboard') }}">Accéder au tableau de bord</a>
+      <a class="btn-command btn-secondary" href="{{ url_for('modules.index') }}">Explorer les modules</a>
+      {% else %}
+      <a class="btn-command btn-primary" href="{{ url_for('auth.register') }}">Créer un compte</a>
+      <a class="btn-command btn-secondary" href="{{ url_for('auth.login') }}">Se connecter</a>
+      {% endif %}
+    </div>
+
+    <div class="mission-stats">
+      <div class="stat-item">
+        <i class="fas fa-ship"></i>
+        <span>Périmètre Maritime & Logistique</span>
       </div>
-    </div>
-
-    <h1 class="home-mission-title">Réduire le risque humain sur les opérations portuaires.</h1>
-
-    <p class="home-mission-copy">
-      Former les équipes, simuler les campagnes de phishing et suivre la maturité sécurité depuis un poste de commandement unique.
-    </p>
-
-    {% if current_user.is_authenticated %}
-    <div class="home-actions">
-      <a class="btn-premium" href="{{ url_for('main.dashboard') }}">Accéder au tableau de bord</a>
-      <a class="btn-premium-secondary" href="{{ url_for('modules.index') }}">Voir les modules</a>
-    </div>
-    {% else %}
-    <div class="home-actions">
-      <a class="btn-premium" href="{{ url_for('auth.register') }}">Créer un compte</a>
-      <a class="btn-premium-secondary" href="{{ url_for('auth.login') }}">Se connecter</a>
-    </div>
-    {% endif %}
-
-    <div class="home-mission-facts">
-      <div>
-        <span class="home-fact-label">Périmètre</span>
-        <p>Ports, logistique, conformité et opérations critiques.</p>
-      </div>
-      <div>
-        <span class="home-fact-label">Capacités</span>
-        <p>Modules, simulations de phishing et suivi de maturité.</p>
+      <div class="stat-item">
+        <i class="fas fa-shield-halved"></i>
+        <span>Protection SEC-OPS Continue</span>
       </div>
     </div>
   </div>
 
-  <aside class="home-kpi-panel fade-in-up" aria-label="Poste de commandement">
-    <div class="home-panel-header">
-      <div>
-        <p class="home-panel-kicker">Poste de commandement</p>
-        <h2>Lecture immédiate des priorités de sensibilisation.</h2>
+  <aside class="command-live-panel fade-in-up">
+    <div class="panel-header">
+      <div class="panel-titles">
+        <span class="kicker">Live Overview</span>
+        <h2>Indicateurs de Sensibilisation</h2>
       </div>
-      <span class="home-status-badge">Live</span>
+      <div class="live-indicator">Live</div>
     </div>
-
-    <div class="home-kpi-grid">
-      <article class="home-kpi-card home-kpi-card--teal">
-        <span class="home-kpi-label">Modules assignés</span>
-        <strong>06</strong>
-        <div class="home-progress" aria-hidden="true"><span style="width: 68%"></span></div>
-      </article>
-
-      <article class="home-kpi-card home-kpi-card--teal">
-        <span class="home-kpi-label">Simulations du mois</span>
-        <strong>10</strong>
-        <div class="home-progress" aria-hidden="true"><span style="width: 82%"></span></div>
-      </article>
-
-      <article class="home-kpi-card home-kpi-card--amber">
-        <span class="home-kpi-label">Maturité sécurité</span>
-        <strong>72%</strong>
-        <div class="home-progress" aria-hidden="true"><span style="width: 72%"></span></div>
-      </article>
-
-      <article class="home-kpi-card home-kpi-card--red">
-        <span class="home-kpi-label">Risque phishing résiduel</span>
-        <strong>18%</strong>
-        <div class="home-progress" aria-hidden="true"><span style="width: 18%"></span></div>
-      </article>
+    
+    <div class="live-grid">
+      <div class="live-card">
+        <div class="card-icon"><i class="fas fa-book-open"></i></div>
+        <div class="card-data">
+          <strong>12</strong>
+          <span>Modules assignés</span>
+        </div>
+      </div>
+      <div class="live-card">
+        <div class="card-icon"><i class="fas fa-spider"></i></div>
+        <div class="card-data">
+          <strong>8</strong>
+          <span>Simulations actives</span>
+        </div>
+      </div>
+      <div class="live-card highlight-success">
+        <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="card-data">
+          <strong>72%</strong>
+          <span>Score maturité</span>
+        </div>
+      </div>
+      <div class="live-card highlight-danger">
+        <div class="card-icon"><i class="fas fa-triangle-exclamation"></i></div>
+        <div class="card-data">
+          <strong>18%</strong>
+          <span>Risque résiduel</span>
+        </div>
+      </div>
     </div>
-
-    <p class="home-panel-note">
-      Priorité actuelle : consolider l’hygiène des accès, accélérer le signalement et fermer les écarts de conformité sur les équipes exposées.
-    </p>
   </aside>
 </section>
 
-<section class="home-section">
-  <div class="home-section-header">
-    <div>
-      <p class="home-section-kicker">Learning tracks</p>
-      <h2>Parcours structurés par scénario de risque.</h2>
-      <p class="home-section-note">4 parcours essentiels pour les équipes portuaires et logistiques.</p>
-    </div>
+<section class="home-tracks-section">
+  <div class="section-heading text-center">
+    <span class="heading-kicker">Learning Tracks</span>
+    <h2>Parcours structurés par scénario de risque</h2>
+    <p>4 parcours essentiels pour protéger nos infrastructures et nos données.</p>
   </div>
 
-  <div class="home-track-grid">
-    <article class="home-track-card home-track-card--identity fade-in-up">
-      <div class="home-track-icon" aria-hidden="true"><i class="fas fa-user-shield"></i></div>
-      <h3>Identité & accès</h3>
-      <p>Durcir les mots de passe, les privilèges et la rotation des accès sur les postes sensibles.</p>
-      <div class="home-track-footer">
-        <span class="home-track-duration">30 min</span>
-        <span class="home-track-badge home-track-badge--essential">Essentiel</span>
+  <div class="tracks-grid">
+    <a href="#" class="track-card">
+      <div class="track-glow"></div>
+      <div class="track-icon"><i class="fas fa-user-shield"></i></div>
+      <div class="track-content">
+        <h3>Identité & accès</h3>
+        <p>Durcir les mots de passe et la rotation des accès critiques.</p>
       </div>
-    </article>
+      <div class="track-meta">
+        <span class="tag">Essentiel</span>
+        <span class="duration">30 min</span>
+      </div>
+    </a>
 
-    <article class="home-track-card home-track-card--phishing fade-in-up">
-      <div class="home-track-icon" aria-hidden="true"><i class="fas fa-envelope-open-text"></i></div>
-      <h3>Défense anti-phishing</h3>
-      <p>Détecter les signaux faibles, qualifier les messages suspects et remonter les incidents rapidement.</p>
-      <div class="home-track-footer">
-        <span class="home-track-duration">45 min</span>
-        <span class="home-track-badge home-track-badge--critical">Critique</span>
+    <a href="#" class="track-card">
+      <div class="track-glow"></div>
+      <div class="track-icon"><i class="fas fa-envelope-open-text"></i></div>
+      <div class="track-content">
+        <h3>Défense anti-phishing</h3>
+        <p>Détecter et qualifier les menaces par messagerie.</p>
       </div>
-    </article>
+      <div class="track-meta">
+        <span class="tag danger">Critique</span>
+        <span class="duration">45 min</span>
+      </div>
+    </a>
 
-    <article class="home-track-card home-track-card--response fade-in-up">
-      <div class="home-track-icon" aria-hidden="true"><i class="fas fa-shield-halved"></i></div>
-      <h3>Réponse & résilience</h3>
-      <p>Prioriser les incidents, coordonner l’escalade et protéger la continuité opérationnelle.</p>
-      <div class="home-track-footer">
-        <span class="home-track-duration">60 min</span>
-        <span class="home-track-badge home-track-badge--advanced">Avancé</span>
+    <a href="#" class="track-card">
+      <div class="track-glow"></div>
+      <div class="track-icon"><i class="fas fa-shield-virus"></i></div>
+      <div class="track-content">
+        <h3>Réponse & résilience</h3>
+        <p>Prioriser les incidents pour la continuité opérationnelle.</p>
       </div>
-    </article>
+      <div class="track-meta">
+        <span class="tag warning">Avancé</span>
+        <span class="duration">60 min</span>
+      </div>
+    </a>
 
-    <article class="home-track-card home-track-card--data fade-in-up">
-      <div class="home-track-icon" aria-hidden="true"><i class="fas fa-database"></i></div>
-      <h3>Protection des données</h3>
-      <p>Appliquer les règles de confidentialité, de partage et de traçabilité sur les flux critiques.</p>
-      <div class="home-track-footer">
-        <span class="home-track-duration">40 min</span>
-        <span class="home-track-badge home-track-badge--compliance">Conformité</span>
+    <a href="#" class="track-card">
+      <div class="track-glow"></div>
+      <div class="track-icon"><i class="fas fa-database"></i></div>
+      <div class="track-content">
+        <h3>Protection des données</h3>
+        <p>Confidentialité et traçabilité sur les flux de données.</p>
       </div>
-    </article>
+      <div class="track-meta">
+        <span class="tag success">Conformité</span>
+        <span class="duration">40 min</span>
+      </div>
+    </a>
   </div>
 </section>
 
-<section class="home-section home-context-layout">
-  <div class="home-context-copy fade-in-up">
-    <p class="home-section-kicker">Operational context</p>
-    <h2>La sensibilisation doit protéger l’exploitation, pas seulement la conformité.</h2>
-    <p>
-      Une erreur humaine sur un poste de supervision, un partage imprudent ou un clic sur une campagne ciblée peut ralentir l’ensemble de la chaîne logistique.
-    </p>
-    <ul class="home-context-list">
-      <li>Limiter l’exposition des accès, comptes techniques et flux partenaires.</li>
-      <li>Réduire le temps de détection et de remontée des incidents par les équipes terrain.</li>
-      <li>Mesurer la maturité sécurité sur les populations les plus exposées aux ruptures de service.</li>
+<section class="home-analysis-section">
+  <div class="analysis-content">
+    <span class="heading-kicker">Operational Context</span>
+    <h2>La sensibilisation protège l'exploitation.</h2>
+    <p>Une erreur humaine sur un poste de supervision peut ralentir l'ensemble de la chaîne logistique.</p>
+    <ul class="analysis-list">
+      <li><i class="fas fa-check-circle"></i> Limiter l'exposition des accès et comptes techniques.</li>
+      <li><i class="fas fa-check-circle"></i> Détection rapide des incidents par les équipes "terrain".</li>
+      <li><i class="fas fa-check-circle"></i> Mesurer la maturité sur les populations exposées.</li>
     </ul>
   </div>
 
-  <div class="home-risk-panel fade-in-up">
-    <div class="home-panel-header home-panel-header--compact">
-      <div>
-        <p class="home-panel-kicker">Axes de réduction du risque</p>
-        <h2>Comparaison directe des leviers de progression.</h2>
+  <div class="analysis-chart-panel">
+    <h3>Axes de Réduction du Risque</h3>
+    <div class="horizontal-bars">
+      <div class="h-bar-group">
+        <div class="bar-label">
+          <span>Facteur humain</span>
+          <span>85%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill blue" style="width: 85%"></div></div>
       </div>
-    </div>
-
-    <div class="home-risk-chart" aria-label="Comparaison des axes de réduction du risque">
-      <article class="home-risk-axis">
-        <span class="home-risk-value">85%</span>
-        <div class="home-risk-track" aria-hidden="true"><span style="height: 85%"></span></div>
-        <span class="home-risk-label">Facteur humain</span>
-      </article>
-
-      <article class="home-risk-axis">
-        <span class="home-risk-value">70%</span>
-        <div class="home-risk-track" aria-hidden="true"><span style="height: 70%"></span></div>
-        <span class="home-risk-label">Vecteurs phishing</span>
-      </article>
-
-      <article class="home-risk-axis">
-        <span class="home-risk-value">60%</span>
-        <div class="home-risk-track" aria-hidden="true"><span style="height: 60%"></span></div>
-        <span class="home-risk-label">Réponse terrain</span>
-      </article>
-
-      <article class="home-risk-axis">
-        <span class="home-risk-value">100%</span>
-        <div class="home-risk-track" aria-hidden="true"><span style="height: 100%"></span></div>
-        <span class="home-risk-label">Traçabilité</span>
-      </article>
+      <div class="h-bar-group">
+        <div class="bar-label">
+          <span>Vecteurs phishing</span>
+          <span>70%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill teal" style="width: 70%"></div></div>
+      </div>
+      <div class="h-bar-group">
+        <div class="bar-label">
+          <span>Réponse terrain</span>
+          <span>60%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill amber" style="width: 60%"></div></div>
+      </div>
+      <div class="h-bar-group">
+        <div class="bar-label">
+          <span>Traçabilité système</span>
+          <span>100%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill green" style="width: 100%"></div></div>
+      </div>
     </div>
   </div>
 </section>

@@ -18,11 +18,36 @@
   {% endif %}
   {% set display_description = module.description|default('')|replace('lllooolll', '')|striptags|trim|truncate(128, True) %}
 
+  {# Color assignment based on module topic #}
+  {% set title_lower = module.title|lower %}
+  {% if 'mot' in title_lower and 'passe' in title_lower or 'password' in title_lower %}
+    {% set color_variant = 'amber' %}
+    {% set card_icon = 'fas fa-key' %}
+  {% elif 'phishing' in title_lower %}
+    {% set color_variant = 'rose' %}
+    {% set card_icon = 'fas fa-fish' %}
+  {% elif 'vulnérabilité' in title_lower or 'vulnerability' in title_lower %}
+    {% set color_variant = 'purple' %}
+    {% set card_icon = 'fas fa-bug' %}
+  {% elif 'donnée' in title_lower or 'protection' in title_lower or 'data' in title_lower %}
+    {% set color_variant = 'emerald' %}
+    {% set card_icon = 'fas fa-shield-alt' %}
+  {% elif 'mobile' in title_lower %}
+    {% set color_variant = 'cyan' %}
+    {% set card_icon = 'fas fa-mobile-alt' %}
+  {% elif 'réseau' in title_lower or 'network' in title_lower %}
+    {% set color_variant = 'indigo' %}
+    {% set card_icon = 'fas fa-network-wired' %}
+  {% else %}
+    {% set color_variant = 'cyan' %}
+    {% set card_icon = module.icon_class or 'fas fa-book' %}
+  {% endif %}
+
   <div class="col-12 col-md-6 col-xl-4">
-    <article class="ta-module-card fade-in-up">
+    <article class="ta-module-card ta-module-card--{{ color_variant }} fade-in-up">
       <div class="ta-module-card-top">
-        <div class="ta-module-icon">
-          <i class="{{ module.icon_class or 'fas fa-book' }}" aria-hidden="true"></i>
+        <div class="ta-module-icon ta-module-icon--{{ color_variant }}">
+          <i class="{{ card_icon }}" aria-hidden="true"></i>
         </div>
         <span class="ta-module-status {{ status_class }}">{{ status_text }}</span>
       </div>
@@ -40,7 +65,7 @@
         </div>
         <div class="progress">
           <div
-            class="progress-bar"
+            class="progress-bar ta-progress--{{ color_variant }}"
             role="progressbar"
             style="width: {{ progress_value }}%;"
             aria-valuenow="{{ progress_value }}"
@@ -60,7 +85,7 @@
         {% endif %}
       </div>
 
-      <a href="{{ url_for('modules.view', module_id=module.id) }}" class="btn btn-primary btn-block">
+      <a href="{{ url_for('modules.view', module_id=module.id) }}" class="btn ta-btn--{{ color_variant }} btn-block">
         {{ action_text }}
         <i class="fas fa-arrow-right" aria-hidden="true"></i>
       </a>

@@ -30,20 +30,6 @@
         </div>
     </div>
 
-    <div class="dashboard-hero-stats">
-        <div class="dashboard-hero-stat">
-            <span>Modules complétés</span>
-            <strong>{{ user_stats.modules_completed|default(0) }}</strong>
-        </div>
-        <div class="dashboard-hero-stat">
-            <span>Score moyen</span>
-            <strong>{{ user_stats.avg_score|default(0)|round|int }}%</strong>
-        </div>
-        <div class="dashboard-hero-stat">
-            <span>Classement sécurité</span>
-            <strong>{{ user_stats.security_rank|default('Débutant') }}</strong>
-        </div>
-    </div>
 </section>
 
 <!-- Stat Cards -->
@@ -56,66 +42,24 @@
 
 <div class="row mb-4 dashboard-layout-row">
     <div class="col-md-8">
-        <!-- Module Progress -->
-        {{ render_module_progress(modules, user_progress) }}
-        
+
         <!-- Module Completion Chart -->
         {{ render_module_completion_chart(user_progress, modules) }}
         
         <!-- Simulation Progress Chart -->
-        <div class="card card-primary card-outline mt-4 dashboard-panel">
-          <div class="card-header text-primary">
-            <h4 class="mb-0"><i class="fas fa-chart-bar me-2"></i> Progression par simulation</h4>
+        <div class="ta-surface-flat dashboard-panel mb-4 shadow-sm">
+          <div class="card-header border-0 bg-transparent text-primary d-flex justify-content-between align-items-center">
+            <h4 class="card-title fw-bold m-0 fs-5 pb-2"><i class="fas fa-chart-bar me-2"></i> Progression par simulation</h4>
           </div>
           <div class="card-body">
             <canvas id="simulationChart" style="height:250px;"></canvas>
           </div>
         </div>
-    </div>
-    <div class="col-md-4">
-        <!-- Overall Progress Chart -->
-        {{ render_overall_progress_chart(user_progress, modules) }}
-        
-        <!-- Simulation Stats -->
-        {{ render_simulation_stats(simulation_stats) }}
-        
-        <!-- Recent Activities -->
-        <div class="card card-aside-primary shadow-sm mb-4 dashboard-panel dashboard-activity-panel">
-          <div class="card-header text-primary d-flex justify-content-between align-items-center">
-            <h4 class="mb-0"><i class="fas fa-history me-2"></i> Activité récente</h4>
-            <div class="card-tools">
-              <a href="{{ url_for('main.activity_history') }}" class="btn btn-sm btn-light">Voir tout</a>
-            </div>
-          </div>
-          <div class="card-body p-0">
-            <ul class="list-group list-group-flush dashboard-activity-feed">
-              {% for act in recent_activities[:5] %}
-              <li class="list-group-item dashboard-activity-item d-flex justify-content-between align-items-center">
-                <div class="ta-activity-icon">
-                  <i class="fas fa-bolt" aria-hidden="true"></i>
-                </div>
-                <div class="dashboard-activity-copy">
-                  <span class="dashboard-activity-label">{{ act.module_name }}</span>
-                  <span class="dashboard-activity-text">{{ act.action }}</span>
-                  <small class="text-muted">{{ act.timestamp.strftime('%d/%m/%Y %H:%M') }}</small>
-                </div>
-                {% if act.score is not none %}<span class="badge bg-primary rounded-pill">{{ act.score|round(1) }}%</span>{% endif %}
-              </li>
-              {% endfor %}
-              {% if recent_activities|length == 0 %}
-              <li class="list-group-item text-center text-muted">Aucune activité récente.</li>
-              {% endif %}
-            </ul>
-          </div>
-        </div>
-    </div>
-</div>
 
-<div class="row dashboard-layout-row">
-    <div class="col-md-8">
-        <div class="card card-aside-primary shadow-sm mb-4 dashboard-panel dashboard-module-panel">
-            <div class="card-header text-primary d-flex justify-content-between align-items-center">
-                <h4 class="mb-0 fw-bold"><i class="fas fa-graduation-cap me-3"></i>Parcours de Cybersécurité</h4>
+        <!-- Parcours de Cybersécurité (pulled up to fill space) -->
+        <div class="ta-surface-flat dashboard-panel mb-4 shadow-sm dashboard-module-panel p-2">
+            <div class="card-header border-0 bg-transparent text-primary d-flex justify-content-between align-items-center">
+                <h4 class="card-title fw-bold m-0 fs-5 pb-2"><i class="fas fa-graduation-cap me-3"></i>Parcours de Cybersécurité</h4>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                         <i class="fas fa-minus text-white"></i>
@@ -156,19 +100,22 @@
                         {% set status_class = 'border-success' %}
                         {% set status_text = 'Complété' %}
                         {% set status_bg = 'bg-success' %}
+                        {% set icon_bg = 'bg-success' %}
                     {% elif progress %}
                         {% set status_class = 'border-warning' %}
                         {% set status_text = 'En cours' %}
                         {% set status_bg = 'bg-warning' %}
+                        {% set icon_bg = 'bg-warning' %}
                     {% else %}
                         {% set status_class = 'border-secondary' %}
                         {% set status_text = 'Non commencé' %}
                         {% set status_bg = 'bg-secondary' %}
+                        {% set icon_bg = 'module-icon-pending' %}
                     {% endif %}
                     
-                    <a href="{{ url_for('modules.view', module_id=module.id) }}" class="list-group-item list-group-item-action dashboard-module-entry border-left-0 border-right-0 {{ status_class }} border-left-4 border-0 ps-0 py-3">
+                    <a href="{{ url_for('modules.view', module_id=module.id) }}" class="list-group-item list-group-item-action dashboard-module-entry border-bottom mb-1 bg-transparent py-4 text-decoration-none">
                         <div class="d-flex w-100 align-items-center">
-                            <div class="module-icon p-3 me-4 rounded-circle {{ status_bg }}">
+                            <div class="module-icon p-3 me-4 rounded-circle {{ icon_bg }}">
                                 <i class="{{ icon_class }} fa-lg text-white"></i>
                             </div>
                             <div class="flex-grow-1 ms-2">
@@ -202,11 +149,46 @@
         </div>
     </div>
     <div class="col-md-4">
-        <!-- Section des certificats supprimée -->
+        <!-- Overall Progress Chart -->
+        {{ render_overall_progress_chart(user_progress, modules) }}
         
-        <div class="card card-primary card-outline shadow-sm mb-4 dashboard-panel dashboard-badges-panel">
-            <div class="card-header text-primary d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="fas fa-award me-2"></i>Badges</h4>
+        <!-- Simulation Stats -->
+        {{ render_simulation_stats(simulation_stats) }}
+        
+        <!-- Recent Activities -->
+        <div class="ta-surface-flat dashboard-panel mb-4 shadow-sm dashboard-activity-panel">
+          <div class="card-header border-0 bg-transparent text-primary d-flex justify-content-between align-items-center">
+            <h4 class="card-title fw-bold m-0 fs-5 pb-2"><i class="fas fa-history me-2"></i> Activité récente</h4>
+            <div class="card-tools">
+              <a href="{{ url_for('main.activity_history') }}" class="btn btn-sm btn-light">Voir tout</a>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            <ul class="list-group list-group-flush dashboard-activity-feed">
+              {% for act in recent_activities[:5] %}
+              <li class="list-group-item dashboard-activity-item d-flex justify-content-between align-items-center">
+                <div class="ta-activity-icon">
+                  <i class="fas fa-bolt" aria-hidden="true"></i>
+                </div>
+                <div class="dashboard-activity-copy">
+                  <span class="dashboard-activity-label">{{ act.module_name }}</span>
+                  <span class="dashboard-activity-text">{{ act.action }}</span>
+                  <small class="text-muted">{{ act.timestamp.strftime('%d/%m/%Y %H:%M') }}</small>
+                </div>
+                {% if act.score is not none %}<span class="badge bg-primary rounded-pill">{{ act.score|round(1) }}%</span>{% endif %}
+              </li>
+              {% endfor %}
+              {% if recent_activities|length == 0 %}
+              <li class="list-group-item text-center text-muted">Aucune activité récente.</li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+
+        <!-- Badges Panel -->
+        <div class="ta-surface-flat dashboard-panel dashboard-badges-panel mb-4 shadow-sm p-2">
+            <div class="card-header border-0 bg-transparent text-primary d-flex justify-content-between align-items-center">
+                <h4 class="card-title fw-bold m-0 fs-5 pb-2"><i class="fas fa-award me-2"></i>Badges</h4>
                 <div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse">
                         <i class="fas fa-minus text-white"></i>
@@ -241,9 +223,9 @@
             </div>
         </div>
         
-        <div class="card card-primary card-outline shadow-sm mb-4 dashboard-panel dashboard-simulation-panel">
-            <div class="card-header text-primary">
-                <h4 class="mb-0">Simulation de phishing</h4>
+        <div class="ta-surface-flat dashboard-panel dashboard-simulation-panel mb-4 shadow-sm p-2">
+            <div class="card-header border-0 bg-transparent text-primary d-flex justify-content-between align-items-center">
+                <h4 class="card-title fw-bold m-0 fs-5 pb-2">Simulation de phishing</h4>
             </div>
             <div class="card-body">
                 <p>Testez vos connaissances en participant à notre simulation de phishing.</p>
