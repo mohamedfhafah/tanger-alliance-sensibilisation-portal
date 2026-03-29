@@ -1,7 +1,17 @@
+function syncThemeClasses(themeName) {
+  if (!document.body) {
+    return;
+  }
+
+  document.body.classList.toggle('dark-mode', themeName === 'dark');
+  document.body.classList.toggle('light-mode', themeName === 'light');
+}
+
 // Fonction pour définir le thème sans modifier les éléments DOM
 function setThemeOnly(themeName) {
   localStorage.setItem('theme', themeName);
   document.documentElement.setAttribute('data-theme', themeName);
+  syncThemeClasses(themeName);
   document.dispatchEvent(new CustomEvent('theme:changed', { detail: { theme: themeName } }));
 }
 
@@ -66,6 +76,8 @@ function initTheme() {
   
   // Utiliser DOMContentLoaded pour s'assurer que tous les éléments sont chargés
   document.addEventListener('DOMContentLoaded', function() {
+    syncThemeClasses(themeName);
+
     // Mettre à jour l'icône du bouton de mode sombre
     updateDarkModeButtonIcon(themeName === 'dark');
     
