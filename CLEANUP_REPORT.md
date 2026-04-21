@@ -62,7 +62,7 @@ Projet_Portail_Securite/
 │       ├── routes/ (Application routes)
 │       ├── templates/ (Jinja2 templates)
 │       ├── static/ (CSS, JS, images)
-│       ├── forms/ (WTF forms)
+│       ├── forms/ (WTForms-based forms)
 │       └── utils/ (Helper functions)
 │
 ├── 🗄️ Data & Migrations

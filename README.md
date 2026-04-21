@@ -100,16 +100,22 @@ Projet_Portail_Securite/
 The application is fully configured and ready to run:
 
 ```bash
-# 1. Navigate to project directory
-cd /Users/mohamedfhafah/Documents/Analyse_Cecurité/Projet_Portail_Securite
+# 1. Clone and enter the repository
+git clone https://github.com/mohamedfhafah/tanger-alliance-sensibilisation-portal.git
+cd tanger-alliance-sensibilisation-portal
 
-# 2. Activate virtual environment
+# 2. Create and activate a virtual environment
+python3 -m venv venv
 source venv/bin/activate
 
-# 3. Start application
+# 3. Install dependencies and create local config
+pip install -r requirements.txt
+cp .env.example .env
+
+# 4. Start application
 python app.py
 
-# 4. Access in browser
+# 5. Access in browser
 open http://127.0.0.1:5013
 ```
 
