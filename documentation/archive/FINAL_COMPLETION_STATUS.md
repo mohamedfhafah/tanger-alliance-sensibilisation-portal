@@ -50,7 +50,7 @@ All endpoints tested and working:
 
 ## 🔐 Admin Credentials
 - **Email**: admin@tangeralliance.com
-- **Password**: admin123
+- **Password**: set TANGER_ADMIN_PASSWORD before seeding
 - **Role**: Administrator
 - **Status**: Active
 

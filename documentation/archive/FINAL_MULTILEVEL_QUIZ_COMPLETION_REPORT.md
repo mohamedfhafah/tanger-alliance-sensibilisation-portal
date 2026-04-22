@@ -4,7 +4,7 @@
 **Date:** June 7, 2025  
 **Status:** ✅ FULLY COMPLETED AND OPERATIONAL  
 **Application URL:** http://localhost:5006/  
-**Database Location:** `/Users/mohamedfhafah/Documents/Analyse_Cecurité/Projet_Portail_Securite/instance/tanger_alliance.db`
+**Database Location:** `/path/to/tanger-alliance-sensibilisation-portal/instance/tanger_alliance.db`
 
 ---
 
@@ -174,7 +174,7 @@ The multi-level quiz system is **fully operational** and ready for:
 
 ### Database Location (PERMANENTLY RECORDED)
 ```
-📁 Database Directory: /Users/mohamedfhafah/Documents/Analyse_Cecurité/Projet_Portail_Securite/instance/
+📁 Database Directory: /path/to/tanger-alliance-sensibilisation-portal/instance/
 📄 Main Database: tanger_alliance.db
 📄 Additional Database: portail_securite.db
 ⚠️ IMPORTANT: Databases are in instance/ subdirectory, NOT project root

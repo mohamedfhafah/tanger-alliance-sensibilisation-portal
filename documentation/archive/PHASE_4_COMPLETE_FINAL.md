@@ -120,7 +120,7 @@ Key Assets Status:
 ### Quick Start
 ```bash
 # 1. Navigate to project
-cd /Users/mohamedfhafah/Documents/Analyse_Cecurité/Projet_Portail_Securite
+cd /path/to/tanger-alliance-sensibilisation-portal
 
 # 2. Activate environment
 source venv/bin/activate

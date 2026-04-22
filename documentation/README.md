@@ -101,7 +101,7 @@ The application is fully configured and ready to run:
 
 ```bash
 # 1. Navigate to project directory
-cd /Users/mohamedfhafah/Documents/Analyse_Cecurité/Projet_Portail_Securite
+cd /path/to/tanger-alliance-sensibilisation-portal
 
 # 2. Activate virtual environment
 source venv/bin/activate
@@ -114,7 +114,7 @@ open http://127.0.0.1:5013
 ```
 
 ### Admin Access
-- **Email**: admin@tangeralliance.com
+- **Email**: set `TANGER_ADMIN_EMAIL` before running the seed script
 - **Password**: set `TANGER_ADMIN_PASSWORD` before running the seed script
 - **Dashboard**: Full admin controls and analytics
 

@@ -4,7 +4,7 @@
 
 ### Start the Application
 ```bash
-cd /Users/mohamedfhafah/Documents/Analyse_Cecurité/Projet_Portail_Securite
+cd /path/to/tanger-alliance-sensibilisation-portal
 source venv/bin/activate
 python app.py
 ```
@@ -16,8 +16,8 @@ python app.py
 
 ### Admin Credentials
 ```
-Email: admin@tangeralliance.com
-Password: admin123
+Email: set TANGER_ADMIN_EMAIL before seeding
+Password: set TANGER_ADMIN_PASSWORD before seeding
 Role: admin
 ```
 

@@ -1,14 +1,8 @@
 # Tanger Alliance Security Awareness Portal
 
-## 🎉 Project Status: PRODUCTION READY ✅
-
-**Phase 4 Completed**: June 8, 2025  
-**Production Deployment**: Ready for live deployment  
-**All Critical Issues**: Resolved ✅  
-
 ## Project Overview
 
-The Tanger Alliance Security Awareness Portal is a web-based platform designed to enhance the cybersecurity awareness and knowledge of employees through structured learning modules, interactive quizzes, and simulated phishing campaigns. The application helps organizations manage and track employee progress in security training, identify vulnerable areas, and demonstrate compliance with security awareness requirements.
+The Tanger Alliance Security Awareness Portal is a web-based training platform built to improve employee cybersecurity awareness through structured modules, interactive quizzes, and simulated phishing campaigns. The application helps organizations manage participation, track progress, and surface awareness gaps in a more operational way than static slide decks or documents.
 
 ## Technology Stack
 
@@ -120,7 +114,7 @@ open http://127.0.0.1:5013
 ```
 
 ### Admin Access
-- **Email**: admin@tangeralliance.com
+- **Email**: set `TANGER_ADMIN_EMAIL` before running the seed script
 - **Password**: set `TANGER_ADMIN_PASSWORD` before running the seed script
 - **Dashboard**: Full admin controls and analytics
 

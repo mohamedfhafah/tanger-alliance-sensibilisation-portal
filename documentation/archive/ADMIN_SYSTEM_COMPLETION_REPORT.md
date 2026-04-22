@@ -44,7 +44,7 @@ The Flask-Admin integration and system configuration for the Tanger Alliance Sec
 ```
 Database: SQLite (tanger_alliance.db)
 Admin User: admin@tangeralliance.com
-Password: admin123
+Password: set TANGER_ADMIN_PASSWORD before seeding
 Role: admin
 Status: Active
 ```
@@ -93,7 +93,7 @@ Status: Active
 ### **Admin Interface**
 - **URL:** http://127.0.0.1:5002/admin/
 - **Login:** http://127.0.0.1:5002/auth/login
-- **Credentials:** admin@tangeralliance.com / admin123
+- **Credentials:** admin@tangeralliance.com / set TANGER_ADMIN_PASSWORD before seeding
 - **Status:** ✅ Fully Operational
 
 ## 📊 System Configuration View

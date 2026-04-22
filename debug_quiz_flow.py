@@ -5,6 +5,7 @@ Debugging script to analyze quiz submission flow and session handling
 
 import sys
 import os
+from pathlib import Path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app import create_app, db
@@ -96,7 +97,8 @@ def analyze_session_handling():
     
     # Read the modules.py file to analyze session handling
     try:
-        with open('/Users/mohamedfhafah/Documents/Analyse_Cecurité/Projet_Portail_Securite/app/routes/modules.py', 'r') as f:
+        modules_path = Path(__file__).resolve().parent / 'app' / 'routes' / 'modules.py'
+        with modules_path.open('r') as f:
             content = f.read()
             
         print("📄 Analyzing modules.py for session handling...")
