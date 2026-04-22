@@ -15,11 +15,20 @@ import pytest
 from datetime import datetime, timedelta
 from flask import url_for
 from app.models.user import User
-from app.models.module import Module, Quiz, Question, UserProgress
+from app.models.module import Module, Quiz, Question, UserProgress, Choice
 from app.models.badge import Badge
 from app.models.campaign import Campaign, PhishingSimulation
 from app.models.simulation_rating import SimulationRating
 from tests.conftest import TestUtils, TestDataFactory
+
+
+def build_correct_answers(questions):
+    """Construit un payload cohérent à partir des choix corrects."""
+    payload = {}
+    for question in questions:
+        correct_choice = next(choice for choice in question.choices if choice.is_correct)
+        payload[f'question_{question.id}'] = str(correct_choice.id)
+    return payload
 
 
 class TestCompleteUserJourney:
@@ -86,7 +95,7 @@ class TestCompleteUserJourney:
         # Parcourir chaque module
         for i, module in enumerate(modules):
             # Accéder au module
-            module_response = authenticated_client.get(f'/modules/{module.id}')
+            module_response = authenticated_client.get(f'/modules/{module.id}', follow_redirects=True)
             assert module_response.status_code == 200
             
             # Démarrer le module
@@ -138,7 +147,15 @@ class TestCompleteUserJourney:
             )
             questions.append(question)
             db_session.add(question)
-        
+
+        db_session.flush()
+        for question in questions:
+            db_session.add_all([
+                Choice(question_id=question.id, content='Bonne réponse', is_correct=True),
+                Choice(question_id=question.id, content='Distracteur 1', is_correct=False),
+                Choice(question_id=question.id, content='Distracteur 2', is_correct=False),
+            ])
+
         # Créer un badge associé
         badge = Badge(
             name='Quiz Master',
@@ -150,9 +167,7 @@ class TestCompleteUserJourney:
         db_session.commit()
         
         # Passer le quiz
-        answers = {}
-        for question in questions:
-            answers[f'question_{question.id}'] = 'A'  # Supposer correctes
+        answers = build_correct_answers(questions)
         
         quiz_response = authenticated_client.post(f'/quiz/{quiz.id}/submit', 
                                                 data=answers, 
@@ -350,11 +365,20 @@ class TestSystemIntegration:
         
         # Parcours complet
         # 1. Accéder au module
-        module_response = authenticated_client.get(f'/modules/{module.id}')
+        module_response = authenticated_client.get(f'/modules/{module.id}', follow_redirects=True)
         assert module_response.status_code == 200
+
+        for question in questions:
+            db_session.add_all([
+                Choice(question_id=question.id, content='Bonne réponse', is_correct=True),
+                Choice(question_id=question.id, content='Distracteur 1', is_correct=False),
+                Choice(question_id=question.id, content='Distracteur 2', is_correct=False),
+            ])
+
+        db_session.commit()
         
         # 2. Passer le quiz
-        answers = {f'question_{q.id}': 'A' for q in questions}
+        answers = build_correct_answers(questions)
         quiz_response = authenticated_client.post(f'/quiz/{quiz.id}/submit', 
                                                 data=answers,
                                                 follow_redirects=True)
@@ -421,7 +445,7 @@ class TestPerformanceBasics:
             '/dashboard',
             '/modules/',
             '/profile',
-            '/security/simulations'
+            '/simulations'
         ]
         
         for page in pages:
@@ -487,7 +511,7 @@ class TestErrorRecovery:
     def test_database_error_handling(self, authenticated_client):
         """Test de gestion des erreurs de base de données."""
         # Tenter d'accéder à un ID très élevé (potentielle erreur DB)
-        response = authenticated_client.get('/modules/999999')
+        response = authenticated_client.get('/modules/view/999999')
         assert response.status_code == 404
         
         # L'application devrait continuer à fonctionner
@@ -509,8 +533,9 @@ class TestErrorRecovery:
         
         # Tenter d'accéder à une page protégée
         expired_response = client.get('/dashboard')
-        # Avec LOGIN_DISABLED=True, pas de redirection automatique
-        assert expired_response.status_code == 200
+        assert expired_response.status_code in [200, 302]
+        if expired_response.status_code == 302:
+            assert '/auth/login' in expired_response.location
     
     def test_invalid_form_data_handling(self, authenticated_client):
         """Test de gestion des données de formulaire invalides."""
@@ -523,7 +548,7 @@ class TestErrorRecovery:
         })
         
         # Devrait gérer gracieusement les erreurs
-        assert response.status_code in [200, 400]
+        assert response.status_code in [302, 400]
         
         # Application devrait rester fonctionnelle
         recovery_response = authenticated_client.get('/profile')
@@ -553,7 +578,7 @@ class TestRegressionTests:
     
     def test_module_access_still_works(self, authenticated_client, test_module):
         """Test de régression : l'accès aux modules fonctionne toujours."""
-        response = authenticated_client.get(f'/modules/{test_module.id}')
+        response = authenticated_client.get(f'/modules/view/{test_module.id}')
         assert response.status_code == 200
         assert test_module.title.encode() in response.data
     

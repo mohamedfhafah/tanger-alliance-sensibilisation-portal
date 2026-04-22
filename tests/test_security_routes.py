@@ -1,120 +1,100 @@
 #!/usr/bin/env python
 """
-Tests pour les routes de sécurité du portail de sécurité.
-
-Tests adaptés aux modèles existants de l'application.
+Tests pour les pages et endpoints sécurité réellement exposés par l'application.
 """
 
-import pytest
-from datetime import datetime
-from flask import url_for
-from app.models.campaign import Campaign, PhishingSimulation
 from app.models.simulation_rating import SimulationRating
-from app.models.badge import Badge
-from app.models.user import User
-from app.models.module import UserProgress
-from tests.conftest import TestUtils, TestDataFactory
 
 
-class TestSecurityDashboard:
-    """Tests pour le tableau de bord de sécurité."""
-    
-    def test_security_dashboard_access_authenticated(self, authenticated_client):
-        """Test d'accès au tableau de bord de sécurité pour un utilisateur authentifié."""
-        response = authenticated_client.get('/security/')
+class TestSecurityPages:
+    """Tests des pages de sécurité visibles pour les utilisateurs."""
+
+    def test_security_alerts_access_authenticated(self, authenticated_client):
+        response = authenticated_client.get('/security/security-alerts')
         assert response.status_code == 200
-    
-    def test_security_dashboard_access_unauthenticated(self, client):
-        """Test d'accès au tableau de bord sans authentification."""
-        response = client.get('/security/')
-        # Devrait rediriger vers la page de connexion
+        assert b'Alertes de s' in response.data or b'Alertes de s\xc3\xa9curit\xc3\xa9' in response.data
+
+    def test_security_alerts_access_unauthenticated(self, client):
+        response = client.get('/security/security-alerts')
         assert response.status_code == 302
+        assert '/auth/login' in response.location
+
+    def test_security_resources_display(self, authenticated_client):
+        response = authenticated_client.get('/security/security-resources')
+        assert response.status_code == 200
+        assert b'Ressources de s' in response.data or b'Ressources de s\xc3\xa9curit\xc3\xa9' in response.data
+
+    def test_security_policy_display(self, authenticated_client):
+        response = authenticated_client.get('/security/security-policy')
+        assert response.status_code == 200
+        assert b'Politique de s' in response.data or b'Politique de s\xc3\xa9curit\xc3\xa9' in response.data
+
+    def test_contact_security_display(self, authenticated_client):
+        response = authenticated_client.get('/security/contact-security')
+        assert response.status_code == 200
+        assert b'Contact' in response.data
 
 
-class TestPhishingSimulations:
-    """Tests pour les simulations de phishing."""
-    
-    def test_phishing_simulation_list(self, authenticated_client, test_simulation):
-        """Test d'accès à la liste des simulations de phishing."""
-        response = authenticated_client.get('/security/simulations')
+class TestSimulationPages:
+    """Tests des simulations de sensibilisation."""
+
+    def test_simulation_list_page(self, authenticated_client):
+        response = authenticated_client.get('/simulations')
         assert response.status_code == 200
-    
-    def test_phishing_simulation_detail(self, authenticated_client, test_simulation):
-        """Test d'accès au détail d'une simulation de phishing."""
-        response = authenticated_client.get(f'/security/simulations/{test_simulation.id}')
+        assert b'Simulations' in response.data
+
+    def test_simulation_detail_page(self, authenticated_client):
+        response = authenticated_client.get('/simulations/phishing_email')
         assert response.status_code == 200
-        assert test_simulation.title.encode() in response.data
+        assert b'phishing' in response.data.lower()
 
 
 class TestSimulationRatings:
-    """Tests pour les évaluations de simulations."""
-    
-    def test_create_simulation_rating(self, authenticated_client, db_session, test_user):
-        """Test de création d'une évaluation de simulation."""
-        rating_data = {
-            'simulation_slug': 'test_simulation',
-            'rating': 4
-        }
-        
-        response = authenticated_client.post('/security/rate-simulation', data=rating_data)
-        assert response.status_code in [200, 302]  # Success or redirect
-        
-        # Vérifier que l'évaluation a été créée
+    """Tests de l'API de notation des simulations."""
+
+    def test_create_simulation_rating(self, authenticated_client, test_user, db_session):
+        response = authenticated_client.post(
+            '/api/simulations/phishing_email/rate',
+            data={'rating': 4}
+        )
+
+        assert response.status_code == 200
+
         rating = SimulationRating.query.filter_by(
             user_id=test_user.id,
-            simulation_slug='test_simulation'
+            simulation_slug='phishing_email'
         ).first()
-        
-        if rating:  # Si le système d'évaluation est implémenté
-            assert rating.rating == 4
+        assert rating is not None
+        assert rating.rating == 4
 
+    def test_get_simulation_rating_stats(self, authenticated_client, test_user, db_session):
+        db_session.query(SimulationRating).delete()
+        rating = SimulationRating(
+            user_id=test_user.id,
+            simulation_slug='phishing_email',
+            rating=5
+        )
+        db_session.add(rating)
+        db_session.commit()
 
-class TestSecurityBadges:
-    """Tests pour les badges de sécurité."""
-    
-    def test_security_badges_display(self, authenticated_client):
-        """Test d'affichage des badges de sécurité."""
-        response = authenticated_client.get('/security/badges')
+        response = authenticated_client.get('/api/simulations/phishing_email/rating')
         assert response.status_code == 200
 
+        payload = response.get_json()
+        assert payload['count'] >= 1
+        assert payload['average'] >= 1
+        assert payload['user_rating'] == 5
 
-class TestSecurityModules:
-    """Tests pour les modules de sécurité."""
-    
+
+class TestSecurityLearning:
+    """Tests du contenu sécurité présenté dans les parcours et profils."""
+
     def test_security_modules_access(self, authenticated_client):
-        """Test d'accès aux modules de sécurité."""
-        response = authenticated_client.get('/security/modules')
+        response = authenticated_client.get('/modules/')
         assert response.status_code == 200
+        assert b'Modules' in response.data or b'Parcours' in response.data
 
-
-class TestSecurityReports:
-    """Tests pour les rapports de sécurité."""
-    
-    def test_user_security_progress(self, authenticated_client, test_user):
-        """Test du rapport de progression de sécurité de l'utilisateur."""
-        response = authenticated_client.get('/security/progress')
+    def test_security_badges_display(self, authenticated_client):
+        response = authenticated_client.get('/profile')
         assert response.status_code == 200
-    
-    def test_security_statistics(self, authenticated_client):
-        """Test d'accès aux statistiques de sécurité."""
-        response = authenticated_client.get('/security/stats')
-        assert response.status_code == 200
-
-
-class TestSecuritySettings:
-    """Tests pour les paramètres de sécurité."""
-    
-    def test_security_settings_access(self, authenticated_client):
-        """Test d'accès aux paramètres de sécurité."""
-        response = authenticated_client.get('/security/settings')
-        assert response.status_code == 200
-    
-    def test_security_preferences_update(self, authenticated_client):
-        """Test de mise à jour des préférences de sécurité."""
-        preferences_data = {
-            'email_notifications': True,
-            'security_level': 'high'
-        }
-        
-        response = authenticated_client.post('/security/settings', data=preferences_data)
-        assert response.status_code in [200, 302]  # Success or redirect
+        assert b'Badges' in response.data

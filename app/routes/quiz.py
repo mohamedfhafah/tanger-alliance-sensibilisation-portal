@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from app.models.module import Quiz, Question, Module, UserProgress, Choice, QuizProgress
 from app import db
+from app.utils import get_or_404
 
 quiz_bp = Blueprint('quiz', __name__, url_prefix='/quiz')
 
@@ -45,7 +46,7 @@ def quiz_list():
 @login_required
 def module_quizzes(module_id):
     """Display all quizzes for a specific module"""
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     
     if not module.is_active:
         abort(404)
@@ -77,7 +78,7 @@ def module_quizzes(module_id):
 @login_required
 def view_quiz(quiz_id):
     """Display a quiz with its questions"""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = get_or_404(Quiz, quiz_id)
     
     # Check if user has access to the module
     module = quiz.module
@@ -141,7 +142,7 @@ def view_quiz(quiz_id):
 @login_required
 def submit_quiz(quiz_id):
     """Handle quiz submission by redirecting to modules submit route"""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = get_or_404(Quiz, quiz_id)
     module = quiz.module
     
     # Check if user has access to the module
@@ -155,7 +156,7 @@ def submit_quiz(quiz_id):
 @login_required
 def start_quiz(quiz_id):
     """Start a quiz session"""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = get_or_404(Quiz, quiz_id)
     
     # Check if user has access to the module
     module = quiz.module
@@ -173,7 +174,7 @@ def start_quiz(quiz_id):
 @login_required
 def view_question(quiz_id, question_num):
     """Display a specific question in the quiz"""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = get_or_404(Quiz, quiz_id)
     
     # Check if user has access to the module
     module = quiz.module
@@ -198,7 +199,7 @@ def view_question(quiz_id, question_num):
 @login_required
 def submit_answer(quiz_id):
     """Submit an answer for a quiz question"""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = get_or_404(Quiz, quiz_id)
     
     question_id = request.form.get('question_id')
     answer = request.form.get('answer')
@@ -226,7 +227,7 @@ def submit_answer(quiz_id):
 @login_required
 def quiz_results(quiz_id):
     """Display quiz results"""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = get_or_404(Quiz, quiz_id)
     
     # Check if user has access to the module
     module = quiz.module
@@ -253,7 +254,7 @@ def quiz_results(quiz_id):
 @quiz_bp.route('/<int:quiz_id>/review')
 def review_quiz(quiz_id):
     """Review quiz answers and results"""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = get_or_404(Quiz, quiz_id)
     
     # Check if user has access to the module
     module = quiz.module
@@ -280,7 +281,7 @@ def review_quiz(quiz_id):
 @login_required
 def retake_quiz(quiz_id):
     """Allow user to retake a quiz"""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = get_or_404(Quiz, quiz_id)
     
     # Check if user has access to the module
     module = quiz.module
@@ -321,7 +322,7 @@ def retake_quiz(quiz_id):
 @login_required
 def validate_quiz_session(quiz_id):
     """Validate quiz session before allowing submission"""
-    quiz = Quiz.query.get_or_404(quiz_id)
+    quiz = get_or_404(Quiz, quiz_id)
     
     # Check if user has access to the module
     module = quiz.module

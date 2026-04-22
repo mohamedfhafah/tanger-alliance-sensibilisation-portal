@@ -47,7 +47,7 @@ class TestUserRegistration:
         assert user is not None
         assert user.firstname == 'Nouveau'
         assert user.lastname == 'Utilisateur'
-        assert user.department == 'IT'
+        assert user.department == 'it'
         assert user.role == 'user'  # Rôle par défaut
 
 
@@ -66,9 +66,9 @@ class TestUserLogin:
         """Test de connexion réussie avec des identifiants valides."""
         response = client.post('/auth/login', data={
             'email': test_user.email,
-            'password': 'testpassword123'
+            'password': 'password123'
         }, follow_redirects=True)
         
         assert response.status_code == 200
         # Vérifier la redirection vers le tableau de bord
-        assert 'dashboard'.encode() in response.data or 'tableau'.encode() in response.data
+        assert b'Operational Dashboard' in response.data or b'Bienvenue' in response.data

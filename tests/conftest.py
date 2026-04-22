@@ -27,6 +27,7 @@ def app():
     app = create_app('testing')
     app.config.update({
         'TESTING': True,
+        'LOGIN_DISABLED': False,
         'WTF_CSRF_ENABLED': False,
         'SQLALCHEMY_DATABASE_URI': f'sqlite:///{db_path}',
         'SECRET_KEY': 'test-secret-key',
@@ -149,6 +150,15 @@ def test_questions(db_session, test_quiz):
         db_session.add(question)
         questions.append(question)
     
+    db_session.commit()
+
+    for question in questions:
+        db_session.add_all([
+            Choice(question_id=question.id, content='Option A', is_correct=True),
+            Choice(question_id=question.id, content='Option B', is_correct=False),
+            Choice(question_id=question.id, content='Option C', is_correct=False),
+        ])
+
     db_session.commit()
     return questions
 

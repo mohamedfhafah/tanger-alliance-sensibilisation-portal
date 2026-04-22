@@ -10,6 +10,7 @@ from app.models.user import User
 from app.models.module import Module, UserProgress, Quiz, Question, Choice
 from app.models.settings import Setting
 from app.forms import ModuleForm, UserForm, QuizForm, QuestionForm
+from app.utils import get_or_404
 
 @admin_bp.route('/')
 @admin_required
@@ -100,14 +101,14 @@ def create_user():
 @admin_required
 def user_detail(user_id):
     """Display user details."""
-    user = User.query.get_or_404(user_id)
+    user = get_or_404(User, user_id)
     return render_template('admin/users/detail.html', title=f'Utilisateur - {user.email}', user=user)
 
 @admin_bp.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
 @admin_required
 def edit_user(user_id):
     """Edit user details."""
-    user = User.query.get_or_404(user_id)
+    user = get_or_404(User, user_id)
     form = UserForm(obj=user)
     
     # Éviter de modifier le mot de passe si non renseigné
@@ -170,7 +171,7 @@ def edit_user(user_id):
 @admin_required
 def delete_user(user_id):
     """Delete a user."""
-    user = User.query.get_or_404(user_id)
+    user = get_or_404(User, user_id)
     
     # Empêcher la suppression de son propre compte
     if user.id == current_user.id:
@@ -194,7 +195,7 @@ def delete_user(user_id):
 @admin_required
 def change_user_role(user_id):
     """Change user role."""
-    user = User.query.get_or_404(user_id)
+    user = get_or_404(User, user_id)
     new_role = request.form.get('role')
     
     if new_role not in ['user', 'admin']:
@@ -269,7 +270,7 @@ def create_module():
 @admin_required
 def edit_module(module_id):
     """Edit an existing module."""
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     form = ModuleForm(obj=module)
     
     if form.validate_on_submit():
@@ -316,7 +317,7 @@ def edit_module_alt(module_id):
 @admin_required
 def delete_module(module_id):
     """Delete a module."""
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     
     # Supprimer les progressions et quiz associés
     UserProgress.query.filter_by(module_id=module.id).delete()
@@ -340,7 +341,7 @@ def delete_module(module_id):
 @admin_required
 def manage_quiz(module_id):
     """Manage module quiz."""
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     quiz = Quiz.query.filter_by(module_id=module.id).first()
     
     if not quiz:
@@ -543,7 +544,7 @@ def delete_quiz(quiz_id):
     """Delete quiz and associated questions."""
     try:
         from app.models.module import Quiz
-        quiz = Quiz.query.get_or_404(quiz_id)
+        quiz = get_or_404(Quiz, quiz_id)
         db.session.delete(quiz)
         db.session.commit()
         

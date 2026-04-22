@@ -246,7 +246,7 @@ class UserAdminView(AdminAuthMixin, ModelView):
             
             reset_info = []
             for user_id in ids:
-                user = User.query.get(user_id)
+                user = db.session.get(User, user_id)
                 if user:
                     # Generate secure temporary password
                     temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))

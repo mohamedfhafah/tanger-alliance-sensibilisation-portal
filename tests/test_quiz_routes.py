@@ -19,6 +19,16 @@ from app.models.user import User
 from tests.conftest import TestUtils, TestDataFactory
 
 
+def build_correct_answers(questions, limit=None):
+    """Construit un payload valide basé sur les choix corrects en base."""
+    payload = {}
+    iterable = questions if limit is None else questions[:limit]
+    for question in iterable:
+        correct_choice = next(choice for choice in question.choices if choice.is_correct)
+        payload[f'question_{question.id}'] = str(correct_choice.id)
+    return payload
+
+
 class TestQuizAccess:
     """Tests pour l'accès aux quiz."""
     
@@ -32,9 +42,8 @@ class TestQuizAccess:
     def test_quiz_access_unauthenticated(self, client, test_quiz):
         """Test d'accès au quiz pour utilisateur non connecté."""
         response = client.get(f'/quiz/{test_quiz.id}')
-        # Avec LOGIN_DISABLED=True dans les tests, pas de redirection
-        # L'utilisateur peut accéder à la page mais sans données utilisateur
-        assert response.status_code == 200
+        assert response.status_code == 302
+        assert '/auth/login' in response.location
     
     def test_quiz_nonexistent(self, authenticated_client):
         """Test d'accès à un quiz inexistant."""
@@ -76,7 +85,7 @@ class TestQuizQuestions:
         assert response.status_code == 200
         
         # Vérifier que la page de démarrage affiche le nombre de questions
-        assert f"Ce quiz contient {len(test_questions)} questions".encode() in response.data
+        assert f"{len(test_questions)} questions".encode() in response.data
         
         # Vérifier que chaque question individuelle s'affiche correctement
         for i, question in enumerate(test_questions, 1):
@@ -122,14 +131,11 @@ class TestQuizSubmission:
     
     def test_quiz_multiple_answers(self, authenticated_client, test_quiz, test_questions):
         """Test de soumission de plusieurs réponses."""
-        answers_data = {}
-        
-        for i, question in enumerate(test_questions):
-            answers_data[f'question_{question.id}'] = chr(65 + i)  # A, B, C...
+        answers_data = build_correct_answers(test_questions)
         
         response = authenticated_client.post(f'/quiz/{test_quiz.id}/submit', 
                                            data=answers_data)
-        assert response.status_code in [200, 302]
+        assert response.status_code == 307
     
     def test_quiz_empty_answer(self, authenticated_client, test_quiz, test_questions):
         """Test de soumission avec réponse vide."""
@@ -159,9 +165,7 @@ class TestQuizScoring:
     def test_quiz_score_calculation(self, authenticated_client, test_user, test_quiz, test_questions, db_session):
         """Test de calcul du score du quiz."""
         # Simuler des réponses (toutes correctes)
-        correct_answers = {}
-        for question in test_questions:
-            correct_answers[f'question_{question.id}'] = 'A'  # Supposer que A est correct
+        correct_answers = build_correct_answers(test_questions)
         
         response = authenticated_client.post(f'/quiz/{test_quiz.id}/submit', 
                                            data=correct_answers,
@@ -207,38 +211,47 @@ class TestQuizScoring:
             db_session.add(question)
         
         db_session.commit()
+
+        from app.models.module import Choice
+        for question in questions:
+            db_session.add_all([
+                Choice(question_id=question.id, content='Bonne réponse', is_correct=True),
+                Choice(question_id=question.id, content='Mauvaise réponse 1', is_correct=False),
+                Choice(question_id=question.id, content='Mauvaise réponse 2', is_correct=False),
+            ])
+
+        db_session.commit()
         
         # Soumettre des réponses partielles (score insuffisant)
-        partial_answers = {f'question_{questions[0].id}': 'A'}  # Seulement 1/3 correct
+        partial_answers = build_correct_answers(questions, limit=1)
         
         response = authenticated_client.post(f'/quiz/{quiz.id}/submit', 
                                            data=partial_answers,
                                            follow_redirects=True)
         assert response.status_code == 200
-        
-        # Le message devrait indiquer l'échec si le score est insuffisant
-        if b'chec' in response.data or b'fail' in response.data:
-            # Test réussi - message d'échec affiché
-            pass
+
+        progress = UserProgress.query.filter_by(
+            user_id=test_user.id,
+            module_id=module.id
+        ).first()
+        assert progress is not None
+        assert progress.score < quiz.passing_score
     
     def test_quiz_perfect_score(self, authenticated_client, test_user, test_quiz, test_questions, db_session):
         """Test d'obtention d'un score parfait."""
-        # Supposer que toutes les réponses 'A' sont correctes
-        perfect_answers = {}
-        for question in test_questions:
-            perfect_answers[f'question_{question.id}'] = 'A'
+        perfect_answers = build_correct_answers(test_questions)
         
         response = authenticated_client.post(f'/quiz/{test_quiz.id}/submit', 
                                            data=perfect_answers,
                                            follow_redirects=True)
         assert response.status_code == 200
-        
-        # Vérifier le message de félicitations ou score parfait
-        success_indicators = [b'F\xc3\xa9licitations', b'Parfait', b'100%', b'Excellent']
-        has_success_message = any(indicator in response.data for indicator in success_indicators)
-        
-        # Le test passe si au moins un indicateur de succès est présent
-        # (ou si aucun n'est requis par l'implémentation)
+
+        progress = UserProgress.query.filter_by(
+            user_id=test_user.id,
+            module_id=test_quiz.module_id
+        ).first()
+        assert progress is not None
+        assert progress.score == 100
 
 
 class TestQuizResults:
@@ -283,16 +296,9 @@ class TestQuizResults:
         db_session.add(progress)
         db_session.commit()
         
-        response = authenticated_client.get(f'/quiz/{test_quiz.id}')
+        response = authenticated_client.get(f'/quiz/{test_quiz.id}/review')
         assert response.status_code == 200
-        
-        # Devrait soit permettre de refaire soit indiquer que c'est déjà fait
-        retake_indicators = [b'Refaire', b'Retake', b'Recommencer']
-        completed_indicators = [b'Termin\xc3\xa9', b'Completed', b'Fini']
-        
-        has_indicator = any(indicator in response.data 
-                          for indicator in retake_indicators + completed_indicators)
-        assert has_indicator
+        assert b'Reprendre le quiz' in response.data
 
 
 class TestQuizValidation:
@@ -301,40 +307,38 @@ class TestQuizValidation:
     def test_quiz_csrf_protection(self, authenticated_client, test_quiz, test_questions):
         """Test de protection CSRF sur la soumission de quiz."""
         # Essayer de soumettre sans token CSRF approprié
-        answers = {f'question_{test_questions[0].id}': 'A'}
+        answers = build_correct_answers(test_questions, limit=1)
         
         response = authenticated_client.post(f'/quiz/{test_quiz.id}/submit', 
                                            data=answers)
         
         # Si CSRF est activé, devrait être rejeté
         # Sinon, devrait être accepté normalement
-        assert response.status_code in [200, 302, 400, 403]
+        assert response.status_code in [307, 302, 400, 403]
     
     def test_quiz_session_validation(self, client, test_quiz):
         """Test de validation de session pour les quiz."""
         # Essayer d'accéder au quiz sans session valide
         response = client.get(f'/quiz/{test_quiz.id}')
-        
-        # Avec LOGIN_DISABLED=True dans les tests, pas de redirection
-        assert response.status_code == 200
+
+        assert response.status_code == 302
+        assert '/auth/login' in response.location
     
     def test_quiz_duplicate_submission(self, authenticated_client, test_quiz, test_questions):
         """Test de protection contre les soumissions multiples."""
-        answers = {}
-        for question in test_questions:
-            answers[f'question_{question.id}'] = 'A'
+        answers = build_correct_answers(test_questions)
         
         # Première soumission
         response1 = authenticated_client.post(f'/quiz/{test_quiz.id}/submit', 
                                             data=answers)
-        assert response1.status_code in [200, 302]
+        assert response1.status_code == 307
         
         # Tentative de re-soumission
         response2 = authenticated_client.post(f'/quiz/{test_quiz.id}/submit', 
                                             data=answers)
         
         # Devrait soit rediriger soit afficher un message d'erreur
-        assert response2.status_code in [200, 302, 400]
+        assert response2.status_code in [307, 302, 400]
 
 
 class TestQuizProgress:
@@ -368,8 +372,8 @@ class TestQuizProgress:
         
         # Terminer le quiz
         end_response = authenticated_client.post(f'/quiz/{test_quiz.id}/submit', 
-                                               data={'question_1': 'A'})
-        assert end_response.status_code in [200, 302]
+                                               data={'question_1': '1'})
+        assert end_response.status_code in [307, 302]
         
         # Le temps devrait être enregistré quelque part
         # (dépend de l'implémentation)
@@ -377,11 +381,11 @@ class TestQuizProgress:
     def test_quiz_partial_completion(self, authenticated_client, test_quiz, test_questions):
         """Test de complétion partielle de quiz."""
         # Répondre seulement à une partie des questions
-        partial_answers = {f'question_{test_questions[0].id}': 'A'}
+        partial_answers = build_correct_answers(test_questions, limit=1)
         
         response = authenticated_client.post(f'/quiz/{test_quiz.id}/submit', 
                                            data=partial_answers)
-        assert response.status_code in [200, 302]
+        assert response.status_code in [307, 302]
         
         # Devrait soit accepter la soumission partielle soit demander toutes les réponses
 

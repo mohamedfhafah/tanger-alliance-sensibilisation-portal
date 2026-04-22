@@ -50,7 +50,8 @@ def register():
             firstname=form.firstname.data,
             lastname=form.lastname.data,
             password=hashed_password,
-            department=form.department.data,
+            # Keep department normalization aligned with the profile update flow.
+            department=(form.department.data or '').strip().lower(),
             role='user'
         )
         db.session.add(user)

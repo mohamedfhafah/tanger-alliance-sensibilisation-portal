@@ -17,6 +17,7 @@ from app.models.module import Module
 from app.models.simulation import SimulationAttempt
 from app.forms import PhishingCampaignForm
 from app.utils.decorators import admin_required
+from app.utils import get_or_404
 
 phishing = Blueprint('phishing', __name__, url_prefix='/phishing')
 
@@ -170,7 +171,7 @@ def new_campaign():
 @admin_required
 def campaign_detail(campaign_id):
     """Détails d'une campagne de phishing"""
-    campaign = Campaign.query.get_or_404(campaign_id)
+    campaign = get_or_404(Campaign, campaign_id)
     
     # Récupérer les simulations de cette campagne
     simulations = PhishingSimulation.query.filter_by(campaign_id=campaign_id).all()
@@ -240,7 +241,7 @@ def simulate_email(template_key, token):
 @phishing.route('/click/<int:target_id>')
 def handle_click(target_id):
     """Gère le clic sur un lien de phishing"""
-    target = PhishingTarget.query.get_or_404(target_id)
+    target = get_or_404(PhishingTarget, target_id)
     phishing_module = Module.query.filter(Module.title.ilike('%phishing%')).first()
     
     # Marquer comme cliqué
@@ -269,7 +270,7 @@ def handle_click(target_id):
 @phishing.route('/report/<int:target_id>')
 def handle_report(target_id):
     """Gère le signalement d'un email de phishing"""
-    target = PhishingTarget.query.get_or_404(target_id)
+    target = get_or_404(PhishingTarget, target_id)
     phishing_module = Module.query.filter(Module.title.ilike('%phishing%')).first()
     
     # Marquer comme signalé
@@ -300,7 +301,7 @@ def handle_report(target_id):
 @admin_required
 def send_campaign(campaign_id):
     """Envoie les emails de simulation pour une campagne"""
-    campaign = Campaign.query.get_or_404(campaign_id)
+    campaign = get_or_404(Campaign, campaign_id)
     
     # Récupérer toutes les cibles non envoyées
     targets = db.session.query(PhishingTarget).join(

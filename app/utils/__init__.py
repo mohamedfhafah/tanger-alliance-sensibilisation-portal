@@ -1,6 +1,7 @@
 import os
 import secrets
-from flask import current_app
+from flask import abort, current_app
+from app import db
 
 def save_profile_picture(form_picture):
     """Sauvegarde la photo de profil uploadée sans redimensionnement
@@ -32,3 +33,11 @@ def save_profile_picture(form_picture):
     # Le redimensionnement sera géré par CSS côté client
     
     return picture_filename
+
+
+def get_or_404(model, object_id):
+    """Fetch a model instance with Session.get and raise a 404 if missing."""
+    instance = db.session.get(model, object_id)
+    if instance is None:
+        abort(404)
+    return instance

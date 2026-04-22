@@ -4,6 +4,7 @@ from app import db
 from app.models.module import Module, UserProgress, Quiz, Question, Choice, QuizProgress
 from app.models.badge import Badge
 from app.models.user import User
+from app.utils import get_or_404
 from datetime import datetime, timezone, timedelta
 
 modules = Blueprint('modules', __name__)
@@ -108,7 +109,7 @@ def index():
 @login_required
 def view(module_id):
     """Affiche un module spécifique."""
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     
     # Check if module is active
     if not module.is_active:
@@ -206,7 +207,7 @@ def update_progress():
 @login_required
 def quiz(module_id):
     """Affiche le quiz pour un module spécifique."""
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     
     # Charger le quiz avec ses questions et choix en utilisant joinedload et trier les questions par ID
     quiz = Quiz.query.filter_by(module_id=module.id).first_or_404()
@@ -271,7 +272,7 @@ def quiz(module_id):
 def submit_quiz(module_id):
     """Traite la soumission d'un quiz."""
     try:
-        module = Module.query.get_or_404(module_id)
+        module = get_or_404(Module, module_id)
         quiz = Quiz.query.filter_by(module_id=module.id).first_or_404()
         
         # Load questions and choices explicitly
@@ -310,7 +311,7 @@ def submit_quiz(module_id):
             user_choice = None
             if user_answer_id:
                 try:
-                    user_choice = Choice.query.get(int(user_answer_id))
+                    user_choice = db.session.get(Choice, int(user_answer_id))
                 except (ValueError, TypeError) as e:
                     current_app.logger.error(f'Invalid answer ID {user_answer_id} for question {question.id}: {str(e)}')
                     user_choice = None
@@ -363,47 +364,44 @@ def submit_quiz(module_id):
         # Score précédent sauvegardé, utilisé quel que soit le chemin d'exécution suivant
         previous_score = previous_completion.get('score')
         
-        if progress:
-            # Cas de reprise d'un quiz avec un état de complétion précédent
-            if is_retaking and previous_completion and str(module.id) == str(previous_completion.get('module_id')):
-                # previous_score déjà défini plus haut
-                
-                # Mettre à jour QuizProgress avec le nouveau score
-                quiz_progress.score = percentage
-                quiz_progress.completed = percentage >= quiz.passing_score
-                if quiz_progress.completed:
-                    quiz_progress.completed_at = db.func.now()
-                
-                # Ne mettre à jour le score que s'il est meilleur que le score précédent ou si aucun score précédent n'existe
-                if previous_score is None or percentage > previous_score:
-                    progress.score = percentage
-                    current_app.logger.info(f'User {current_user.id} improved score for module {module.id} from {previous_score} to {percentage}.')
-                    
-                    # Si le nouveau score permet de valider le module mais pas l'ancien
-                    if percentage >= quiz.passing_score and (previous_score is None or previous_score < quiz.passing_score):
-                        progress.completed = True
-                        progress.completed_at = db.func.now()
-                    # Tentative d'attribution de badge
-                    badge, was_newly_awarded = award_badge_for_module(current_user, module, db, current_app)
-                    if was_newly_awarded:
-                        # Store badge info in session for congratulations page
-                        session['newly_awarded_badge'] = {
-                            'badge_id': badge.id,
-                            'badge_name': badge.name,
-                            'badge_description': badge.description,
-                            'badge_image': badge.image_filename,
-                            'module_id': module.id,
-                            'module_title': module.title,
-                            'score': percentage
-                        }
-                    flash(f'Félicitations! Vous avez réussi le quiz avec un score de {percentage:.1f}%.', 'success')
-                else:
-                    flash(f'Vous avez amélioré votre score à {percentage:.1f}% (précédemment: {previous_score:.1f}%).', 'success')
+        # Cas de reprise d'un quiz avec un état de complétion précédent
+        if is_retaking and previous_completion and str(module.id) == str(previous_completion.get('module_id')):
+            # previous_score déjà défini plus haut
+
+            # Mettre à jour QuizProgress avec le nouveau score
+            quiz_progress.score = percentage
+            quiz_progress.completed = percentage >= quiz.passing_score
+            if quiz_progress.completed:
+                quiz_progress.completed_at = db.func.now()
+
+            # Ne mettre à jour le score que s'il est meilleur que le score précédent ou si aucun score précédent n'existe
+            if previous_score is None or percentage > previous_score:
+                progress.score = percentage
+                current_app.logger.info(f'User {current_user.id} improved score for module {module.id} from {previous_score} to {percentage}.')
+
+                # Si le nouveau score permet de valider le module mais pas l'ancien
+                if percentage >= quiz.passing_score and (previous_score is None or previous_score < quiz.passing_score):
+                    progress.completed = True
+                    progress.completed_at = db.func.now()
+                # Tentative d'attribution de badge
+                badge, was_newly_awarded = award_badge_for_module(current_user, module, db, current_app)
+                if was_newly_awarded:
+                    # Store badge info in session for congratulations page
+                    session['newly_awarded_badge'] = {
+                        'badge_id': badge.id,
+                        'badge_name': badge.name,
+                        'badge_description': badge.description,
+                        'badge_image': badge.image_filename,
+                        'module_id': module.id,
+                        'module_title': module.title,
+                        'score': percentage
+                    }
+                flash(f'Félicitations! Vous avez réussi le quiz avec un score de {percentage:.1f}%.', 'success')
             else:
                 # Restaurer l'état de complétion précédent si le nouveau score n'est pas meilleur
                 progress.score = previous_score
                 progress.completed = previous_completion.get('completed', False)
-                
+
                 # Gérer la restauration de la date de complétion avec une meilleure gestion des erreurs
                 completed_at_str = previous_completion.get('completed_at')
                 if completed_at_str:
@@ -419,13 +417,13 @@ def submit_quiz(module_id):
                 elif progress.completed and not progress.completed_at:
                     # Si le module est complété mais sans date, ajouter la date actuelle
                     progress.completed_at = db.func.now()
-                
+
                 # Still update QuizProgress even if module score is not improved
                 quiz_progress.score = percentage
                 quiz_progress.completed = percentage >= quiz.passing_score
                 if quiz_progress.completed:
                     quiz_progress.completed_at = db.func.now()
-                
+
                 flash(f'Votre score précédent de {previous_score:.1f}% a été conservé car il est supérieur à votre nouveau score de {percentage:.1f}%.', 'info')
         else:
             # Cas standard (première complétion ou non lié à une reprise)
@@ -496,7 +494,7 @@ def congratulations(module_id):
         # No badge info or wrong module, redirect to results
         return redirect(url_for('modules.quiz_results', module_id=module_id))
     
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     badge = db.session.get(Badge, badge_info['badge_id'])
     
     if not badge:
@@ -540,7 +538,7 @@ def quiz_results(module_id):
     if session_score and not score:
         score = session_score
     
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     quiz = Quiz.query.filter_by(module_id=module.id).first_or_404()
     progress = UserProgress.query.filter_by(user_id=current_user.id, module_id=module.id).first_or_404()
     
@@ -743,7 +741,7 @@ def evaluate_password_simulator():
 @modules.route('/<int:module_id>/retake-quiz', methods=['POST'])
 @login_required
 def retake_quiz(module_id):
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     progress = UserProgress.query.filter_by(user_id=current_user.id, module_id=module.id).first()
 
     # Vérifier si le module a des quiz associés
@@ -804,7 +802,7 @@ def report_phishing():
 @login_required
 def start_module(module_id):
     """Démarre un module pour l'utilisateur."""
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     
     # Check if module is active
     if not module.is_active:
@@ -828,7 +826,7 @@ def start_module(module_id):
 @login_required
 def complete_module(module_id):
     """Marque un module comme complété pour l'utilisateur."""
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     
     # Check if module is active
     if not module.is_active:

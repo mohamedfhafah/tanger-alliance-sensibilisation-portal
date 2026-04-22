@@ -5,7 +5,7 @@ from app.models.user import User
 from app.models.badge import Badge, user_badge_association
 from app.models.campaign import Certificate
 from app.forms.auth_forms import UpdateProfileForm, PasswordChangeForm
-from app.utils import save_profile_picture
+from app.utils import get_or_404, save_profile_picture
 from app import db
 from app.models.simulation_rating import SimulationRating
 from datetime import datetime, timezone, timedelta
@@ -697,7 +697,7 @@ def dashboard():
     # Sinon, afficher le tableau de bord par défaut
     else:
         # Ajouter la date courrante pour les calculs d'affichage des campagnes
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         
         return render_template('dashboard.html', 
                            title='Tableau de Bord', 
@@ -723,7 +723,7 @@ def view_module(module_id):
     """Deprecated: This route now simply redirects to the central modules.view route
     to avoid duplicate rendering logic."""
     return redirect(url_for('modules.view', module_id=module_id))
-    module = Module.query.get_or_404(module_id)
+    module = get_or_404(Module, module_id)
     if not module.is_active:
         flash('Ce module n\'est pas actuellement disponible.', 'warning')
         return redirect(url_for('main.dashboard'))
@@ -1100,7 +1100,7 @@ def save_score():
     if module_id is None or score is None:
         return jsonify({'status': 'error', 'message': 'Données manquantes (ID du module ou score).'}), 400
 
-    module = Module.query.get(module_id)
+    module = db.session.get(Module, module_id)
     if not module:
         return jsonify({'status': 'error', 'message': 'Module introuvable.'}), 404
 
@@ -1282,7 +1282,7 @@ def leaderboard():
 @login_required
 def user_preview(user_id):
     """Retourne l'aperçu rapide d'un utilisateur pour le popover."""
-    user = User.query.get_or_404(user_id)
+    user = get_or_404(User, user_id)
     # Compute additional preview data
     completed = UserProgress.query.filter_by(user_id=user_id, completed=True).count()
     avg = db.session.query(func.coalesce(func.avg(UserProgress.score), 0)).filter_by(user_id=user_id, completed=True).scalar()
