@@ -19,7 +19,12 @@ from app.models.module import Module, Quiz, Question, UserProgress, Choice
 from app.models.badge import Badge
 from app.models.campaign import Campaign, PhishingSimulation
 from app.models.simulation_rating import SimulationRating
-from tests.conftest import TestUtils, TestDataFactory
+from tests.conftest import (
+    TestUtils,
+    TestDataFactory,
+    TEST_REGISTRATION_PASSWORD,
+    TEST_USER_PASSWORD,
+)
 
 
 def build_correct_answers(questions):
@@ -41,8 +46,8 @@ class TestCompleteUserJourney:
             'email': 'journey@example.com',
             'firstname': 'Journey',
             'lastname': 'User',
-            'password': 'securepassword123',
-            'confirm_password': 'securepassword123',
+            'password': TEST_REGISTRATION_PASSWORD,
+            'confirm_password': TEST_REGISTRATION_PASSWORD,
             'department': 'it'
         }
         
@@ -56,7 +61,7 @@ class TestCompleteUserJourney:
         # 2. Connexion
         login_response = client.post('/auth/login', data={
             'email': 'journey@example.com',
-            'password': 'securepassword123'
+            'password': TEST_REGISTRATION_PASSWORD
         }, follow_redirects=True)
         assert login_response.status_code == 200
         
@@ -316,7 +321,7 @@ class TestSystemIntegration:
         db_session.commit()
         
         # Test accès utilisateur régulier
-        TestUtils.login_user(client, regular_user.email, 'password123')
+        TestUtils.login_user(client, regular_user.email, TEST_USER_PASSWORD)
         
         # Accès autorisé
         user_response = client.get('/dashboard')
@@ -328,7 +333,7 @@ class TestSystemIntegration:
         
         # Déconnexion et connexion admin
         TestUtils.logout_user(client)
-        TestUtils.login_user(client, admin_user.email, 'password123')
+        TestUtils.login_user(client, admin_user.email, TEST_USER_PASSWORD)
         
         # Accès admin autorisé
         admin_dashboard = client.get('/admin/')
@@ -521,7 +526,7 @@ class TestErrorRecovery:
     def test_session_expiry_handling(self, client, test_user):
         """Test de gestion de l'expiration de session."""
         # Se connecter
-        TestUtils.login_user(client, test_user.email, 'password123')
+        TestUtils.login_user(client, test_user.email, TEST_USER_PASSWORD)
         
         # Vérifier l'accès authentifié
         auth_response = client.get('/dashboard')
@@ -565,8 +570,8 @@ class TestRegressionTests:
             'email': 'regression@test.com',
             'firstname': 'Regression',
             'lastname': 'Test',
-            'password': 'password123456',
-            'confirm_password': 'password123456',
+            'password': TEST_REGISTRATION_PASSWORD,
+            'confirm_password': TEST_REGISTRATION_PASSWORD,
             'department': 'it'
         }, follow_redirects=True)
         

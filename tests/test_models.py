@@ -19,7 +19,7 @@ from app.models.badge import Badge
 from app.models.simulation import SimulationAttempt
 from app.models.simulation_rating import SimulationRating
 from app.models.campaign import Campaign, PhishingSimulation
-from tests.conftest import TestDataFactory
+from tests.conftest import TestDataFactory, TEST_USER_PASSWORD
 
 
 class TestUserModel:
@@ -44,7 +44,7 @@ class TestUserModel:
         assert user.department == 'IT'
         assert user.role == 'user'
         assert user.created_at is not None
-        assert user.check_password('password123')
+        assert user.check_password(TEST_USER_PASSWORD)
     
     def test_user_password_hashing(self, db_session):
         """Test du hachage des mots de passe."""
@@ -492,7 +492,7 @@ class TestModelValidations:
             lastname='User',
             role='user'
         )
-        user.set_password('password123')
+        user.set_password(TEST_USER_PASSWORD)
         
         db_session.add(user)
         

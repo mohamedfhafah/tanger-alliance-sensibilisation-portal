@@ -15,7 +15,7 @@ import pytest
 from datetime import datetime, timedelta
 from flask import url_for
 from app.models.user import User
-from tests.conftest import TestUtils, TestDataFactory
+from tests.conftest import TestUtils, TestDataFactory, TEST_REGISTRATION_PASSWORD, TEST_USER_PASSWORD
 
 
 class TestUserRegistration:
@@ -35,8 +35,8 @@ class TestUserRegistration:
             'email': 'newuser@example.com',
             'firstname': 'Nouveau',
             'lastname': 'Utilisateur',
-            'password': 'securepassword123',
-            'confirm_password': 'securepassword123',
+            'password': TEST_REGISTRATION_PASSWORD,
+            'confirm_password': TEST_REGISTRATION_PASSWORD,
             'department': 'it'
         }, follow_redirects=True)
         
@@ -66,7 +66,7 @@ class TestUserLogin:
         """Test de connexion réussie avec des identifiants valides."""
         response = client.post('/auth/login', data={
             'email': test_user.email,
-            'password': 'password123'
+            'password': TEST_USER_PASSWORD
         }, follow_redirects=True)
         
         assert response.status_code == 200

@@ -15,7 +15,7 @@ import pytest
 from flask import url_for
 from app.models.user import User
 from app.models.module import Module, UserProgress
-from tests.conftest import TestUtils, TestDataFactory
+from tests.conftest import TestUtils, TestDataFactory, TEST_UPDATED_PASSWORD, TEST_USER_PASSWORD
 
 
 class TestMainRoutes:
@@ -155,28 +155,28 @@ class TestUserProfile:
     def test_profile_password_change(self, authenticated_client, test_user, db_session):
         """Test de changement de mot de passe."""
         response = authenticated_client.post('/profile/change_password', data={
-            'current_password': 'password123',
-            'new_password': 'nouveaumotdepasse123',
-            'confirm_password': 'nouveaumotdepasse123'
+            'current_password': TEST_USER_PASSWORD,
+            'new_password': TEST_UPDATED_PASSWORD,
+            'confirm_password': TEST_UPDATED_PASSWORD
         }, follow_redirects=True)
         
         assert response.status_code == 200
         
         # Vérifier le changement
         db_session.refresh(test_user)
-        assert test_user.check_password('nouveaumotdepasse123')
-        assert not test_user.check_password('password123')
+        assert test_user.check_password(TEST_UPDATED_PASSWORD)
+        assert not test_user.check_password(TEST_USER_PASSWORD)
     
     def test_profile_password_change_wrong_current(self, authenticated_client, test_user):
         """Test de changement de mot de passe avec mauvais mot de passe actuel."""
         response = authenticated_client.post('/profile/change_password', data={
             'current_password': 'wrongpassword',
-            'new_password': 'nouveaumotdepasse123',
-            'confirm_password': 'nouveaumotdepasse123'
+            'new_password': TEST_UPDATED_PASSWORD,
+            'confirm_password': TEST_UPDATED_PASSWORD
         }, follow_redirects=True)
         
         assert response.status_code == 200
-        assert test_user.check_password('password123')
+        assert test_user.check_password(TEST_USER_PASSWORD)
         assert b'Profil' in response.data or b'Informations personnelles' in response.data
     
     def test_profile_picture_upload(self, authenticated_client, test_user):
@@ -408,7 +408,7 @@ class TestErrorHandling:
     def test_csrf_protection(self, client, test_user):
         """Test de protection CSRF sur les formulaires."""
         # Se connecter
-        TestUtils.login_user(client, test_user.email, 'password123')
+        TestUtils.login_user(client, test_user.email, TEST_USER_PASSWORD)
         
         # Essayer de poster sans token CSRF
         response = client.post('/profile', data={

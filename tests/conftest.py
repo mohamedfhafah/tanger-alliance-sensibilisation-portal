@@ -17,6 +17,11 @@ from app.models.simulation_rating import SimulationRating
 from app.models.badge import Badge, user_badge_association
 from app.models.campaign import Campaign, PhishingSimulation
 
+TEST_SECRET_KEY = 'test-secret-key-for-ci'
+TEST_USER_PASSWORD = 'TestPassword2026!'
+TEST_REGISTRATION_PASSWORD = 'SecureSignup2026!'
+TEST_UPDATED_PASSWORD = 'UpdatedPassword2026!'
+
 
 @pytest.fixture(scope='session')
 def app():
@@ -30,7 +35,7 @@ def app():
         'LOGIN_DISABLED': False,
         'WTF_CSRF_ENABLED': False,
         'SQLALCHEMY_DATABASE_URI': f'sqlite:///{db_path}',
-        'SECRET_KEY': 'test-secret-key',
+        'SECRET_KEY': TEST_SECRET_KEY,
         'MAIL_SUPPRESS_SEND': True,
         'SERVER_NAME': 'localhost.localdomain'
     })
@@ -83,7 +88,7 @@ def test_user(db_session):
         department='IT',
         created_at=datetime.now()
     )
-    user.set_password('password123')
+    user.set_password(TEST_USER_PASSWORD)
     db_session.add(user)
     db_session.commit()
     return user
@@ -100,7 +105,7 @@ def admin_user(db_session):
         department='Security',
         created_at=datetime.now()
     )
-    admin.set_password('admin123')
+    admin.set_password(TEST_USER_PASSWORD)
     db_session.add(admin)
     db_session.commit()
     return admin
@@ -243,9 +248,9 @@ class TestDataFactory:
             'created_at': datetime.now()
         }
         defaults.update(kwargs)
-        
+
         user = User(email=email, role=role, **defaults)
-        user.set_password('password123')
+        user.set_password(TEST_USER_PASSWORD)
         return user
     
     @staticmethod
@@ -296,7 +301,7 @@ class TestUtils:
     """Utilitaires pour les tests."""
     
     @staticmethod
-    def login_user(client, email='test@example.com', password='password123'):
+    def login_user(client, email='test@example.com', password=TEST_USER_PASSWORD):
         """Connecter un utilisateur via le client de test."""
         return client.post('/auth/login', data={
             'email': email,
